@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1K2 Org By Yhoda Lyony</title>
+
+    <!-- Supabase JS Client CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --bg-color: #523B35;
+            --card-bg: #c4c4c4;
+            --text-dark: #111111;
+            --accent: #F2F0EA;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--accent);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-user-select: none;
+            -moz-user-select: none;
+            -ms-user-select: none;
+            user-select: none;
+        }
+
+        .hidden { display: none !important; }
+
+        .exam-timer-floating {
+            position: sticky;
+            top: 15px;
+            background-color: #111111;
+            border: 2px solid #D6B875;
+            color: #D6B875;
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            text-align: center;
+            margin-bottom: 15px;
+        }
+
+        #notification-banner {
+            position: fixed;
+            top: 15px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background-color: #ffffff;
+            color: #000000;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 13px;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.3);
+            z-index: 2000;
+            transition: transform 0.3s ease-in-out;
+            cursor: pointer;
+        }
+        #notification-banner.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        #login-screen {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 480px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .brand-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 40px;
+            border-left: 2px solid white;
+            padding-left: 15px;
+        }
+
+        .logo-circle {
+            width: 60px;
+            height: 60px;
+            border: 3px solid #D6B875;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 25px;
+        }
+
+        .brand-title {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        .brand-sub {
+            font-size: 11.5px;
+            color: #aaaaaa;
+        }
+
+        .login-card {
+            color: var(--text-dark);
+            width: 100%;
+            padding: 30px 20px;
+            border: 2px solid #D6B875;
+            border-radius: 25px;
+            text-align: center;
+            box-sizing: border-box;
+        }
+
+        .login-card p {
+            font-size: 14px;
+            color: white;
+            font-weight: 500;
+            margin-bottom: 15px;
+        }
+
+        .action-btn {
+            background-color: #0D5C63;
+            color: white;
+            border: 2px solid #D6B875;
+            padding: 12px 0;
+            width: 100%;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 15px;
+            cursor: pointer;
+            letter-spacing: 1px;
+            margin-bottom: 25px;
+        }
+
+        .dev-input-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 5px;
+        }
+
+        .dev-input-row input {
+            flex: 1;
+            background-color: #ffffff;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 25px;
+            color: #111111;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .dev-input-row input::placeholder { color: #111111; }
+        .dev-input-row button { width: 120px; border-radius: 25px; margin-bottom: 0;}
+
+        .footer-credit {
+            margin-top: 40px;
+            font-size: 12px;
+            letter-spacing: 1px;
+            color: white;
+            text-align: center;
+        }
+
+        #dashboard-screen {
+            display: flex;
+            width: 100vw;
+            height: 100vh;
+            box-sizing: border-box;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .sidebar {
+            width: 260px;
+            background-color: var(--bg-color);
+            border-right: 2px solid #D6B875;
+            display: flex;
+            flex-direction: column;
+            padding: 20px 0;
+            flex-shrink: 0;
+            height: 100vh;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0 20px 20px 20px;
+            border-bottom: 1px solid #333;
+            margin-bottom: 20px;
+        }
+
+        .sidebar-logo {
+            width: 40px;
+            height: 40px;
+            border: 2px solid white;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+        }
+
+        .nav-item {
+            background-color: #222;
+            color: #F2F0EA;
+            padding: 12px 20px;
+            font-weight: bold;
+            font-size: 15px;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            border: 2px solid #D6B875;
+            border-radius: 10px;
+            transition: all 0.4s ease-in-out;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background-color: #D6B875;
+            border-left-color: white;
+            color: #111;
+            transform: translateX(15px);
+        }
+
+        .main-content {
+            flex: 1;
+            background-color: var(--bg-color);
+            display: flex;
+            flex-direction: column;
+            padding: 30px;
+            overflow-y: auto;
+            height: 100vh;
+            border: 2px solid #D6B875;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .admin-post-box {
+            background: #222;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            border: 2px solid #D6B875;
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.8);
+        }
+
+        .post-box-header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        .collapse-toggle-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .post-box-body {
+            margin-top: 10px;
+        }
+        .post-box-body.collapsed {
+            display: none;
+        }
+
+        .admin-post-box input, .admin-post-box textarea, .admin-post-box select {
+            width: 100%;
+            background: #111;
+            color: white;
+            border: 1px solid #D6B875;
+            padding: 10px;
+            border-radius: 6px;
+            box-sizing: border-box;
+            margin-bottom: 8px;
+            outline: none;
+        }
+
+        .announcement-item {
+            background-color: #d9d9d9;
+            color: var(--text-dark);
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            max-width: 700px;
+            position: relative;
+        }
+
+        .announcement-meta {
+            font-weight: bold;
+            font-size: 12px;
+            margin-bottom: 8px;
+            color: #222;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .delete-btn {
+            background: #9b2226;
+            color: white;
+            border: none;
+            padding: 2px 6px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+
+        .announcement-text {
+            font-size: 15px;
+            word-break: break-word;
+            white-space: pre-wrap;
+        }
+
+        .exam-gate-container-s, .exam-gate-container {
+            background: #0D5C63;
+            border: 2px solid #D6B875;
+            padding: 20px;
+            border-radius: 12px;
+            max-width: 500px;
+            margin: 20px auto;
+            text-align: center;
+        }
+        .exam-gate-container { background: #0B0B0D; }
+        .exam-gate-container-s input, .exam-gate-container input {
+            width: 100%;
+            padding: 10px;
+            background: #111111;
+            color: #fff;
+            border: 1px solid #D6B875;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            box-sizing: border-box;
+        }
+        .exam-gate-container-s button, .exam-gate-container button {
+            background: #ffffff;
+            color: #111;
+            border: none;
+            padding: 10px 20px;
+            font-weight: bold;
+            border-radius: 80px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .quiz-container { margin-top: 10px; }
+        .quiz-options { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
+        .quiz-option-btn {
+            background-color: #D6B875;
+            border: 1px solid #888;
+            padding: 8px 12px;
+            border-radius: 4px;
+            text-align: left;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .quiz-option-btn:hover { background-color: #e2e2e2; }
+
+        .status-dot {
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+        }
+        .status-green { background-color: #2a9d8f; }
+        .status-blue { background-color: #3a86ff; }
+
+        .logout-link {
+            position: fixed;
+            bottom: 85px;
+            right: 23px;
+            background: #333;
+            color: white;
+            border: 2px solid #D6B875;
+            padding: 8px 14px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            z-index: 999;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        @media screen and (max-width: 768px) {
+            #dashboard-screen { flex-direction: column; }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                flex-direction: row;
+                overflow-x: auto;
+                padding: 10px;
+                border-right: none;
+                border-bottom: 2px solid #D6B875;
+                align-items: center;
+                gap: 5px;
+                flex-shrink: 0;
+            }
+            .sidebar-brand { display: none; }
+            .nav-item {
+                margin-bottom: 0;
+                padding: 8px 12px;
+                font-size: 13px;
+                white-space: nowrap;
+                border-left: none;
+                border-bottom: 2px solid #D6B875;
+                border-radius: 4px;
+            }
+            .main-content {
+                height: calc(100vh - 60px);
+                padding: 15px;
+            }
+            .logout-link {
+                position: fixed;
+                background: #0D5C63;
+                color: white;
+                border: 2px solid #D6B875;
+                padding: 5px 5px;
+                border-radius: 4px;
+                cursor: pointer;
+                font-size: 12px;
+                bottom: 80px;
+                right: 6px;
+                z-index: 999;
+            }
+        }
+
+        .chat-fab {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 50px;
+            height: 50px;
+            background-color: #D6B875;
+            color: var(--text-dark);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
+            z-index: 1000;
+        }
+
+        .chat-popup {
+            position: fixed;
+            bottom: 85px;
+            right: 20px;
+            width: 280px;
+            height: 350px;
+            background-color: #1a1a1a;
+            border: 2px solid #D6B875;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .chat-header {
+            background-color: #D6B875;
+            color: var(--text-dark);
+            padding: 8px 12px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+            font-size: 14px;
+        }
+
+        .close-chat { background: transparent; border: none; font-size: 14px; cursor: pointer; font-weight: bold; }
+        .chat-messages { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+        .chat-bubble { background-color: #d9d9d9; color: var(--text-dark); padding: 8px 10px; border-radius: 8px; font-size: 12px; max-width: 85%; word-break: break-word; }
+        .chat-bubble.user { background-color: #333333; color: #ffffff; align-self: flex-end; }
+        .chat-input-area { display: flex; padding: 8px; background-color: #111; border-top: 1px solid #333; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
+        .chat-input-area input { flex: 1; background: #222; border: 1px solid #444; padding: 6px; color: white; border-radius: 4px; outline: none; font-size: 12px; }
+        .chat-input-area button { background: #c4c4c4; color: #111; border: none; padding: 0 10px; margin-left: 6px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; }
+    </style>
+</head>
+<body>
+
+    <div id="notification-banner" onclick="dismissAndRefresh()">🔔 New announcement or quiz posted! Click to view.</div>
+
+    <!-- LOGIN SCREEN -->
+    <div id="login-screen">
+        <div class="brand-header">
+            <div class="logo-circle">❉</div>
+            <div>
+                <div class="brand-title">BTVTED 1-K2 ORGANIZATION</div>
+                <div class="brand-sub">ALL RIGHTS RESERVED 2026</div>
+            </div>
+        </div>
+
+        <div class="login-card">
+            <p>Click enter to access portal</p>
+            <button class="action-btn" onclick="loginAsStudent()">ENTER</button>
+
+            <p>If you are the developer or admin, enter your code below.</p>
+            <div class="dev-input-row">
+                <input type="password" id="dev-code-input" placeholder="Type code">
+                <button class="action-btn" onclick="loginAsDeveloper()">ENTER</button>
+            </div>
+        </div>
+
+        <div class="footer-credit">DEVELOPED BY YHODA LYONY Y.P.</div>
+    </div>
+
+    <!-- DASHBOARD SCREEN -->
+    <div id="dashboard-screen" class="hidden">
+        <div class="sidebar">
+            <div class="sidebar-brand">
+                <div class="sidebar-logo">❉</div>
+                <div style="font-size:13px;">
+                    <b>1-K2 ORGANIZATION</b><br>
+                    <span style="color:#aaaaaa; font-size:10px;">DEVELOPED BY YHODA LYONY Y.P.</span>
+                </div>
+            </div>
+            <div class="nav-item" onclick="filterCategory('GC')">✤ E-QUIZ</div>            
+            <div class="nav-item active" onclick="filterCategory('LINKS')">✤ ANC.</div>
+            <div class="nav-item" onclick="filterCategory('TEXT')">✤ TEXT</div>
+            <div class="nav-item" onclick="filterCategory('ACTIVITIES')">✤ Q&A</div>
+            <div class="nav-item" onclick="filterCategory('CONFESSIONS')">CONFESSIONS</div>
+        </div>
+
+        <div class="main-content">
+            <div id="post-box" class="admin-post-box hidden">
+                <div class="post-box-header-row" onclick="togglePostBoxCollapse()">
+                    <h4 style="margin: 0; color: #fff; font-size: 14px;" id="post-box-heading">Publish New Data/ Link</h4>
+                    <button class="collapse-toggle-btn" id="collapse-icon-btn">▲ Collapse</button>
+                </div>
+
+                <div id="post-box-body" class="post-box-body">
+                    <select id="post-category" onchange="handleCategoryChange()" style="margin-top: 10px; margin-bottom: 10px; padding: 6px; background:#222; color:white; border:1px solid #555; border-radius:4px; width:100%;">
+                        <option value="LINKS">LINKS</option>
+                        <option value="TEXT">TEXT</option>
+                        <option value="GC">E-QUIZ</option>
+                        <option value="ACTIVITIES">ACTIVITIES (Fun Quiz)</option>
+                        <option value="CONFESSIONS">CONFESSIONS (Anonymous)</option>
+                    </select>
+
+                    <div id="standard-post-fields">
+                        <textarea id="post-text" rows="3" placeholder="Type announcement or paste link here..."></textarea>
+                    </div>
+
+                    <div id="quiz-post-fields" class="hidden">
+                        <input type="text" id="quiz-author-name" placeholder="Your Name (Student or Creator)">
+                        <input type="text" id="quiz-question" placeholder="Enter Fun Question">
+                        <input type="text" id="quiz-opt1" placeholder="Option A">
+                        <input type="text" id="quiz-opt2" placeholder="Option B">
+                        <input type="text" id="quiz-opt3" placeholder="Option C">
+                        <select id="quiz-correct" style="width: 100%; background: #111; color: white; border: 1px solid #555; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
+                            <option value="0">Correct Answer is Option A</option>
+                            <option value="1">Correct Answer is Option B</option>
+                            <option value="2">Correct Answer is Option C</option>
+                        </select>
+                        <input type="text" id="quiz-explanation" placeholder="Explanation (optional)">
+                    </div>
+
+                    <div id="confession-post-fields" class="hidden">
+                        <textarea id="confession-text" rows="3" placeholder="Type your anonymous confession here (Max 35 words)..."></textarea>
+                        <div id="word-count-display" style="font-size:11px; color:#aaa; margin-bottom: 8px;">Words: 0 / 35</div>
+                    </div>
+
+                    <button onclick="publishPost()" style="margin-top: 5px; background: #fff; color: #000; border: none; padding: 8px 15px; font-weight: bold; border-radius: 4px; cursor: pointer;">Publish</button>
+                </div>
+            </div>
+
+            <!-- DYNAMIC FEED -->
+            <div id="announcement-feed"></div>
+        </div>
+
+        <button class="logout-link" onclick="logout()">EXIT</button>
+
+        <div class="chat-fab" onclick="toggleChatWindow()" title="Chat with Vanya">❉</div>
+
+        <div id="chat-popup" class="chat-popup hidden">
+            <div class="chat-header">
+                <span>Vanya Assistant</span>
+                <button class="close-chat" onclick="toggleChatWindow()">✕</button>
+            </div>
+            <div id="chat-messages" class="chat-messages">
+                <div class="chat-bubble">Привет мой друг 👋 , I'm Vanya, a Virtual Analytic Network Yoked Algorithm created by Yhoda Lyony. How can I assist you today?</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" id="chat-user-input" placeholder="Type a message..." onkeypress="handleChatKey(event)">
+                <button onclick="sendVanyaMessage()">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- SUPABASE CONFIGURATION ---
+        const SUPABASE_URL = "https://ddwedkhokaeoarczscpo.supabase.co";
+        const SUPABASE_ANON_KEY = "sb_publishable_8RPgyt6HcrMAoLjyde8i7g_HBL7pJBW";
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const SECRET_DEV_CODE = "jerussca123";
+        const AUTHOR_SECRET_CODE = "cheska";
+        const SPECTATOR_SECRET_CODE = "98765";
+
+        const AUTHORIZED_STUDENTS = [
+            { id: "1392510", lastName: "Adolfo", fullName: "Adolfo, James Kharl A." },
+            { id: "1391137", lastName: "Akiatan", fullName: "Akiatan, Samantha Nicole V." },
+            { id: "1395454", lastName: "Almencion", fullName: "Almencion, Yya B." },
+            { id: "1391200", lastName: "Bancale", fullName: "Bancale, Jaylord D." },
+            { id: "1391367", lastName: "Bihag", fullName: "Bihag, Madonna M." },
+            { id: "1391634", lastName: "Caga-anan", fullName: "Caga-anan, Ronjay Miguel H." },
+            { id: "1391257", lastName: "Compuesto", fullName: "Compuesto, Michelle Ann G." },
+            { id: "1391590", lastName: "Moreno", fullName: "Moreno, Vince Josh U." },
+            { id: "1388623", lastName: "Pairez", fullName: "Pairez, Yhoda Lyony Y." },
+            { id: "1393427", lastName: "Cañete", fullName: "Cañete, Joanna Westly" },
+            { id: "1390800", lastName: "Cañazares", fullName: "Cañazares, Nicolas M." },
+            { id: "1391392", lastName: "Caratao", fullName: "Caratao, Ada Roshlyn B." },
+            { id: "1392379", lastName: "Cavan", fullName: "Cavan, Jett Louie E." },
+            { id: "1391124", lastName: "Enriquez", fullName: "Enriquez, Neil Andrei V." },
+            { id: "1391268", lastName: "Gabutan", fullName: "Gabutan, Ayisha C." },
+            { id: "1391195", lastName: "Gualiza", fullName: "Gualiza, Miguela G." },
+            { id: "1391242", lastName: "Holiva", fullName: "Holiva, Princess Ella T." },
+            { id: "1391123", lastName: "Lagahit", fullName: "Lagahit, Jan Gyle U." },
+            { id: "1391359", lastName: "Lazareno", fullName: "Lazareno, Pearl Angelah R." },
+            { id: "1391132", lastName: "Martinez", fullName: "Martinez, Ray A." },
+            { id: "1391821", lastName: "Pineda", fullName: "Pineda, Mark Russel R." },
+            { id: "1392567", lastName: "Portolaso", fullName: "Portolaso, Gian Dave C." },
+            { id: "1392080", lastName: "Ragasajo", fullName: "Ragasajo, John Rainier O." },
+            { id: "1370261", lastName: "Requioma", fullName: "Requioma, Niño Raymond B." },
+            { id: "1391840", lastName: "Tamparong", fullName: "Tamparong, Nikko A." },
+            { id: "1391136", lastName: "Yatong", fullName: "Yatong, Shiela Marie L." },
+            { id: "1392366", lastName: "Arribato", fullName: "Arribato, Althea C." },
+            { id: "1391428", lastName: "Booc", fullName: "Booc, Jhon Dave M." },
+            { id: "1391276", lastName: "Cantillas", fullName: "Cantillas, Cedric Stephan M." },
+            { id: "1391814", lastName: "Lapasaran", fullName: "Lapasaran, Shaan H." },
+            { id: "1391273", lastName: "Pananganan", fullName: "Pananganan, Christy Jean F." },
+            { id: "1391125", lastName: "Vale", fullName: "Vale, Diana Rose B." }
+        ];
+
+        let activeCategory = "LINKS";
+        let isUserAdmin = false;
+        let cachedPosts = [];
+        let cachedPresence = [];
+        let realTimeSubscription = null;
+        let currentExamSession = null;
+        let currentUserPresence = null;
+        let examStrikes = 0;
+        let activeExamTimestampForTracker = null;
+        let activeExamTimers = {};
+
+        function handleExamContextMenu(e) {
+            if (currentExamSession && currentExamSession.role === 'student') {
+                e.preventDefault();
+                alert("✤ RIGHT-CLICK IS DISABLED DURING EXAMINATIONS ✤");
+            }
+        }
+
+        function handleExamKeydown(e) {
+            if (currentExamSession && currentExamSession.role === 'student') {
+                if (e.ctrlKey && (e.key === 'c' || e.key === 'C' || e.key === 'x' || e.key === 'X' || e.key === 'a' || e.key === 'A' || e.key === 'u' || e.key === 'U')) {
+                    e.preventDefault();
+                    alert("COPYING, SELECTING, or VIEWING IS NOT ALLOWED BY THE DEVELOPER");
+                }
+            }
+        }
+
+        document.addEventListener('contextmenu', handleExamContextMenu);
+        document.addEventListener('keydown', handleExamKeydown);
+
+        function loginAsStudent() {
+            isUserAdmin = false;
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+            adjustPostBoxVisibility();
+            fetchDataFromCloud();
+            startRealtimeListener();
+        }
+
+        function loginAsDeveloper() {
+            const val = document.getElementById('dev-code-input').value.trim();
+            if (val !== SECRET_DEV_CODE) {
+                alert("Incorrect developer code!");
+                return;
+            }
+            isUserAdmin = true;
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('dashboard-screen').classList.remove('hidden');
+            adjustPostBoxVisibility();
+            updatePresence("Developer Admin", "online");
+            fetchDataFromCloud();
+            startRealtimeListener();
+        }
+
+        function logout() {
+            if (currentUserPresence) {
+                removePresence();
+            }
+            Object.values(activeExamTimers).forEach(timer => clearInterval(timer));
+            activeExamTimers = {};
+            isUserAdmin = false;
+            currentExamSession = null;
+            currentUserPresence = null;
+            if (realTimeSubscription) supabaseClient.removeChannel(realTimeSubscription);
+            document.getElementById('dashboard-screen').classList.add('hidden');
+            document.getElementById('login-screen').classList.remove('hidden');
+            document.getElementById('dev-code-input').value = "";
+        }
+
+        function togglePostBoxCollapse() {
+            const bodyElem = document.getElementById('post-box-body');
+            const btnElem = document.getElementById('collapse-icon-btn');
+            bodyElem.classList.toggle('collapsed');
+            btnElem.innerText = bodyElem.classList.contains('collapsed') ? "▼ Expand" : "▲ Collapse";
+        }
+
+        function startRealtimeListener() {
+            if (realTimeSubscription) supabaseClient.removeChannel(realTimeSubscription);
+            realTimeSubscription = supabaseClient
+                .channel('schema-db-changes')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'posts' }, () => {
+                    document.getElementById('notification-banner').classList.add('show');
+                })
+                .subscribe();
+        }
+
+        function dismissAndRefresh() {
+            document.getElementById('notification-banner').classList.remove('show');
+            fetchDataFromCloud();
+        }
+
+        function filterCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const selectElem = document.getElementById('post-category');
+            selectElem.value = cat;
+            
+            adjustPostBoxVisibility();
+            renderFeed();
+        }
+
+        function adjustPostBoxVisibility() {
+            const postBox = document.getElementById('post-box');
+            const selectElem = document.getElementById('post-category');
+            const standardFields = document.getElementById('standard-post-fields');
+            const quizFields = document.getElementById('quiz-post-fields');
+            const confessionFields = document.getElementById('confession-post-fields');
+
+            if (activeCategory === 'GC') {
+                postBox.classList.add('hidden');
+                return;
+            }
+
+            if (isUserAdmin) {
+                postBox.classList.remove('hidden');
+                selectElem.disabled = false;
+                handleCategoryChange();
+            } else {
+                if (activeCategory === 'ACTIVITIES' || activeCategory === 'CONFESSIONS') {
+                    postBox.classList.remove('hidden');
+                    selectElem.disabled = true;
+                    standardFields.classList.add('hidden');
+                    quizFields.classList.add('hidden');
+                    confessionFields.classList.add('hidden');
+                    if (activeCategory === 'ACTIVITIES') quizFields.classList.remove('hidden');
+                    if (activeCategory === 'CONFESSIONS') confessionFields.classList.remove('hidden');
+                } else {
+                    postBox.classList.add('hidden');
+                }
+            }
+        }
+
+        function handleCategoryChange() {
+            const cat = document.getElementById('post-category').value;
+            const standardFields = document.getElementById('standard-post-fields');
+            const quizFields = document.getElementById('quiz-post-fields');
+            const confessionFields = document.getElementById('confession-post-fields');
+
+            standardFields.classList.add('hidden');
+            quizFields.classList.add('hidden');
+            confessionFields.classList.add('hidden');
+
+            if (cat === 'ACTIVITIES') quizFields.classList.remove('hidden');
+            else if (cat === 'CONFESSIONS') confessionFields.classList.remove('hidden');
+            else standardFields.classList.remove('hidden');
+        }
+
+        async function fetchDataFromCloud() {
+            try {
+                const { data: postsData, error: postsError } = await supabaseClient
+                    .from('posts')
+                    .select('*')
+                    .order('timestamp', { ascending: false });
+
+                if (postsError) throw postsError;
+
+                // Also fetch submissions for exams
+                const { data: subsData, error: subsError } = await supabaseClient
+                    .from('submissions')
+                    .select('*');
+
+                if (subsError) throw subsError;
+
+                // Map submissions into their respective exam posts
+                cachedPosts = (postsData || []).map(post => {
+                    if (post.type === 'exam_quiz') {
+                        post.submissions = (subsData || []).filter(sub => Number(sub.exam_timestamp) === Number(post.timestamp));
+                    }
+                    return post;
+                });
+
+                const { data: presenceData } = await supabaseClient
+                    .from('presence')
+                    .select('*');
+
+                cachedPresence = presenceData || [];
+                renderFeed();
+            } catch (error) {
+                console.error("Fetch error from Supabase:", error);
+            }
+        }
+
+        async function updatePresence(name, status) {
+            currentUserPresence = { name, status, last_seen: new Date().getTime() };
+            try {
+                await supabaseClient
+                    .from('presence')
+                    .upsert({ name: name, status: status, last_seen: currentUserPresence.last_seen });
+                
+                const { data } = await supabaseClient.from('presence').select('*');
+                cachedPresence = data || [];
+            } catch (e) {
+                console.error("Presence update error", e);
+            }
+        }
+
+        async function removePresence() {
+            if (!currentUserPresence) return;
+            try {
+                await supabaseClient
+                    .from('presence')
+                    .delete()
+                    .eq('name', currentUserPresence.name);
+            } catch (e) {
+                console.error("Remove presence error", e);
+            }
+        }
+
+        function loginExamStudent() {
+            const inputVal = document.getElementById('exam-student-id').value.trim();
+            if (!inputVal) {
+                alert("Please enter your ID number or Last Name.");
+                return;
+            }
+
+            const matchedStudent = AUTHORIZED_STUDENTS.find(s => 
+                s.id === inputVal || s.lastName.toLowerCase() === inputVal.toLowerCase()
+            );
+
+            if (!matchedStudent && !isUserAdmin) {
+                alert("Access Denied: ID number or Last Name not found in authorized student records!");
+                return;
+            }
+
+            const studentName = matchedStudent ? matchedStudent.fullName : "Admin Examiner";
+            const studentId = matchedStudent ? matchedStudent.id : "ADMIN";
+
+            currentExamSession = { role: 'student', identifier: studentId, name: studentName };
+            updatePresence(studentName, "taking_exam");
+            examStrikes = 0;
+            renderFeed();
+        }
+
+        function loginExamAuthor() {
+            const code = document.getElementById('exam-author-code').value.trim();
+            if (code !== AUTHOR_SECRET_CODE && !isUserAdmin) {
+                alert("Invalid Author Code!");
+                return;
+            }
+            currentExamSession = { role: 'author' };
+            updatePresence("Author Creator", "online");
+            renderFeed();
+        }
+
+        function loginExamSpectator() {
+            const code = document.getElementById('exam-spectator-code').value.trim();
+            if (code !== SPECTATOR_SECRET_CODE && !isUserAdmin) {
+                alert("Invalid Spectator Code!");
+                return;
+            }
+            currentExamSession = { role: 'spectator' };
+            updatePresence("Spectator Observer", "online");
+            renderFeed();
+        }
+
+        function addQuestionFieldToCreator() {
+            const container = document.getElementById('exam-questions-builder');
+            const qDiv = document.createElement('div');
+            qDiv.className = 'question-builder-item';
+            qDiv.style.cssText = "background:#111; padding:10px; border-radius:6px; margin-bottom:10px; border:1px solid #444;";
+            qDiv.innerHTML = `
+                <input type="text" placeholder="Question Text" class="q-text" style="width:100%; padding:8px; background:#222; color:#fff; border:1px solid #555; margin-bottom:6px; border-radius:4px;">
+                <select class="q-type" onchange="onExamTypeChange(this)" style="width:100%; padding:8px; background:#222; color:#fff; border:1px solid #555; margin-bottom:6px; border-radius:4px;">
+                    <option value="mc">Multiple Choice (ABCD)</option>
+                    <option value="tf">True or False</option>
+                    <option value="enumeration">Enumeration</option>
+                </select>
+                <div class="q-options-container">
+                    <input type="text" placeholder="Option A" class="opt-a" style="width:100%; padding:6px; background:#222; color:#fff; border:1px solid #444; margin-bottom:4px;">
+                    <input type="text" placeholder="Option B" class="opt-b" style="width:100%; padding:6px; background:#222; color:#fff; border:1px solid #444; margin-bottom:4px;">
+                    <input type="text" placeholder="Option C" class="opt-c" style="width:100%; padding:6px; background:#222; color:#fff; border:1px solid #444; margin-bottom:4px;">
+                    <input type="text" placeholder="Option D" class="opt-d" style="width:100%; padding:6px; background:#222; color:#fff; border:1px solid #444; margin-bottom:4px;">
+                    <input type="text" placeholder="Correct Answer (e.g. A, B, etc.)" class="q-ans-mc" style="width:100%; padding:6px; background:#222; color:#fff; border:1px solid #444;">
+                </div>
+                <button onclick="this.parentElement.remove()" style="background:#9b2226; color:#fff; border:none; padding:4px 8px; border-radius:4px; margin-top:6px; cursor:pointer;">Remove Question</button>
+            `;
+            container.appendChild(qDiv);
+        }
+
+        function onExamTypeChange(selectElem) {
+            const parent = selectElem.parentElement;
+            const optContainer = parent.querySelector('.q-options-container');
+            const type = selectElem.value;
+            if (type === 'mc') {
+                optContainer.innerHTML = `
+                    <input type="text" placeholder="Option A" class="opt-a" style="width:100%; padding:6px; background:#222; color:#fff; border:1px solid #444; margin-bottom:4px;">
+                    <input type="text" placeholder="Option B" class="opt-b" style="width:100%; padding:6px; background:#222; color:#fff; border:1px solid #444; margin-bottom:4px;">
+                    <input type="text" placeholder="Option C" class="opt-c" style="width:100%; padding:6px; background:#222; color:#fff; border:1px solid #444; margin-bottom:4px;">
+                    <input type="text" placeholder="Option D" class="opt-d" style="width:100%; padding:6px; background:#222; color:#fff; border:1px solid #444; margin-bottom:4px;">
+                    <input type="text" placeholder="Correct Answer (e.g. A)" class="q-ans-mc" style="width:100%; padding:6px; background:#222; color:#fff; border:1px solid #444;">
+                `;
+            } else if (type === 'tf') {
+                optContainer.innerHTML = `
+                    <select class="q-ans-tf" style="width:100%; padding:6px; background:#222; color:#fff; border:1px solid #444;">
+                        <option value="True">True</option>
+                        <option value="False">False</option>
+                    </select>
+                `;
+            } else if (type === 'enumeration') {
+                optContainer.innerHTML = `
+                    <input type="text" placeholder="Correct Answer / Keywords" class="q-ans-enum" style="width:100%; padding:6px; background:#222; color:#fff; border:1px solid #444;">
+                `;
+            }
+        }
+
+        async function publishExamQuiz() {
+            const title = document.getElementById('exam-title-input').value.trim();
+            const randomize = document.getElementById('exam-randomize-toggle').checked;
+            const durationSec = parseInt(document.getElementById('exam-duration-input').value) || 0;
+            const qItems = document.querySelectorAll('.question-builder-item');
+
+            if (!title || qItems.length === 0) {
+                alert("Please provide a title and at least one question!");
+                return;
+            }
+
+            let questions = [];
+            qItems.forEach(item => {
+                const text = item.querySelector('.q-text').value.trim();
+                const type = item.querySelector('.q-type').value;
+                let ans = "", options = [];
+                if (type === 'mc') {
+                    options = [
+                        item.querySelector('.opt-a').value.trim(),
+                        item.querySelector('.opt-b').value.trim(),
+                        item.querySelector('.opt-c').value.trim(),
+                        item.querySelector('.opt-d').value.trim()
+                    ];
+                    ans = item.querySelector('.q-ans-mc').value.trim();
+                } else if (type === 'tf') {
+                    ans = item.querySelector('.q-ans-tf').value;
+                } else if (type === 'enumeration') {
+                    ans = item.querySelector('.q-ans-enum').value.trim();
+                }
+                questions.push({ text, type, options, ans });
+            });
+
+            const now = new Date();
+            const examData = {
+                category: 'GC',
+                type: 'exam_quiz',
+                title: title,
+                randomize: randomize,
+                duration_seconds: durationSec,
+                is_live: true,
+                questions: questions,
+                timestamp: now.getTime(),
+                time: `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')} / ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`
+            };
+
+            const { error } = await supabaseClient.from('posts').insert([examData]);
+            if (error) {
+                alert("Failed to publish exam: " + error.message);
+            } else {
+                alert("Quiz / Examination published successfully!");
+                currentExamSession = null;
+                fetchDataFromCloud();
+            }
+        }
+
+        async function toggleQuizLiveStatus(examTimestamp) {
+            const exam = cachedPosts.find(p => Number(p.timestamp) === Number(examTimestamp));
+            if (!exam) return;
+            const newLiveStatus = exam.is_live === false ? true : false;
+
+            const { error } = await supabaseClient
+                .from('posts')
+                .update({ is_live: newLiveStatus })
+                .eq('timestamp', examTimestamp);
+
+            if (!error) fetchDataFromCloud();
+        }
+
+        async function deleteEntireQuiz(examTimestamp) {
+            if (!confirm("Are you sure you want to permanently delete this entire quiz/examination?")) return;
+            const { error } = await supabaseClient
+                .from('posts')
+                .delete()
+                .eq('timestamp', examTimestamp);
+
+            if (!error) {
+                alert("Quiz deleted successfully.");
+                fetchDataFromCloud();
+            }
+        }
+
+        function toggleAuthorExamPreview(timestamp) {
+            const previewElem = document.getElementById(`author-preview-${timestamp}`);
+            if (previewElem) previewElem.classList.toggle('hidden');
+        }
+
+        function startExamTimer(durationSeconds, examTimestamp) {
+            if (activeExamTimers[examTimestamp]) return;
+            let timeLeft = durationSeconds;
+
+            activeExamTimers[examTimestamp] = setInterval(() => {
+                const currentDisplay = document.getElementById(`timer-display-${examTimestamp}`);
+                if (!currentDisplay) {
+                    clearInterval(activeExamTimers[examTimestamp]);
+                    delete activeExamTimers[examTimestamp];
+                    return;
+                }
+
+                let mins = Math.floor(timeLeft / 60);
+                let secs = timeLeft % 60;
+                currentDisplay.innerText = `Time Remaining: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+
+                if (timeLeft <= 0) {
+                    clearInterval(activeExamTimers[examTimestamp]);
+                    delete activeExamTimers[examTimestamp];
+                    currentDisplay.innerText = "⏰ Time is up! Auto-submitting...";
+                    submitStudentExam(examTimestamp);
+                }
+                timeLeft--;
+            }, 1000);
+        }
+
+        async function submitStudentExam(examTimestamp) {
+            if (!currentExamSession || currentExamSession.role !== 'student') return;
+
+            if (activeExamTimers[examTimestamp]) {
+                clearInterval(activeExamTimers[examTimestamp]);
+                delete activeExamTimers[examTimestamp];
+            }
+
+            const exam = cachedPosts.find(p => Number(p.timestamp) === Number(examTimestamp));
+            if (!exam) return;
+
+            if (exam.submissions && exam.submissions.some(sub => sub.student_id === currentExamSession.identifier)) {
+                alert("You have already submitted this examination!");
+                renderFeed();
+                return;
+            }
+
+            let correctCount = 0;
+            let wrongCount = 0;
+            let total = exam.questions.length;
+
+            exam.questions.forEach((q, idx) => {
+                let userVal = "";
+                if (q.type === 'enumeration') {
+                    const inputElem = document.querySelector(`[name="exam_q_${examTimestamp}_${idx}"]`);
+                    userVal = inputElem ? inputElem.value.trim() : "";
+                } else {
+                    const userAnsElem = document.querySelector(`[name="exam_q_${examTimestamp}_${idx}"]:checked`);
+                    userVal = userAnsElem ? userAnsElem.value.trim() : "";
+                }
+
+                if (userVal.toLowerCase() === q.ans.toLowerCase()) {
+                    correctCount++;
+                } else {
+                    wrongCount++;
+                }
+            });
+
+            const scoreRecord = {
+                exam_timestamp: Number(examTimestamp),
+                student_id: currentExamSession.identifier,
+                student_name: currentExamSession.name,
+                correct: correctCount,
+                wrong: wrongCount,
+                score: `${correctCount} / ${total}`,
+                strikes: examStrikes,
+                timestamp: new Date().getTime()
+            };
+
+            const { error } = await supabaseClient.from('submissions').insert([scoreRecord]);
+            if (error) {
+                alert("Failed to submit score: " + error.message);
+            } else {
+                alert(`Exam Submitted Successfully!\n✤ CORRECT: ${correctCount}\nWrong: ${wrongCount}\nCheating Strikes: ${examStrikes}`);
+                updatePresence(currentExamSession.name, "finished");
+                fetchDataFromCloud();
+            }
+        }
+
+        document.addEventListener("visibilitychange", () => {
+            if (document.hidden && currentExamSession && currentExamSession.role === 'student' && activeExamTimestampForTracker) {
+                triggerCheatViolation("Switching tabs or minimizing the browser during an exam is strictly forbidden!");
+            }
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (currentExamSession && currentExamSession.role === 'student' && activeExamTimestampForTracker) {
+                if (e.key === 'PrintScreen' || (e.key === 'S' && e.shiftKey && (e.metaKey || e.ctrlKey))) {
+                    e.preventDefault();
+                    triggerCheatViolation("Taking screenshots or using capture tools during an exam is strictly forbidden!");
+                }
+            }
+        });
+
+        document.addEventListener('copy', (e) => {
+            if (currentExamSession && currentExamSession.role === 'student' && activeExamTimestampForTracker) {
+                e.preventDefault();
+                triggerCheatViolation("Copying content or capturing screen data to the clipboard is not allowed!");
+            }
+        });
+
+        function triggerCheatViolation(reason) {
+            examStrikes++;
+            alert(`✤ SCREENSHOT / CHEATING WARNING ${examStrikes} / 3 ✤\n\n${reason}`);
+            if (examStrikes >= 3) {
+                alert("Maximum cheating strikes exceeded (3 strikes). Your examination is now auto-submitting.");
+                submitStudentExam(activeExamTimestampForTracker);
+            }
+        }
+
+        function renderFeed() {
+            const feed = document.getElementById('announcement-feed');
+            const posts = cachedPosts.filter(p => p.category === activeCategory);
+
+            if (activeCategory === 'GC') {
+                renderAnncExamPortal(feed);
+                return;
+            }
+
+            if (posts.length === 0) {
+                feed.innerHTML = `<div style="color: #aaaaaa; font-style: italic; font-size: 14px;">No posts under ${activeCategory} yet.</div>`;
+                return;
+            }
+
+            feed.innerHTML = posts.map((p, index) => {
+                const deleteButtonHtml = isUserAdmin ? `<button class="delete-btn" onclick="deletePost(${p.timestamp})">🗑️ Delete</button>` : '';
+
+                if (p.type === 'quiz') {
+                    return `
+                        <div class="announcement-item">
+                            <div class="announcement-meta">
+                                <span>✤ ${escapeHtml(p.author)} [${p.time}] - STUDENT ACTIVITY</span>
+                                ${deleteButtonHtml}
+                            </div>
+                            <div class="announcement-text" style="font-weight:bold; margin-bottom: 8px;">🎯 ${escapeHtml(p.question)}</div>
+                            <div class="quiz-container">
+                                <div class="quiz-options">
+                                    ${p.options.map((opt, optIdx) => `
+                                        <button class="quiz-option-btn" onclick="checkQuizAnswer(${index}, ${optIdx},${p.correct})">${String.fromCharCode(65 + optIdx)}.${escapeHtml(opt)}</button>
+                                    `).join('')}
+                                </div>
+                                <div id="quiz-result-${index}" class="quiz-result"></div>
+                                <div id="quiz-explanation-${index}" class="hidden" style="margin-top: 8px; font-size: 13px; background: #e2e2e2; padding: 8px; border-radius: 4px; border-left: 3px solid #1b4332;">
+                                    💡 <b>Explanation:</b> ${escapeHtml(p.explanation || 'No explanation provided.')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                } else if (p.type === 'confession') {
+                    const devNameTag = (isUserAdmin && p.author_name) ? `<br><span style="color:#777; font-size:11px;">👤 Sender Name: ${escapeHtml(p.author_name)}</span>` : '';
+                    return `
+                        <div class="announcement-item">
+                            <div class="announcement-meta">
+                                <span>۞ Anonymous Confession [${escapeHtml(p.time)}]</span>
+                                ${deleteButtonHtml}
+                            </div>
+                            <div class="announcement-text">${escapeHtml(p.text)}${devNameTag}</div>
+                        </div>
+                    `;
+                } else {
+                    return `
+                        <div class="announcement-item">
+                            <div class="announcement-meta">
+                                ${escapeHtml(p.author)} [${escapeHtml(p.time)}]
+                                ${deleteButtonHtml}
+                            </div>
+                            <div class="announcement-text">${linkifyText(p.text)}</div>
+                        </div>
+                    `;
+                }
+            }).join('');
+        }
+
+        function renderAnncExamPortal(feed) {
+            let html = `<h3 style="color:#fff; border-bottom: 1px solid #333; padding-bottom: 10px;">📋 Examination Portal / Экзамен</h3>`;
+
+            let examPosts = cachedPosts.filter(p => p.type === 'exam_quiz');
+            examPosts.sort((a, b) => a.timestamp - b.timestamp);
+
+            if (!currentExamSession) {
+                html += `
+                    <div class="exam-gate-container-s">
+                        <h3>♘ Student Examination Login</h3>
+                        <input type="text" id="exam-student-id" placeholder="Enter ID Number or Last Name">
+                        <button onclick="loginExamStudent()">Proceed to Quizzes</button>
+                    </div>
+
+                    <div class="exam-gate-container">
+                        <h3>♔ Author Login</h3>
+                        <input type="password" id="exam-author-code" placeholder="Enter Author Passcode">
+                        <button onclick="loginExamAuthor()">Proceed to Author Studio</button>
+                    </div>
+
+                    <div class="exam-gate-container">
+                        <h3>♖ Spectator Login</h3>
+                        <input type="password" id="exam-spectator-code" placeholder="Enter Spectator Passcode">
+                        <button onclick="loginExamSpectator()">Proceed to Spectator Room</button>
+                    </div>
+                `;
+            } else if (currentExamSession.role === 'student') {
+                html += `<button onclick="Object.values(activeExamTimers).forEach(t => clearInterval(t)); activeExamTimers={}; currentExamSession=null; renderFeed();" style="background:#111111; color:#D6B875; border: 2px solid #D6B875; padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Back to Portals</button>`;
+                
+                const liveExams = examPosts.filter(exam => exam.is_live !== false);
+
+                if (liveExams.length === 0) {
+                    html += `<div style="color:#888;">No active/live examinations posted yet.</div>`;
+                } else {
+                    liveExams.forEach(exam => {
+                        const hasAlreadyTaken = exam.submissions && exam.submissions.some(sub => sub.student_id === currentExamSession.identifier);
+
+                        if (hasAlreadyTaken && !isUserAdmin) {
+                            html += `
+                                <div class="announcement-item" style="max-width:100%; background:#2c1b1b; color:#fff;">
+                                    <h4>Exam: ${escapeHtml(exam.title)}</h4>
+                                    <p style="color:#ff6b6b; font-weight:bold;">⛔ Thanks for submitting, You have already completed this Examination. Have a great day Мой Друг! 🤗</p>
+                                </div>
+                            `;
+                            return;
+                        }
+
+                        activeExamTimestampForTracker = exam.timestamp;
+                        
+                        if (exam.duration_seconds && exam.duration_seconds > 0) {
+                            setTimeout(() => startExamTimer(exam.duration_seconds, exam.timestamp), 100);
+                        }
+
+                        let questionsToDisplay = exam.questions.map((q, originalIndex) => ({ q, originalIndex }));
+                        if (exam.randomize) {
+                            questionsToDisplay.sort(() => Math.random() - 0.5);
+                        }
+
+                        html += `
+                            <div class="announcement-item" style="max-width:100%;">
+                                <div id="timer-display-${exam.timestamp}" class="exam-timer-floating">Time Remaining: Loading...</div>
+                                <div class="announcement-meta"><span>${escapeHtml(exam.title)}</span></div>
+                                <form id="exam-form-${exam.timestamp}" onsubmit="event.preventDefault(); submitStudentExam(${exam.timestamp});">
+                        `;
+                        
+                        questionsToDisplay.forEach((item, displayIdx) => {
+                            const q = item.q;
+                            const originalIdx = item.originalIndex;
+                            
+                            html += `<div style="margin-bottom:15px; font-weight:bold;">Q${displayIdx+1}: ${escapeHtml(q.text)}</div>`;
+                            if (q.type === 'mc') {
+                                q.options.forEach((opt, optIdx) => {
+                                    const optLetter = String.fromCharCode(65 + optIdx);
+                                    html += `
+                                        <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-weight: normal; cursor: pointer;">
+                                            <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="${optLetter}" style="margin-top: 3px; flex-shrink: 0;">
+                                            <span>${optLetter}. ${escapeHtml(opt)}</span>
+                                        </label>
+                                    `;
+                                });
+                            } else if (q.type === 'tf') {
+                                html += `
+                                    <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-weight: normal; cursor: pointer;">
+                                        <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="True" style="margin-top: 3px; flex-shrink: 0;">
+                                        <span>True</span>
+                                    </label>
+                                    <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-weight: normal; cursor: pointer;">
+                                        <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="False" style="margin-top: 3px; flex-shrink: 0;">
+                                        <span>False</span>
+                                    </label>
+                                `;
+                            } else if (q.type === 'enumeration') {
+                                html += `
+                                    <input type="text" name="exam_q_${exam.timestamp}_${originalIdx}" placeholder="Type your answer here" style="width:100%; padding:8px; background:#222; color:#fff; border:1px solid #555; border-radius:4px; margin-bottom:10px; outline:none;">
+                                `;
+                            }
+                        });
+                        html += `
+                                    <button type="submit" style="background:#1b4332; color:#fff; border:none; padding:10px 20px; font-weight:bold; border-radius:4px; margin-top:15px; cursor:pointer; width:100%;">Submit Examination</button>
+                                </form>
+                            </div>
+                        `;
+                    });
+                }
+            } else if (currentExamSession.role === 'author') {
+                html += `
+                    <button onclick="currentExamSession=null; renderFeed();" style="background:#444; color:#fff; border:none; padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Back to Portals</button>
+                    <div class="announcement-item" style="max-width:100%; margin-bottom: 25px;">
+                        <h3>✍️ Author Questionnaire Creator</h3>
+                        <input type="text" id="exam-title-input" placeholder="Examination / Quiz Title" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px;">
+                        <input type="number" id="exam-duration-input" placeholder="Timer Duration in Seconds (e.g. 300 for 5 mins, 0 for none)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px;">
+                        <label style="display:block; margin-bottom:15px; color:#111; font-weight:bold;"><input type="checkbox" id="exam-randomize-toggle"> Randomize question order for examiners</label>
+                        
+                        <div id="exam-questions-builder"></div>
+                        <button onclick="addQuestionFieldToCreator()" style="background:#333; color:#fff; border:none; padding:8px 14px; border-radius:4px; margin-bottom:15px; cursor:pointer;">+ Add Question</button>
+                        <br>
+                        <button onclick="publishExamQuiz()" style="background:#1b4332; color:#fff; border:none; padding:10px 20px; font-weight:bold; border-radius:4px; cursor:pointer; width:100%;">Publish Examination to Server</button>
+                    </div>
+
+                    <div class="announcement-item" style="max-width:100%; background:#222; color:#fff;">
+                        <h3 style="margin-top:0; border-bottom:1px solid #444; padding-bottom:8px;">📊 Manage Existing Quizzes & Examinations</h3>
+                `;
+
+                if (examPosts.length === 0) {
+                    html += `<div style="color:#aaa;">No quizzes created yet.</div>`;
+                } else {
+                    examPosts.forEach(exam => {
+                        const isLive = exam.is_live !== false;
+                        const liveButtonText = isLive ? "🔴 Unlive" : "🟢 Live";
+                        const liveButtonStyle = isLive ? "background:#d90429; color:#fff;" : "background:#2a9d8f; color:#fff;";
+
+                        html += `
+                            <div style="background:#111; border:1px solid #444; padding:12px; border-radius:6px; margin-bottom:12px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; cursor:pointer;" onclick="toggleAuthorExamPreview(${exam.timestamp})">
+                                    <div>
+                                        <h4 style="margin:0 0 5px 0;">📁 ${escapeHtml(exam.title)} </h4>
+                                        <span style="font-size:12px; color:#aaa;">Questions: ${exam.questions.length} | Timer: ${exam.duration_seconds || 0}s | Status: ${isLive ? '🟢 Live' : '🔴 Unlive'}</span>
+                                    </div>
+                                    <div style="display:flex; gap:8px;" onclick="event.stopPropagation()">
+                                        <button onclick="toggleQuizLiveStatus(${exam.timestamp})" style="${liveButtonStyle} border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">${liveButtonText}</button>
+                                        <button onclick="deleteEntireQuiz(${exam.timestamp})" style="background:#9b2226; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">Delete</button>
+                                    </div>
+                                </div>
+                                <div id="author-preview-${exam.timestamp}" class="hidden" style="margin-top:12px; border-top:1px solid #333; padding-top:10px;">
+                                    <ol style="padding-left:20px; margin:0; color:#ddd; font-size:14px;">
+                                        ${exam.questions.map((q) => `
+                                            <li style="margin-bottom:6px;">
+                                                <strong>${escapeHtml(q.text)}</strong> (${q.type})<br>
+                                                <span style="color:#aaa; font-size:12px;">Answer: ${escapeHtml(q.ans)}</span>
+                                            </li>
+                                        `).join('')}
+                                    </ol>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+                html += `</div>`;
+            } else if (currentExamSession.role === 'spectator') {
+                html += `
+                    <button onclick="currentExamSession=null; renderFeed();" style="background:#444; color:#fff; border:none; padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Back to Portals</button>
+                    <h3>Spectator Scoreboard & Live Presence</h3>
+                `;
+
+                html += `
+                    <div class="announcement-item" style="max-width:100%; background:#222; color:#fff;">
+                        <h4 style="margin-top:0; border-bottom:1px solid #444; padding-bottom:6px;">🟢 Active Users & Status</h4>
+                `;
+                if (!cachedPresence || cachedPresence.length === 0) {
+                    html += `<div style="color:#aaa; font-size:13px;">No active users online right now.</div>`;
+                } else {
+                    html += `<ul style="list-style:none; padding:0; margin:0; font-size:14px;">`;
+                    cachedPresence.forEach(p => {
+                        const dotClass = (p.status === 'finished') ? 'status-blue' : 'status-green';
+                        const statusText = (p.status === 'finished') ? 'Finished Exam' : (p.status === 'taking_exam' ? 'Taking Exam' : 'Online / Active');
+                        html += `<li style="margin-bottom:6px; display:flex; align-items:center;"><span class="status-dot ${dotClass}"></span><b>${escapeHtml(p.name)}</b> &nbsp; <span style="color:#aaa; font-size:12px;">(${statusText})</span></li>`;
+                    });
+                    html += `</ul>`;
+                }
+                html += `</div>`;
+
+                if (examPosts.length === 0) {
+                    html += `<div style="color:#888;">No examinations available to inspect.</div>`;
+                } else {
+                    examPosts.forEach(exam => {
+                        html += `
+                            <div class="announcement-item" style="max-width:100%;">
+                                <h4>Exam: ${escapeHtml(exam.title)}</h4>
+                        `;
+                        if (!exam.submissions || exam.submissions.length === 0) {
+                            html += `<div>No students have finished answering this exam yet.</div>`;
+                        } else {
+                            html += `
+                                <table style="width:100%; border-collapse:collapse; margin-top:10px; font-size:14px;">
+                                    <tr style="background:#ccc; text-align:left; color:#111;">
+                                        <th style="padding:6px;">ID / Name</th>
+                                        <th style="padding:6px;">Correct</th>
+                                        <th style="padding:6px;">Wrong</th>
+                                        <th style="padding:6px;">Score</th>
+                                        <th style="padding:6px;">Cheating Strikes</th>
+                                    </tr>
+                            `;
+                            exam.submissions.forEach((sub) => {
+                                const strikeColor = (sub.strikes || 0) > 0 ? "#9b2226" : "#1b4332";
+                                html += `
+                                    <tr style="border-bottom:1px solid #bbb; color:#111;">
+                                        <td style="padding:6px;">${escapeHtml(sub.student_id)} - ${escapeHtml(sub.student_name)}</td>
+                                        <td style="padding:6px; color:#1b4332; font-weight:bold;">${sub.correct}</td>
+                                        <td style="padding:6px; color:#9b2226; font-weight:bold;">${sub.wrong}</td>
+                                        <td style="padding:6px; font-weight:bold;">${sub.score}</td>
+                                        <td style="padding:6px; color:${strikeColor}; font-weight:bold;">${sub.strikes || 0} strikes</td>
+                                    </tr>
+                                `;
+                            });
+                            html += `</table>`;
+                        }
+                        html += `</div>`;
+                    });
+                }
+            }
+
+            feed.innerHTML = html;
+        }
+
+        async function publishPost() {
+            const categorySelect = document.getElementById('post-category');
+            const category = categorySelect.value;
+            const textInput = document.getElementById('post-text');
+            
+            let newPost = {};
+            const now = new Date();
+            const timeString = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')} / ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`;
+            const authorName = isUserAdmin ? "Developer Admin" : "Student";
+
+            if (category === 'ACTIVITIES') {
+                const qAuthor = document.getElementById('quiz-author-name').value.trim() || authorName;
+                const question = document.getElementById('quiz-question').value.trim();
+                const opt1 = document.getElementById('quiz-opt1').value.trim();
+                const opt2 = document.getElementById('quiz-opt2').value.trim();
+                const opt3 = document.getElementById('quiz-opt3').value.trim();
+                const correct = parseInt(document.getElementById('quiz-correct').value);
+                const explanation = document.getElementById('quiz-explanation').value.trim();
+
+                if (!question || !opt1 || !opt2 || !opt3) {
+                    alert("Please fill out the question and all options for the fun quiz!");
+                    return;
+                }
+
+                newPost = {
+                    category: 'ACTIVITIES',
+                    type: 'quiz',
+                    author: qAuthor,
+                    question: question,
+                    options: [opt1, opt2, opt3],
+                    correct: correct,
+                    explanation: explanation,
+                    timestamp: now.getTime(),
+                    time: timeString
+                };
+            } else if (category === 'CONFESSIONS') {
+                const confessionText = document.getElementById('confession-text').value.trim();
+                if (!confessionText) {
+                    alert("Please type your confession before publishing!");
+                    return;
+                }
+
+                newPost = {
+                    category: 'CONFESSIONS',
+                    type: 'confession',
+                    author: 'Anonymous',
+                    author_name: isUserAdmin ? "Admin Override" : "Anonymous Student",
+                    text: confessionText,
+                    timestamp: now.getTime(),
+                    time: timeString
+                };
+            } else {
+                const textVal = textInput.value.trim();
+                if (!textVal) {
+                    alert("Please type something to publish!");
+                    return;
+                }
+
+                newPost = {
+                    category: category,
+                    type: 'standard',
+                    author: authorName,
+                    text: textVal,
+                    timestamp: now.getTime(),
+                    time: timeString
+                };
+            }
+
+            const { error } = await supabaseClient.from('posts').insert([newPost]);
+            if (error) {
+                alert("Failed to publish: " + error.message);
+            } else {
+                textInput.value = "";
+                if (document.getElementById('quiz-question')) document.getElementById('quiz-question').value = "";
+                if (document.getElementById('confession-text')) document.getElementById('confession-text').value = "";
+                alert("Published successfully!");
+                fetchDataFromCloud();
+            }
+        }
+
+        async function deletePost(timestamp) {
+            if (!isUserAdmin) {
+                alert("Unauthorized: Only the developer can delete posts.");
+                return;
+            }
+            if (!confirm("Are you sure you want to delete this post?")) return;
+
+            const { error } = await supabaseClient
+                .from('posts')
+                .delete()
+                .eq('timestamp', timestamp);
+
+            if (!error) {
+                alert("Item deleted successfully.");
+                fetchDataFromCloud();
+            }
+        }
+
+        function checkQuizAnswer(postIndex, chosenOption, correctOption) {
+            const resultDiv = document.getElementById(`quiz-result-${postIndex}`);
+            const explanationDiv = document.getElementById(`quiz-explanation-${postIndex}`);
+
+            if (chosenOption === correctOption) {
+                resultDiv.style.color = "#1b4332";
+                resultDiv.innerHTML = "🎉 Correct! Great job!";
+                if (explanationDiv) explanationDiv.classList.remove('hidden');
+            } else {
+                resultDiv.style.color = "#9b2226";
+                resultDiv.innerHTML = "❌ Oops! Try another option for fun.";
+                if (explanationDiv) explanationDiv.classList.add('hidden');
+            }
+        }
+
+        function linkifyText(inputText) {
+            let safeText = escapeHtml(inputText);
+            const urlRegex = /(https?:\/\/[^\s]+)/g;
+            return safeText.replace(urlRegex, function(url) {
+                return `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`;
+            });
+        }
+
+        function toggleChatWindow() {
+            document.getElementById('chat-popup').classList.toggle('hidden');
+        }
+
+        function sendVanyaMessage() {
+            const input = document.getElementById('chat-user-input');
+            const msg = input.value.trim();
+            if (!msg) return;
+
+            const chatMessages = document.getElementById('chat-messages');
+            chatMessages.innerHTML += `<div class="chat-bubble user">${escapeHtml(msg)}</div>`;
+            input.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            setTimeout(() => {
+                const reply = getVanyaResponse(msg);
+                chatMessages.innerHTML += `<div class="chat-bubble">${reply}</div>`;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }, 400);
+        }
+
+        function handleChatKey(e) {
+            if (e.key === 'Enter') sendVanyaMessage();
+        }
+
+        function getVanyaResponse(query) {
+            query = query.toLowerCase();
+            if (query.includes('exam') || query.includes('annc')) {
+                return "Head over to the 'E-QUIZ' tab in the sidebar to log in as a student, author, or spectator!";
+            } else if (query.includes('hello') || query.includes('hi')) {
+                return "Привет! How can I assist your studies today?";
+            } else {
+                return "I am Vanya, your helper. Check out the sidebar categories for updates from Master Lyony!";
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+    </script>
+</body>
+</html>
