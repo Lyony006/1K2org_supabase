@@ -105,7 +105,7 @@
             font-size: 16px;
             font-weight: bold;
             letter-spacing: 1px;
-            font-family: Serif ;
+            font-family: Serif;
         }
 
         .brand-sub {
@@ -360,20 +360,6 @@
             width: 100%;
         }
 
-        .quiz-container { margin-top: 10px; }
-        .quiz-options { display: flex; flex-direction: column; gap: 6px; margin-top: 10px; }
-        .quiz-option-btn {
-            background-color: #D1A954;
-            border: 1px solid #888;
-            padding: 8px 12px;
-            border-radius: 4px;
-            text-align: left;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        .quiz-option-btn:hover { background-color: #e2e2e2; }
-
         .status-dot {
             height: 10px;
             width: 10px;
@@ -538,7 +524,6 @@
             <div class="nav-item" onclick="filterCategory('GC')">✤ E-QUIZ</div>            
             <div class="nav-item active" onclick="filterCategory('LINKS')">✤ ANC.</div>
             <div class="nav-item" onclick="filterCategory('TEXT')">✤ TEXT</div>
-            <div class="nav-item" onclick="filterCategory('ACTIVITIES')">✤ Q&A</div>
             <div class="nav-item" onclick="filterCategory('CONFESSIONS')">CONFESSIONS</div>
         </div>
 
@@ -554,26 +539,11 @@
                         <option value="LINKS">LINKS</option>
                         <option value="TEXT">TEXT</option>
                         <option value="GC">E-QUIZ</option>
-                        <option value="ACTIVITIES">ACTIVITIES (Fun Quiz)</option>
                         <option value="CONFESSIONS">CONFESSIONS (Anonymous)</option>
                     </select>
 
                     <div id="standard-post-fields">
                         <textarea id="post-text" rows="3" placeholder="Type announcement or paste link here..."></textarea>
-                    </div>
-
-                    <div id="quiz-post-fields" class="hidden">
-                        <input type="text" id="quiz-author-name" placeholder="Your Name (Student or Creator)">
-                        <input type="text" id="quiz-question" placeholder="Enter Fun Question">
-                        <input type="text" id="quiz-opt1" placeholder="Option A">
-                        <input type="text" id="quiz-opt2" placeholder="Option B">
-                        <input type="text" id="quiz-opt3" placeholder="Option C">
-                        <select id="quiz-correct" style="width: 100%; background: #111; color: white; border: 1px solid #555; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
-                            <option value="0">Correct Answer is Option A</option>
-                            <option value="1">Correct Answer is Option B</option>
-                            <option value="2">Correct Answer is Option C</option>
-                        </select>
-                        <input type="text" id="quiz-explanation" placeholder="Explanation (optional)">
                     </div>
 
                     <div id="confession-post-fields" class="hidden">
@@ -619,38 +589,37 @@
         const SPECTATOR_SECRET_CODE = "98765";
 
         const AUTHORIZED_STUDENTS = [
-            { id: "1392510", lastName: "Adolfo", fullName: "Adolfo, James Kharl A." },
-            { id: "1391137", lastName: "Akiatan", fullName: "Akiatan, Samantha Nicole V." },
-            { id: "1395454", lastName: "Almencion", fullName: "Almencion, Yya B." },
-            { id: "1391200", lastName: "Bancale", fullName: "Bancale, Jaylord D." },
-            { id: "1391367", lastName: "Bihag", fullName: "Bihag, Madonna M." },
-            { id: "1391634", lastName: "Caga-anan", fullName: "Caga-anan, Ronjay Miguel H." },
-            { id: "1391257", lastName: "Compuesto", fullName: "Compuesto, Michelle Ann G." },
-            { id: "1391590", lastName: "Moreno", fullName: "Moreno, Vince Josh U." },
-            { id: "1388623", lastName: "Pairez", fullName: "Pairez, Yhoda Lyony Y." },
-            { id: "1393427", lastName: "Cañete", fullName: "Cañete, Joanna Westly" },
-            { id: "1390800", lastName: "Cañazares", fullName: "Cañazares, Nicolas M." },
-            { id: "1391392", lastName: "Caratao", fullName: "Caratao, Ada Roshlyn B." },
-            { id: "1392379", lastName: "Cavan", fullName: "Cavan, Jett Louie E." },
-            { id: "1391124", lastName: "Enriquez", fullName: "Enriquez, Neil Andrei V." },
-            { id: "1391268", lastName: "Gabutan", fullName: "Gabutan, Ayisha C." },
-            { id: "1391195", lastName: "Gualiza", fullName: "Gualiza, Miguela G." },
-            { id: "1391242", lastName: "Holiva", fullName: "Holiva, Princess Ella T." },
-            { id: "1391123", lastName: "Lagahit", fullName: "Lagahit, Jan Gyle U." },
-            { id: "1391359", lastName: "Lazareno", fullName: "Lazareno, Pearl Angelah R." },
-            { id: "1391132", lastName: "Martinez", fullName: "Martinez, Ray A." },
-            { id: "1391821", lastName: "Pineda", fullName: "Pineda, Mark Russel R." },
-            { id: "1392567", lastName: "Portolaso", fullName: "Portolaso, Gian Dave C." },
-            { id: "1392080", lastName: "Ragasajo", fullName: "Ragasajo, John Rainier O." },
-            { id: "1370261", lastName: "Requioma", fullName: "Requioma, Niño Raymond B." },
-            { id: "1391840", lastName: "Tamparong", fullName: "Tamparong, Nikko A." },
-            { id: "1391136", lastName: "Yatong", fullName: "Yatong, Shiela Marie L." },
-            { id: "1392366", lastName: "Arribato", fullName: "Arribato, Althea C." },
-            { id: "1391428", lastName: "Booc", fullName: "Booc, Jhon Dave M." },
-            { id: "1391276", lastName: "Cantillas", fullName: "Cantillas, Cedric Stephan M." },
-            { id: "1391814", lastName: "Lapasaran", fullName: "Lapasaran, Shaan H." },
-            { id: "1391273", lastName: "Pananganan", fullName: "Pananganan, Christy Jean F." },
-            { id: "1391125", lastName: "Vale", fullName: "Vale, Diana Rose B." }
+            { id: "1392510", lastName: "Adolfo", fullName: "Adolfo, James Kharl A.", nickname:"Master James"},
+            { id: "1391137", lastName: "Akiatan", fullName: "Akiatan, Samantha Nicole V.", nickname:"Ms.Samantha" },
+            { id: "1395454", lastName: "Almencion", fullName: "Almencion, Yya B.", nickname:"Ms.Yya" },
+            { id: "1391200", lastName: "Bancale", fullName: "Bancale, Jaylord D.", nickname :"Mr.Jaylord" },
+            { id: "1391367", lastName: "Bihag", fullName: "Bihag, Madonna M.", nickname:"Ms.Madonna" },
+            { id: "1391634", lastName: "Caga-anan", fullName: "Caga-anan, Ronjay Miguel H.", nickname:"Master Ronjay" },
+            { id: "1391257", lastName: "Compuesto", fullName: "Compuesto, Michelle Ann G.", nickname:"Ms.Ayisha" },
+            { id: "1391590", lastName: "Moreno", fullName: "Moreno, Vince Josh U.", nickname:"Mr.Vince" },
+            { id: "1388623", lastName: "Pairez", fullName: "Pairez, Yhoda Lyony Y.", nickname:"Lord Vader" },
+            { id: "1393427", lastName: "Cañete", fullName: "Cañete, Joanna Westly", nickname:"Ms.Joanna" },
+            { id: "1390800", lastName: "Cañazares", fullName: "Cañazares, Nicolas M.", nickname:"Mr.Nicolas" },
+            { id: "1391392", lastName: "Caratao", fullName: "Caratao, Ada Roshlyn B.", nickname:"Ms.Ada" },
+            { id: "1392379", lastName: "Cavan", fullName: "Cavan, Jett Louie E.", nickname:"Mr.Jett Louie" },
+            { id: "1391124", lastName: "Enriquez", fullName: "Enriquez, Neil Andrei V.", nickname:"Master Andrei" },
+            { id: "1391268", lastName: "Gabutan", fullName: "Gabutan, Ayisha C.", nickname:"Ms.Ayisha" },
+            { id: "1391242", lastName: "Holiva", fullName: "Holiva, Princess Ella T.", nickname:"Ms.Ella" },
+            { id: "1391123", lastName: "Lagahit", fullName: "Lagahit, Jan Gyle U.", nickname:"Mr.Jan Gyle" },
+            { id: "1391359", lastName: "Lazareno", fullName: "Lazareno, Pearl Angelah R.", nickname:"Ms.Pearl" },
+            { id: "1391132", lastName: "Martinez", fullName: "Martinez, Ray A.", nickname:"Mr.Ray" },
+            { id: "1391821", lastName: "Pineda", fullName: "Pineda, Marc Russel R.", nickname:"Mr.Russel" },
+            { id: "1392567", lastName: "Portolaso", fullName: "Portolaso, Gian Dave C.", nickname:"Mr.Gian" },
+            { id: "1392080", lastName: "Ragasajo", fullName: "Ragasajo, John Rainier O.", nickname:"Master Rainier" },
+            { id: "1370261", lastName: "Requioma", fullName: "Requioma, Niño Raymond B.", nickname:"Mr.Raymond" },
+            { id: "1391840", lastName: "Tamparong", fullName: "Tamparong, Nikko A.", nickname:"Mr.Nikko" },
+            { id: "1391136", lastName: "Yatong", fullName: "Yatong, Shiela Marie L.", nickname:"Cadet Shiela" },
+            { id: "1392366", lastName: "Arribato", fullName: "Arribato, Althea C.", nickname:"Ms.Althea" },
+            { id: "1391428", lastName: "Booc", fullName: "Booc, Jhon Dave M.", nickname:"Mr.Jhon Dave" },
+            { id: "1391276", lastName: "Cantillas", fullName: "Cantillas, Cedric Stephan M.", nickname:"Mr.Cedric" },
+            { id: "1391814", lastName: "Lapasaran", fullName: "Lapasaran, Shaan H.", nickname:"Mr.Shaan" },
+            { id: "1391273", lastName: "Pananganan", fullName: "Pananganan, Christy Jean F.", nickname:"Mayor Christy" },
+            { id: "1391125", lastName: "Vale", fullName: "Vale, Diana Rose B.", nickname:"Ms.Diana" }
         ];
 
         let activeCategory = "LINKS";
@@ -667,7 +636,7 @@
         function handleExamContextMenu(e) {
             if (currentExamSession && currentExamSession.role === 'student') {
                 e.preventDefault();
-                alert("✤ RIGHT-CLICK IS DISABLED DURING EXAMINATIONS ✤");
+                alert("✤ RIGHT-CLICK WAS DISABLED BY THE DEVELOPER DURING EXAMINATIONS ✤");
             }
         }
 
@@ -675,7 +644,7 @@
             if (currentExamSession && currentExamSession.role === 'student') {
                 if (e.ctrlKey && (e.key === 'c' || e.key === 'C' || e.key === 'x' || e.key === 'X' || e.key === 'a' || e.key === 'A' || e.key === 'u' || e.key === 'U')) {
                     e.preventDefault();
-                    alert("COPYING, SELECTING, or VIEWING IS NOT ALLOWED BY THE DEVELOPER");
+                    alert("COPYING, SELECTING, or VIEWING WAS DISABLED BY THE DEVELOPER");
                 }
             }
         }
@@ -760,7 +729,6 @@
             const postBox = document.getElementById('post-box');
             const selectElem = document.getElementById('post-category');
             const standardFields = document.getElementById('standard-post-fields');
-            const quizFields = document.getElementById('quiz-post-fields');
             const confessionFields = document.getElementById('confession-post-fields');
 
             if (activeCategory === 'GC') {
@@ -773,14 +741,11 @@
                 selectElem.disabled = false;
                 handleCategoryChange();
             } else {
-                if (activeCategory === 'ACTIVITIES' || activeCategory === 'CONFESSIONS') {
+                if (activeCategory === 'CONFESSIONS') {
                     postBox.classList.remove('hidden');
                     selectElem.disabled = true;
                     standardFields.classList.add('hidden');
-                    quizFields.classList.add('hidden');
-                    confessionFields.classList.add('hidden');
-                    if (activeCategory === 'ACTIVITIES') quizFields.classList.remove('hidden');
-                    if (activeCategory === 'CONFESSIONS') confessionFields.classList.remove('hidden');
+                    confessionFields.classList.remove('hidden');
                 } else {
                     postBox.classList.add('hidden');
                 }
@@ -790,16 +755,13 @@
         function handleCategoryChange() {
             const cat = document.getElementById('post-category').value;
             const standardFields = document.getElementById('standard-post-fields');
-            const quizFields = document.getElementById('quiz-post-fields');
             const confessionFields = document.getElementById('confession-post-fields');
 
             standardFields.classList.add('hidden');
-            quizFields.classList.add('hidden');
             confessionFields.classList.add('hidden');
 
-            if (cat === 'ACTIVITIES') quizFields.classList.remove('hidden');
-            else if (cat === 'CONFESSIONS') confessionFields.classList.remove('hidden');
-            else standardFields.classList.remove('hidden');
+            if (cat === 'CONFESSIONS') confessionFields.classList.remove('hidden');
+            else standardFields.classList.add('hidden');
         }
 
         async function fetchDataFromCloud() {
@@ -811,14 +773,12 @@
 
                 if (postsError) throw postsError;
 
-                // Also fetch submissions for exams
                 const { data: subsData, error: subsError } = await supabaseClient
                     .from('submissions')
                     .select('*');
 
                 if (subsError) throw subsError;
 
-                // Map submissions into their respective exam posts
                 cachedPosts = (postsData || []).map(post => {
                     if (post.type === 'exam_quiz') {
                         post.submissions = (subsData || []).filter(sub => Number(sub.exam_timestamp) === Number(post.timestamp));
@@ -864,26 +824,43 @@
         }
 
         function loginExamStudent() {
-            const inputVal = document.getElementById('exam-student-id').value.trim();
-            if (!inputVal) {
-                alert("Please enter your ID number or Last Name.");
+            let matchedStudent = null;
+
+            if (isUserAdmin) {
+                currentExamSession = { role: 'student', identifier: "ADMIN", name: "Admin Examiner" };
+                updatePresence("Admin Examiner", "taking_exam");
+                examStrikes = 0;
+                renderFeed();
                 return;
             }
 
-            const matchedStudent = AUTHORIZED_STUDENTS.find(s => 
-                s.id === inputVal || s.lastName.toLowerCase() === inputVal.toLowerCase()
-            );
+            const savedStudentId = localStorage.getItem('recognized_student_id');
 
-            if (!matchedStudent && !isUserAdmin) {
-                alert("Access Denied: ID number or Last Name not found in authorized student records!");
-                return;
+            if (savedStudentId) {
+                matchedStudent = AUTHORIZED_STUDENTS.find(s => s.id === savedStudentId);
             }
 
-            const studentName = matchedStudent ? matchedStudent.fullName : "Admin Examiner";
-            const studentId = matchedStudent ? matchedStudent.id : "ADMIN";
+            if (!matchedStudent) {
+                const inputVal = document.getElementById('exam-student-id').value.trim();
+                if (!inputVal) {
+                    alert("Please enter your ID number or Last Name.");
+                    return;
+                }
 
-            currentExamSession = { role: 'student', identifier: studentId, name: studentName };
-            updatePresence(studentName, "taking_exam");
+                matchedStudent = AUTHORIZED_STUDENTS.find(s => 
+                    s.id === inputVal || s.lastName.toLowerCase() === inputVal.toLowerCase()
+                );
+
+                if (!matchedStudent) {
+                    alert("Access Denied: ID number or Last Name not found in authorized student records!");
+                    return;
+                }
+
+                localStorage.setItem('recognized_student_id', matchedStudent.id);
+            }
+
+            currentExamSession = { role: 'student', identifier: matchedStudent.id, name: matchedStudent.fullName };
+            updatePresence(matchedStudent.fullName, "taking_exam");
             examStrikes = 0;
             renderFeed();
         }
@@ -1041,6 +1018,23 @@
             }
         }
 
+        // --- NEW: DELETE INDIVIDUAL STUDENT SUBMISSION SCORE ---
+        async function deleteStudentScore(submissionId, studentName) {
+            if (!confirm(`Are you sure you want to delete the score record for ${studentName}? This will allow them to retake the exam.`)) return;
+
+            const { error } = await supabaseClient
+                .from('submissions')
+                .delete()
+                .eq('id', submissionId);
+
+            if (error) {
+                alert("Failed to delete score record: " + error.message);
+            } else {
+                alert("Score record deleted successfully. The student can now retake the exam.");
+                fetchDataFromCloud();
+            }
+        }
+
         function toggleAuthorExamPreview(timestamp) {
             const previewElem = document.getElementById(`author-preview-${timestamp}`);
             if (previewElem) previewElem.classList.toggle('hidden');
@@ -1125,7 +1119,7 @@
             if (error) {
                 alert("Failed to submit score: " + error.message);
             } else {
-                alert(`Exam Submitted Successfully!\n✤ CORRECT: ${correctCount}\nWrong: ${wrongCount}\nCheating Strikes: ${examStrikes}`);
+                alert(`Exam Submitted Successfully!\n✤ CORRECT: ${correctCount}\n✤ Wrong: ${wrongCount}\nCheating Strikes: ${examStrikes}`);
                 updatePresence(currentExamSession.name, "finished");
                 fetchDataFromCloud();
             }
@@ -1155,7 +1149,7 @@
 
         function triggerCheatViolation(reason) {
             examStrikes++;
-            alert(`✤ SCREENSHOT / CHEATING WARNING ${examStrikes} / 3 ✤\n\n${reason}`);
+            alert(`✤ SCREEN CHANGES / CHEATING WARNING ${examStrikes} / 3 ✤\n\n${reason}`);
             if (examStrikes >= 3) {
                 alert("Maximum cheating strikes exceeded (3 strikes). Your examination is now auto-submitting.");
                 submitStudentExam(activeExamTimestampForTracker);
@@ -1179,28 +1173,7 @@
             feed.innerHTML = posts.map((p, index) => {
                 const deleteButtonHtml = isUserAdmin ? `<button class="delete-btn" onclick="deletePost(${p.timestamp})">🗑️ Delete</button>` : '';
 
-                if (p.type === 'quiz') {
-                    return `
-                        <div class="announcement-item">
-                            <div class="announcement-meta">
-                                <span>✤ ${escapeHtml(p.author)} [${p.time}] - STUDENT ACTIVITY</span>
-                                ${deleteButtonHtml}
-                            </div>
-                            <div class="announcement-text" style="font-weight:bold; margin-bottom: 8px;">🎯 ${escapeHtml(p.question)}</div>
-                            <div class="quiz-container">
-                                <div class="quiz-options">
-                                    ${p.options.map((opt, optIdx) => `
-                                        <button class="quiz-option-btn" onclick="checkQuizAnswer(${index}, ${optIdx},${p.correct})">${String.fromCharCode(65 + optIdx)}.${escapeHtml(opt)}</button>
-                                    `).join('')}
-                                </div>
-                                <div id="quiz-result-${index}" class="quiz-result"></div>
-                                <div id="quiz-explanation-${index}" class="hidden" style="margin-top: 8px; font-size: 13px; background: #e2e2e2; padding: 8px; border-radius: 4px; border-left: 3px solid #1b4332;">
-                                    💡 <b>Explanation:</b> ${escapeHtml(p.explanation || 'No explanation provided.')}
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                } else if (p.type === 'confession') {
+                if (p.type === 'confession') {
                     const devNameTag = (isUserAdmin && p.author_name) ? `<br><span style="color:#777; font-size:11px;">👤 Sender Name: ${escapeHtml(p.author_name)}</span>` : '';
                     return `
                         <div class="announcement-item">
@@ -1232,13 +1205,28 @@
             examPosts.sort((a, b) => a.timestamp - b.timestamp);
 
             if (!currentExamSession) {
-                html += `
-                    <div class="exam-gate-container-s">
-                        <h3>♘ Student Examination Login</h3>
-                        <input type="text" id="exam-student-id" placeholder="Enter ID Number or Last Name">
-                        <button onclick="loginExamStudent()">Proceed to Quizzes</button>
-                    </div>
+                const recognizedStudentId = localStorage.getItem('recognized_student_id');
+                const recognizedStudent = recognizedStudentId ? AUTHORIZED_STUDENTS.find(s => s.id === recognizedStudentId) : null;
 
+                if (recognizedStudent && !isUserAdmin) {
+                    html += `
+                        <div class="exam-gate-container-s">
+                            <h3>♘ Welcome Back, ${escapeHtml(recognizedStudent.nickname)}</h3>
+                            <p style="font-size:12px; color:#ddd; margin-bottom:15px;">Hope your day was wonderful 😊</p>
+                            <button onclick="loginExamStudent()">Proceed to Quizzes</button>
+                        </div>
+                    `;
+                } else {
+                    html += `
+                        <div class="exam-gate-container-s">
+                            <h3>♘ Student Examination Login</h3>
+                            <input type="text" id="exam-student-id" placeholder="Enter ID Number or Last Name">
+                            <button onclick="loginExamStudent()">Proceed to Quizzes</button>
+                        </div>
+                    `;
+                }
+
+                html += `
                     <div class="exam-gate-container">
                         <h3>♔ Author Login</h3>
                         <input type="password" id="exam-author-code" placeholder="Enter Author Passcode">
@@ -1425,10 +1413,13 @@
                                         <th style="padding:6px;">Wrong</th>
                                         <th style="padding:6px;">Score</th>
                                         <th style="padding:6px;">Cheating Strikes</th>
+                                        ${isUserAdmin ? '<th style="padding:6px;">Action</th>' : ''}
                                     </tr>
                             `;
                             exam.submissions.forEach((sub) => {
                                 const strikeColor = (sub.strikes || 0) > 0 ? "#9b2226" : "#1b4332";
+                                const deleteScoreAction = isUserAdmin ? `<td style="padding:6px;"><button onclick="deleteStudentScore(${sub.id}, '${escapeHtml(sub.student_name)}')" style="background:#9b2226; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">🗑️ Delete</button></td>` : '';
+                                
                                 html += `
                                     <tr style="border-bottom:1px solid #bbb; color:#111;">
                                         <td style="padding:6px;">${escapeHtml(sub.student_id)} - ${escapeHtml(sub.student_name)}</td>
@@ -1436,6 +1427,7 @@
                                         <td style="padding:6px; color:#9b2226; font-weight:bold;">${sub.wrong}</td>
                                         <td style="padding:6px; font-weight:bold;">${sub.score}</td>
                                         <td style="padding:6px; color:${strikeColor}; font-weight:bold;">${sub.strikes || 0} strikes</td>
+                                        ${deleteScoreAction}
                                     </tr>
                                 `;
                             });
@@ -1459,32 +1451,7 @@
             const timeString = `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')} / ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`;
             const authorName = isUserAdmin ? "Developer Admin" : "Student";
 
-            if (category === 'ACTIVITIES') {
-                const qAuthor = document.getElementById('quiz-author-name').value.trim() || authorName;
-                const question = document.getElementById('quiz-question').value.trim();
-                const opt1 = document.getElementById('quiz-opt1').value.trim();
-                const opt2 = document.getElementById('quiz-opt2').value.trim();
-                const opt3 = document.getElementById('quiz-opt3').value.trim();
-                const correct = parseInt(document.getElementById('quiz-correct').value);
-                const explanation = document.getElementById('quiz-explanation').value.trim();
-
-                if (!question || !opt1 || !opt2 || !opt3) {
-                    alert("Please fill out the question and all options for the fun quiz!");
-                    return;
-                }
-
-                newPost = {
-                    category: 'ACTIVITIES',
-                    type: 'quiz',
-                    author: qAuthor,
-                    question: question,
-                    options: [opt1, opt2, opt3],
-                    correct: correct,
-                    explanation: explanation,
-                    timestamp: now.getTime(),
-                    time: timeString
-                };
-            } else if (category === 'CONFESSIONS') {
+            if (category === 'CONFESSIONS') {
                 const confessionText = document.getElementById('confession-text').value.trim();
                 if (!confessionText) {
                     alert("Please type your confession before publishing!");
@@ -1522,7 +1489,6 @@
                 alert("Failed to publish: " + error.message);
             } else {
                 textInput.value = "";
-                if (document.getElementById('quiz-question')) document.getElementById('quiz-question').value = "";
                 if (document.getElementById('confession-text')) document.getElementById('confession-text').value = "";
                 alert("Published successfully!");
                 fetchDataFromCloud();
@@ -1544,21 +1510,6 @@
             if (!error) {
                 alert("Item deleted successfully.");
                 fetchDataFromCloud();
-            }
-        }
-
-        function checkQuizAnswer(postIndex, chosenOption, correctOption) {
-            const resultDiv = document.getElementById(`quiz-result-${postIndex}`);
-            const explanationDiv = document.getElementById(`quiz-explanation-${postIndex}`);
-
-            if (chosenOption === correctOption) {
-                resultDiv.style.color = "#1b4332";
-                resultDiv.innerHTML = "🎉 Correct! Great job!";
-                if (explanationDiv) explanationDiv.classList.remove('hidden');
-            } else {
-                resultDiv.style.color = "#9b2226";
-                resultDiv.innerHTML = "❌ Oops! Try another option for fun.";
-                if (explanationDiv) explanationDiv.classList.add('hidden');
             }
         }
 
@@ -1596,10 +1547,19 @@
         }
 
         function getVanyaResponse(query) {
-            query = query.toLowerCase();
-            if (query.includes('exam') || query.includes('annc')) {
+            const cleanQuery = query.toLowerCase().trim();
+
+            if (cleanQuery === 'clear device' || cleanQuery === 'switch account') {
+                localStorage.removeItem('recognized_student_id');
+                if (activeCategory === 'GC') {
+                    renderAnncExamPortal(document.getElementById('announcement-feed'));
+                }
+                return "⚙️ Device memory cleared! The student login portal will now require entering an ID or Last Name again.";
+            }
+
+            if (cleanQuery.includes('exam') || cleanQuery.includes('annc')) {
                 return "Head over to the 'E-QUIZ' tab in the sidebar to log in as a student, author, or spectator!";
-            } else if (query.includes('hello') || query.includes('hi')) {
+            } else if (cleanQuery.includes('hello') || cleanQuery.includes('hi')) {
                 return "Привет! How can I assist your studies today?";
             } else {
                 return "I am Vanya, your helper. Check out the sidebar categories for updates from Master Lyony!";
