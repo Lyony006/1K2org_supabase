@@ -86,6 +86,21 @@
             --annc-meta: #fff;
             --nav-hover:#30003A;
         }        
+        [data-theme="vader"] {
+            --bg-color: #050505;
+            --card-bg: #34373B;
+            --timer-bg:#18191C;
+            --timer-text:#C62828;            
+            --text-dark: #111111;
+            --text:#A7A9AC;
+            --accent: #fff;
+            --border-color: #C62828;
+            --btn-bg: #111111;
+            --std-cnt: #34373B;            
+            --annc-bg: #18191C;
+            --annc-meta: #fff;
+            --nav-hover:#111111;
+        }        
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -191,7 +206,7 @@
             background: rgba(255, 255, 255, 0.05);
             border: 2px solid var(--border-color);
             padding: 12px 15px;
-            border-radius: 20px;
+            border-radius: 80px;
             box-sizing: border-box;
             display: flex;
             align-items: center;
@@ -519,7 +534,7 @@
             .nav-item:hover, .nav-item.active {
                 background-color: var(--border-color);
                 border-left-color: var(--accent);
-                color: var(--text);
+                color: var(--nav-hover);
                 transform: translateY(15px);
             }
             .main-content {
@@ -616,9 +631,10 @@
             <select id="theme-select" onchange="changeTheme(this.value)">
                 <option value="default">Aurelius</option>
                 <option value="brown">Velmora</option>
-                <option value="red">Imperial</option>                
+                <option value="red">Imperial</option>
+                <option value="vader">Darth Vader</option>                
                 <option value="emerald">Krypton</option>
-                <option value="purple">Queens Royale</option>                
+                <option value="purple">Queen's Orchid</option>                
             </select>
         </div>
 
@@ -626,7 +642,7 @@
             <p>Click enter to access portal</p>
             <button class="action-btn" onclick="loginAsStudent()">ENTER</button>
 
-            <p>For the developer or admin, enter your code below.</p>
+            <p>For the developer, enter your code below.</p>
             <div class="dev-input-row">
                 <input type="password" id="dev-code-input" placeholder="Type code">
                 <button class="action-btn" onclick="loginAsDeveloper()">ENTER</button>
