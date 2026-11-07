@@ -12,12 +12,80 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
     <style>
-        :root {
+        /* --- THEME DEFINITIONS --- */
+        :root, [data-theme="default"] {
             --bg-color: #000000;
             --card-bg: #c4c4c4;
+            --timer-bg:#111111;
+            --timer-text:#D1A954;
             --text-dark: #111111;
+            --text:#111111;
             --accent: #F2F0EA;
+            --border-color: #D1A954;
+            --btn-bg: #7A4E2D;
+            --std-cnt: #7A4E2D;
+            --annc-bg: #D5B78B;
+            --annc-meta: #222;
         }
+
+        [data-theme="brown"] {
+            --bg-color: #523B35;
+            --card-bg: #c4c4c4;
+            --timer-bg:#111111;
+            --timer-text:#D1A954;            
+            --text-dark: #111111;
+            --text:#111111;
+            --accent: #F2F0EA;
+            --border-color: #D1A954;
+            --btn-bg: #7A4E2D;
+            --std-cnt: #7A4E2D;            
+            --annc-bg: #d9d9d9;
+            --annc-meta: #222;
+        }
+        [data-theme="red"] {
+            --bg-color: #340A10;
+            --card-bg: #6C0200;
+            --timer-bg:#D9B6A3;
+            --timer-text:#111111;            
+            --text-dark: #111111;
+            --text:#D1A954;
+            --accent: #D4B356;
+            --border-color: #6C0200;
+            --btn-bg: #111111;
+            --std-cnt: #350200;            
+            --annc-bg: #340A10;
+            --annc-meta: #fff;
+        }
+        [data-theme="emerald"] {
+            --bg-color: #07120a;
+            --card-bg: #1b2e21;
+            --timer-bg:#333;
+            --timer-text:#a3e635;            
+            --text-dark: #23643D;
+            --text: #ffffff;
+            --font: Serif;
+            --accent: #a3e635;
+            --border-color: #10b981;
+            --btn-bg: #047857;
+            --std-cnt: #23643D;            
+            --annc-bg: #111111;
+            --annc-meta: #9ca3af;
+        }
+        [data-theme="purple"] {
+            --bg-color: #30003A;
+            --card-bg: #440052;
+            --timer-bg:#111111;
+            --timer-text:#D1A954;            
+            --text-dark: #111111;
+            --text:#fff;
+            --accent: #D1A954;
+            --border-color: #fff;
+            --btn-bg: #111111;
+            --std-cnt: #5D0786;            
+            --annc-bg: #5D0565;
+            --annc-meta: #fff;
+            --nav-hover:#30003A;
+        }        
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -41,9 +109,9 @@
         .exam-timer-floating {
             position: sticky;
             top: 15px;
-            background-color: #111111;
-            border: 2px solid #D1A954;
-            color: #D1A954;
+            background-color:var(--timer-bg);
+            border: 2px solid var(--border-color);
+            color: var(--timer-text);
             padding: 10px 15px;
             border-radius: 8px;
             font-weight: bold;
@@ -59,7 +127,7 @@
             top: 15px;
             left: 50%;
             transform: translateX(-50%) translateY(-100px);
-            background-color: #ffffff;
+            background-color: #111111;
             color: #000000;
             padding: 10px 20px;
             border-radius: 20px;
@@ -88,15 +156,15 @@
             display: flex;
             align-items: center;
             gap: 15px;
-            margin-bottom: 40px;
-            border-left: 2px solid white;
+            margin-bottom: 30px;
+            border-left: 2px solid var(--accent);
             padding-left: 15px;
         }
 
         .logo-circle {
             width: 60px;
             height: 60px;
-            border: 3px solid #D1A954;
+            border: 3px solid var(--border-color);
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -116,27 +184,60 @@
             color: #aaaaaa;
         }
 
+        /* Theme Selector Container on Login */
+        .theme-selector-box {
+            width: 100%;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid var(--border-color);
+            padding: 12px 15px;
+            border-radius: 20px;
+            box-sizing: border-box;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .theme-selector-box label {
+            font-size: 13px;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .theme-selector-box select {
+            background-color: var(--text-dark);
+            color: var(--accent);
+            border: 1px solid var(--border-color);
+            padding: 6px 12px;
+            border-radius: 12px;
+            outline: none;
+            font-size: 13px;
+            font-family: Serif;
+            cursor: pointer;
+        }
+
         .login-card {
-            color: var(--text-dark);
+            color: var(--text);
             width: 100%;
             padding: 30px 20px;
-            border: 2px solid #D1A954;
+            border: 2px solid var(--border-color);
             border-radius: 25px;
             text-align: center;
             box-sizing: border-box;
+            background-color: transparent;
         }
 
         .login-card p {
             font-size: 14px;
-            color: white;
+            color: var(--accent);
             font-weight: 500;
             margin-bottom: 15px;
         }
 
         .action-btn {
-            background-color: #7A4E2D;
+            background-color: var(--btn-bg);
             color: white;
-            border: 2px solid #D1A954;
+            border: 2px solid var(--border-color);
             padding: 12px 0;
             width: 100%;
             border-radius: 25px;
@@ -168,10 +269,10 @@
         .dev-input-row button { width: 120px; border-radius: 25px; margin-bottom: 0;}
 
         .footer-credit {
-            margin-top: 40px;
+            margin-top: 30px;
             font-size: 12px;
             letter-spacing: 1px;
-            color: white;
+            color: var(--accent);
             text-align: center;
         }
 
@@ -187,7 +288,7 @@
         .sidebar {
             width: 260px;
             background-color: var(--bg-color);
-            border-right: 2px solid #D1A954;
+            border-right: 2px solid var(--border-color);
             display: flex;
             flex-direction: column;
             padding: 20px 0;
@@ -207,7 +308,7 @@
         .sidebar-logo {
             width: 40px;
             height: 40px;
-            border: 2px solid white;
+            border: 2px solid var(--accent);
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -216,23 +317,23 @@
         }
 
         .nav-item {
-            background-color: #222;
-            color: #F2F0EA;
+            background-color: var(--text-dark);
+            color: var(--accent);
             padding: 12px 20px;
             font-weight: bold;
             font-size: 15px;
             letter-spacing: 1px;
             margin-bottom: 8px;
             cursor: pointer;
-            border: 2px solid #D1A954;
+            border: 2px solid var(--border-color);
             border-radius: 10px;
             transition: all 0.4s ease-in-out;
         }
 
         .nav-item:hover, .nav-item.active {
-            background-color: #D1A954;
-            border-left-color: white;
-            color: #111;
+            background-color: var(--border-color);
+            border-left-color: var(--accent);
+            color: var(--nav-hover);
             transform: translateX(15px);
         }
 
@@ -244,17 +345,17 @@
             padding: 30px;
             overflow-y: auto;
             height: 100vh;
-            border: 2px solid #D1A954;
+            border: 2px solid var(--border-color);
             box-sizing: border-box;
             position: relative;
         }
 
         .admin-post-box {
-            background: #222;
+            background: var(--text-dark);
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 25px;
-            border: 2px solid #D1A954;
+            border: 2px solid var(--border-color);
             position: sticky;
             top: 0;
             z-index: 5;
@@ -271,7 +372,7 @@
         .collapse-toggle-btn {
             background: transparent;
             border: none;
-            color: white;
+            color: var(--accent);
             font-size: 14px;
             font-weight: bold;
             cursor: pointer;
@@ -286,9 +387,9 @@
 
         .admin-post-box input, .admin-post-box textarea, .admin-post-box select {
             width: 100%;
-            background: #111;
-            color: white;
-            border: 1px solid #D1A954;
+            background: var(--bg-color);
+            color: var(--accent);
+            border: 1px solid var(--border-color);
             padding: 10px;
             border-radius: 6px;
             box-sizing: border-box;
@@ -297,20 +398,22 @@
         }
 
         .announcement-item {
-            background-color: #d9d9d9;
-            color: var(--text-dark);
+            background-color: var(--annc-bg);
+            color: var(--text);
+            font-family: var(--font) ;
             padding: 15px 20px;
             border-radius: 6px;
             margin-bottom: 20px;
             max-width: 700px;
             position: relative;
+            border: 1px solid var(--border-color);
         }
 
         .announcement-meta {
             font-weight: bold;
             font-size: 12px;
             margin-bottom: 8px;
-            color: #222;
+            color: var(--annc-meta);
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -333,21 +436,22 @@
         }
 
         .exam-gate-container-s, .exam-gate-container {
-            background: #7A4E2D;
-            border: 2px solid #D1A954;
+            background: var(--std-cnt);
+            border: 2px solid var(--border-color);
             padding: 20px;
             border-radius: 12px;
             max-width: 500px;
             margin: 20px auto;
             text-align: center;
+            color: #fff;
         }
-        .exam-gate-container { background: #0B0B0D; }
+        .exam-gate-container { background: #111111; }
         .exam-gate-container-s input, .exam-gate-container input {
             width: 100%;
             padding: 10px;
-            background: #111111;
-            color: #fff;
-            border: 1px solid #D1A954;
+            background: var(--bg-color);
+            color: var(--accent);
+            border: 1px solid var(--border-color);
             border-radius: 6px;
             margin-bottom: 12px;
             box-sizing: border-box;
@@ -377,9 +481,9 @@
             position: fixed;
             bottom: 85px;
             right: 23px;
-            background: #333;
-            color: white;
-            border: 2px solid #D1A954;
+            background: var(--text-dark);
+            color: var(--accent);
+            border: 2px solid var(--border-color);
             padding: 8px 14px;
             border-radius: 8px;
             cursor: pointer;
@@ -397,7 +501,7 @@
                 overflow-x: auto;
                 padding: 10px;
                 border-right: none;
-                border-bottom: 2px solid #D1A954;
+                border-bottom: 2px solid var(--border-color);
                 align-items: center;
                 gap: 5px;
                 flex-shrink: 0;
@@ -409,8 +513,14 @@
                 font-size: 13px;
                 white-space: nowrap;
                 border-left: none;
-                border-bottom: 2px solid #D1A954;
+                border-bottom: 2px solid var(--border-color);
                 border-radius: 4px;
+            }
+            .nav-item:hover, .nav-item.active {
+                background-color: var(--border-color);
+                border-left-color: var(--accent);
+                color: var(--text);
+                transform: translateY(15px);
             }
             .main-content {
                 height: calc(100vh - 60px);
@@ -418,9 +528,9 @@
             }
             .logout-link {
                 position: fixed;
-                background: #7A4E2D;
+                background: var(--btn-bg);
                 color: white;
-                border: 2px solid #D1A954;
+                border: 2px solid var(--border-color);
                 padding: 5px 5px;
                 border-radius: 4px;
                 cursor: pointer;
@@ -437,8 +547,8 @@
             right: 25px;
             width: 50px;
             height: 50px;
-            background-color: #D1A954;
-            color: var(--text-dark);
+            background-color: var(--border-color);
+            color: #111111;
             border-radius: 50%;
             display: flex;
             justify-content: center;
@@ -455,8 +565,8 @@
             right: 20px;
             width: 280px;
             height: 350px;
-            background-color: #1a1a1a;
-            border: 2px solid #D1A954;
+            background-color: var(--bg-color);
+            border: 2px solid var(--border-color);
             border-radius: 12px;
             display: flex;
             flex-direction: column;
@@ -465,8 +575,8 @@
         }
 
         .chat-header {
-            background-color: #D1A954;
-            color: var(--text-dark);
+            background-color: var(--border-color);
+            color: #111111;
             padding: 8px 12px;
             font-weight: bold;
             display: flex;
@@ -477,13 +587,13 @@
             font-size: 14px;
         }
 
-        .close-chat { background: transparent; border: none; font-size: 14px; cursor: pointer; font-weight: bold; }
+        .close-chat { background: transparent; border: none; font-size: 14px; cursor: pointer; font-weight: bold; color: var(--text-dark); }
         .chat-messages { flex: 1; padding: 12px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
-        .chat-bubble { background-color: #d9d9d9; color: var(--text-dark); padding: 8px 10px; border-radius: 8px; font-size: 12px; max-width: 85%; word-break: break-word; }
+        .chat-bubble { background-color: #333333; color: #ffffff; padding: 8px 10px; border-radius: 8px; font-size: 12px; max-width: 85%; word-break: break-word; }
         .chat-bubble.user { background-color: #333333; color: #ffffff; align-self: flex-end; }
-        .chat-input-area { display: flex; padding: 8px; background-color: #111; border-top: 1px solid #333; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
-        .chat-input-area input { flex: 1; background: #222; border: 1px solid #444; padding: 6px; color: white; border-radius: 4px; outline: none; font-size: 12px; }
-        .chat-input-area button { background: #c4c4c4; color: #111; border: none; padding: 0 10px; margin-left: 6px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; }
+        .chat-input-area { display: flex; padding: 8px; background-color: var(--bg-color); border-top: 1px solid #333; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
+        .chat-input-area input { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 6px; color: #ffffff; border-radius: 4px; outline: none; font-size: 12px; }
+        .chat-input-area button { background: var(--card-bg); color: var(--text); border: none; padding: 0 10px; margin-left: 6px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; }
     </style>
 </head>
 <body>
@@ -500,11 +610,23 @@
             </div>
         </div>
 
+        <!-- THEME SELECTION OPTION ON LOGIN -->
+        <div class="theme-selector-box">
+            <label for="theme-select">🎨 Color Theme:</label>
+            <select id="theme-select" onchange="changeTheme(this.value)">
+                <option value="default">Aurelius</option>
+                <option value="brown">Velmora</option>
+                <option value="red">Imperial</option>                
+                <option value="emerald">Krypton</option>
+                <option value="purple">Queens Royale</option>                
+            </select>
+        </div>
+
         <div class="login-card">
             <p>Click enter to access portal</p>
             <button class="action-btn" onclick="loginAsStudent()">ENTER</button>
 
-            <p>If you are the developer or admin, enter your code below.</p>
+            <p>For the developer or admin, enter your code below.</p>
             <div class="dev-input-row">
                 <input type="password" id="dev-code-input" placeholder="Type code">
                 <button class="action-btn" onclick="loginAsDeveloper()">ENTER</button>
@@ -582,6 +704,22 @@
     </div>
 
     <script>
+        // --- THEME AUTO-LOADER & MANAGER ---
+        function applySavedTheme() {
+            const savedTheme = localStorage.getItem('site_color_theme') || 'default';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            const themeSelect = document.getElementById('theme-select');
+            if (themeSelect) themeSelect.value = savedTheme;
+        }
+
+        function changeTheme(themeName) {
+            document.documentElement.setAttribute('data-theme', themeName);
+            localStorage.setItem('site_color_theme', themeName);
+        }
+
+        // Apply theme right away when script loads
+        applySavedTheme();
+
         // --- SUPABASE CONFIGURATION ---
         const SUPABASE_URL = "https://ddwedkhokaeoarczscpo.supabase.co";
         const SUPABASE_ANON_KEY = "sb_publishable_8RPgyt6HcrMAoLjyde8i7g_HBL7pJBW";
@@ -764,7 +902,7 @@
             confessionFields.classList.add('hidden');
 
             if (cat === 'CONFESSIONS') confessionFields.classList.remove('hidden');
-            else standardFields.classList.add('hidden');
+            else standardFields.classList.remove('hidden');
         }
 
         async function fetchDataFromCloud() {
@@ -862,13 +1000,11 @@
                 localStorage.setItem('recognized_student_id', matchedStudent.id);
             }
 
-            // --- CHECK IF STUDENT IS BLOCKED FROM ANY LIVE QUIZ ---
             let examPosts = cachedPosts.filter(p => p.type === 'exam_quiz' && p.is_live !== false);
             let isBlockedForAnyActiveQuiz = false;
 
             for (let exam of examPosts) {
                 if (exam.blocked_students) {
-                    // Split blocked string by commas and check case-insensitive match against student's last name
                     let blockedList = exam.blocked_students.split(',').map(name => name.trim().toLowerCase());
                     if (blockedList.includes(matchedStudent.lastName.toLowerCase())) {
                         isBlockedForAnyActiveQuiz = true;
@@ -1112,10 +1248,10 @@
                 headStyles: { fillColor: [122, 78, 45], halign:'center' },
                 styles: { fontSize: 10, cellPadding: 1 },
                 columnStyles:{
-                    0: { halign: 'center' }, // ID Number
-                    1: { halign: 'left' },   // Full Name
-                    2: { halign: 'center' }, // Score
-                    3: { halign: 'center' }},  // Cheating Strikes}
+                    0: { halign: 'center' },
+                    1: { halign: 'left' },   
+                    2: { halign: 'center' }, 
+                    3: { halign: 'center' }},
                 alternateRowStyles: { fillColor: [240, 240, 240] }
             });
 
@@ -1254,7 +1390,7 @@
             }
 
             if (posts.length === 0) {
-                feed.innerHTML = `<div style="color: #aaaaaa; font-style: italic; font-size: 14px;">No posts under ${activeCategory} yet.</div>`;
+                feed.innerHTML = `<div style="color: var(--accent); opacity: 0.7; font-style: italic; font-size: 14px;">No posts under ${activeCategory} yet.</div>`;
                 return;
             }
 
@@ -1287,7 +1423,7 @@
         }
 
         function renderAnncExamPortal(feed) {
-            let html = `<h3 style="color:#fff; border-bottom: 1px solid #333; padding-bottom: 10px; font-family:Serif;">📋 Examination Portal / Экзамен</h3>`;
+            let html = `<h3 style="color:var(--accent); border-bottom: 1px solid #333; padding-bottom: 10px; font-family:Serif;">📋 Examination Portal / Экзамен</h3>`;
 
             let examPosts = cachedPosts.filter(p => p.type === 'exam_quiz');
             examPosts.sort((a, b) => a.timestamp - b.timestamp);
@@ -1328,12 +1464,12 @@
                     </div>
                 `;
             } else if (currentExamSession.role === 'student') {
-                html += `<button onclick="Object.values(activeExamTimers).forEach(t => clearInterval(t)); activeExamTimers={}; currentExamSession=null; renderFeed();" style="background:#111111; color:#D1A954; border: 2px solid #D1A954; padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Back to Portals</button>`;
+                html += `<button onclick="Object.values(activeExamTimers).forEach(t => clearInterval(t)); activeExamTimers={}; currentExamSession=null; renderFeed();" style="background:var(--bg-color); color:var(--border-color); border: 2px solid var(--border-color); padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Back to Portals</button>`;
                 
                 const liveExams = examPosts.filter(exam => exam.is_live !== false);
 
                 if (liveExams.length === 0) {
-                    html += `<div style="color:#888;">No active/live examinations posted yet.</div>`;
+                    html += `<div style="color:var(--accent);">No active/live examinations posted yet.</div>`;
                 } else {
                     liveExams.forEach(exam => {
                         const hasAlreadyTaken = exam.submissions && exam.submissions.some(sub => sub.student_id === currentExamSession.identifier);
@@ -1399,7 +1535,7 @@
                             }
                         });
                         html += `
-                                    <button type="submit" style="background:#1b4332; color:#fff; border:none; padding:10px 20px; font-weight:bold; border-radius:4px; margin-top:15px; cursor:pointer; width:100%;">Submit Examination</button>
+                                    <button type="submit" style="background:#64B500; color:#111111; border:none; padding:10px 20px; font-weight:bold; border-radius:4px; margin-top:15px; cursor:pointer; width:100%;">Submit Examination</button>
                                 </form>
                             </div>
                         `;
@@ -1512,7 +1648,7 @@
                                 const deleteScoreAction = isUserAdmin ? `<td style="padding:6px;"><button onclick="deleteStudentScore(${sub.id}, '${escapeHtml(sub.student_name)}')" style="background:#9b2226; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">🗑️ Delete</button></td>` : '';
                                 
                                 html += `
-                                    <tr style="border-bottom:1px solid #bbb; color:#111;">
+                                    <tr style="border-bottom:1px solid #bbb; color:var(--text);">
                                         <td style="padding:6px;">${escapeHtml(sub.student_id)} - ${escapeHtml(sub.student_name)}</td>
                                         <td style="padding:6px; font-weight:bold;">${sub.score}</td>                         
                                         <td style="padding:6px; color:#9b2226; font-weight:bold;">${sub.wrong}</td>
