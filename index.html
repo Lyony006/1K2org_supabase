@@ -735,7 +735,6 @@
             localStorage.setItem('site_color_theme', themeName);
         }
 
-        // Apply theme right away when script loads
         applySavedTheme();
 
         // --- SUPABASE CONFIGURATION ---
@@ -986,7 +985,7 @@
             let matchedStudent = null;
 
             if (isUserAdmin) {
-                currentExamSession = { role: 'student', identifier: "ADMIN", name: "Admin Examiner" };
+                currentExamSession = { role: 'student', identifier: "ADMIN", name: "Admin Examiner", nickname: "Admin" };
                 updatePresence("Admin Examiner", "taking_exam");
                 examStrikes = 0;
                 renderFeed();
@@ -1036,9 +1035,30 @@
                 return;
             }
 
-            currentExamSession = { role: 'student', identifier: matchedStudent.id, name: matchedStudent.fullName };
+            currentExamSession = { 
+                role: 'student', 
+                identifier: matchedStudent.id, 
+                name: matchedStudent.fullName, 
+                nickname: matchedStudent.nickname 
+            };
             updatePresence(matchedStudent.fullName, "taking_exam");
             examStrikes = 0;
+
+            // Trigger Welcome Popup for first live quiz if available
+            if (examPosts.length > 0) {
+                let firstExam = examPosts[0];
+                let timeStr = firstExam.duration_seconds > 0 ? `${Math.floor(firstExam.duration_seconds / 60)} minutes` : "Untimed";
+                let numQuestions = firstExam.questions ? firstExam.questions.length : 0;
+                let authorName = firstExam.creator_name || "Public / Guest";
+                let quizTitle = firstExam.title;
+                let strikesLimit = "3 Cheating strikes limit";
+                let nickname = matchedStudent.nickname;
+                let fullName = matchedStudent.fullName;
+                let idNumber = matchedStudent.id;
+
+                alert(`ID No. ${idNumber}\nGreetings dear ${fullName}  you will be entering the quiz form posted on this webpage, the Exam ${quizTitle} uploaded by ${authorName} with a given time of ${timeStr} and total of ${numQuestions} questions.\n\nAlso I'd like to remind you that there are ${strikesLimit} that includes taking screenshots or switching to other applications during the examination may be recorded as a violation and result in a strike. \n\nThis examination is monitored by Vanya the assistant\n\nWithout further a do, I wish you have a great day and good luck ${nickname}\n\nPress OK to begin`);
+            }
+
             renderFeed();
         }
 
@@ -1147,11 +1167,23 @@
                 questions.push({ text, type, options, ans });
             });
 
+            let creatorName = "Public / Guest";
+            if (isUserAdmin) {
+                creatorName = "Developer Admin";
+            } else {
+                const savedStudentId = localStorage.getItem('recognized_student_id');
+                if (savedStudentId) {
+                    const found = AUTHORIZED_STUDENTS.find(s => s.id === savedStudentId);
+                    if (found) creatorName = found.nickname;
+                }
+            }
+
             const now = new Date();
             const examData = {
                 category: 'GC',
                 type: 'exam_quiz',
                 title: title,
+                creator_name: creatorName,
                 randomize: randomize,
                 duration_seconds: durationSec,
                 blocked_students: blockedStudentsInput,
@@ -1174,6 +1206,23 @@
         async function toggleQuizLiveStatus(examTimestamp) {
             const exam = cachedPosts.find(p => Number(p.timestamp) === Number(examTimestamp));
             if (!exam) return;
+
+            let currentAuthorName = "Public / Guest";
+            if (isUserAdmin) {
+                currentAuthorName = "Developer Admin";
+            } else {
+                const savedStudentId = localStorage.getItem('recognized_student_id');
+                if (savedStudentId) {
+                    const found = AUTHORIZED_STUDENTS.find(s => s.id === savedStudentId);
+                    if (found) currentAuthorName = found.fullName;
+                }
+            }
+
+            if (!isUserAdmin && exam.creator_name && exam.creator_name !== currentAuthorName) {
+                alert("Unauthorized: Only the original creator or developer can change the live status of this quiz.");
+                return;
+            }
+
             const newLiveStatus = exam.is_live === false ? true : false;
 
             const { error } = await supabaseClient
@@ -1185,6 +1234,25 @@
         }
 
         async function deleteEntireQuiz(examTimestamp) {
+            const exam = cachedPosts.find(p => Number(p.timestamp) === Number(examTimestamp));
+            if (!exam) return;
+
+            let currentAuthorName = "Public / Guest";
+            if (isUserAdmin) {
+                currentAuthorName = "Developer Admin";
+            } else {
+                const savedStudentId = localStorage.getItem('recognized_student_id');
+                if (savedStudentId) {
+                    const found = AUTHORIZED_STUDENTS.find(s => s.id === savedStudentId);
+                    if (found) currentAuthorName = found.fullName;
+                }
+            }
+
+            if (!isUserAdmin && exam.creator_name && exam.creator_name !== currentAuthorName) {
+                alert("Unauthorized: Only the original creator or developer can delete this quiz.");
+                return;
+            }
+
             if (!confirm("Are you sure you want to permanently delete this entire quiz/examination?")) return;
             const { error } = await supabaseClient
                 .from('posts')
@@ -1560,6 +1628,17 @@
                     });
                 }
             } else if (currentExamSession.role === 'author') {
+                let currentAuthorName = "Public / Guest";
+                if (isUserAdmin) {
+                    currentAuthorName = "Developer Admin";
+                } else {
+                    const savedStudentId = localStorage.getItem('recognized_student_id');
+                    if (savedStudentId) {
+                        const found = AUTHORIZED_STUDENTS.find(s => s.id === savedStudentId);
+                        if (found) currentAuthorName = found.fullName;
+                    }
+                }
+
                 html += `
                     <button onclick="currentExamSession=null; renderFeed();" style="background:#444; color:#fff; border:none; padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Back to Portals</button>
                     <div class="announcement-item" style="max-width:100%; margin-bottom: 25px;">
@@ -1586,29 +1665,37 @@
                         const isLive = exam.is_live !== false;
                         const liveButtonText = isLive ? "🔴 Unlive" : "🟢 Live";
                         const liveButtonStyle = isLive ? "background:#d90429; color:#fff;" : "background:#2a9d8f; color:#fff;";
+                        
+                        const quizCreator = exam.creator_name || "Public / Guest";
+                        const canModify = isUserAdmin || (currentAuthorName !== "Public / Guest" && quizCreator === currentAuthorName);
+                        const canViewAnswers = isUserAdmin || quizCreator === "Public / Guest" || quizCreator === currentAuthorName;
 
                         html += `
                             <div style="background:#111; border:1px solid #444; padding:12px; border-radius:6px; margin-bottom:12px;">
-                                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; cursor:pointer;" onclick="toggleAuthorExamPreview(${exam.timestamp})">
-                                    <div>
-                                        <h4 style="margin:0 0 5px 0;">📁 ${escapeHtml(exam.title)} </h4>
-                                        <span style="font-size:12px; color:#aaa;">Questions: ${exam.questions.length} | Timer: ${exam.duration_seconds || 0}s | Blocked: ${escapeHtml(exam.blocked_students || 'None')} | Status: ${isLive ? '🟢 Live' : '🔴 Unlive'}</span>
+                                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                                    <div style="flex:1; ${canViewAnswers ? 'cursor:pointer;' : ''}" ${canViewAnswers ? `onclick="toggleAuthorExamPreview(${exam.timestamp})"` : ''}>
+                                        <h4 style="margin:0 0 5px 0;">📁 ${escapeHtml(exam.title)} ${!canViewAnswers ? '🔒 (Locked Answers)' : ''}</h4>
+                                        <span style="font-size:12px; color:#aaa;">Creator: ${escapeHtml(quizCreator)} | Questions: ${exam.questions.length} | Status: ${isLive ? '🟢 Live' : '🔴 Unlive'}</span>
                                     </div>
-                                    <div style="display:flex; gap:8px;" onclick="event.stopPropagation()">
-                                        <button onclick="toggleQuizLiveStatus(${exam.timestamp})" style="${liveButtonStyle} border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">${liveButtonText}</button>
-                                        <button onclick="deleteEntireQuiz(${exam.timestamp})" style="background:#9b2226; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">Delete</button>
+                                    <div style="display:flex; gap:8px;">
+                                        ${canModify ? `
+                                            <button onclick="toggleQuizLiveStatus(${exam.timestamp})" style="${liveButtonStyle} border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">${liveButtonText}</button>
+                                            <button onclick="deleteEntireQuiz(${exam.timestamp})" style="background:#9b2226; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">Delete</button>
+                                        ` : `<span style="font-size:11px; color:#888; align-self:center;">View Only</span>`}
                                     </div>
                                 </div>
-                                <div id="author-preview-${exam.timestamp}" class="hidden" style="margin-top:12px; border-top:1px solid #333; padding-top:10px;">
-                                    <ol style="padding-left:20px; margin:0; color:#ddd; font-size:14px;">
-                                        ${exam.questions.map((q) => `
-                                            <li style="margin-bottom:6px;">
-                                                <strong>${escapeHtml(q.text)}</strong> (${q.type})<br>
-                                                <span style="color:#aaa; font-size:12px;">Answer: ${escapeHtml(q.ans)}</span>
-                                            </li>
-                                        `).join('')}
-                                    </ol>
-                                </div>
+                                ${canViewAnswers ? `
+                                    <div id="author-preview-${exam.timestamp}" class="hidden" style="margin-top:12px; border-top:1px solid #333; padding-top:10px;">
+                                        <ol style="padding-left:20px; margin:0; color:#ddd; font-size:14px;">
+                                            ${exam.questions.map((q) => `
+                                                <li style="margin-bottom:6px;">
+                                                    <strong>${escapeHtml(q.text)}</strong> (${q.type})<br>
+                                                    <span style="color:#a3e635; font-size:12px;">Answer Key: ${escapeHtml(q.ans)}</span>
+                                                </li>
+                                            `).join('')}
+                                        </ol>
+                                    </div>
+                                ` : ''}
                             </div>
                         `;
                     });
@@ -1617,25 +1704,8 @@
             } else if (currentExamSession.role === 'spectator') {
                 html += `
                     <button onclick="currentExamSession=null; renderFeed();" style="background:#444; color:#fff; border:none; padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Back to Portals</button>
-                    <h3>Spectator Scoreboard & Live Presence</h3>
+                    <h3>Spectator Scoreboard</h3>
                 `;
-
-                html += `
-                    <div class="announcement-item" style="max-width:100%; background:#222; color:#fff;">
-                        <h4 style="margin-top:0; border-bottom:1px solid #444; padding-bottom:6px;">🟢 Active Users & Status</h4>
-                `;
-                if (!cachedPresence || cachedPresence.length === 0) {
-                    html += `<div style="color:#aaa; font-size:13px;">No active users online right now.</div>`;
-                } else {
-                    html += `<ul style="list-style:none; padding:0; margin:0; font-size:14px;">`;
-                    cachedPresence.forEach(p => {
-                        const dotClass = (p.status === 'finished') ? 'status-blue' : 'status-green';
-                        const statusText = (p.status === 'finished') ? 'Finished Exam' : (p.status === 'taking_exam' ? 'Taking Exam' : 'Online / Active');
-                        html += `<li style="margin-bottom:6px; display:flex; align-items:center;"><span class="status-dot ${dotClass}"></span><b>${escapeHtml(p.name)}</b> &nbsp; <span style="color:#aaa; font-size:12px;">(${statusText})</span></li>`;
-                    });
-                    html += `</ul>`;
-                }
-                html += `</div>`;
 
                 if (examPosts.length === 0) {
                     html += `<div style="color:#888;">No examinations available to inspect.</div>`;
