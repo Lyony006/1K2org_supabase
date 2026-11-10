@@ -425,7 +425,17 @@
             position: relative;
             border: 1px solid var(--border-color);
         }
-
+        .author-quescreator {
+            background-color: #c4c4c4;
+            color: var(--text);
+            font-family: var(--font) ;
+            padding: 15px 20px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            max-width: 700px;
+            position: relative;
+            border: 1px solid var(--border-color);
+        }
         .announcement-meta {
             font-weight: bold;
             font-size: 12px;
@@ -611,11 +621,70 @@
         .chat-input-area { display: flex; padding: 8px; background-color: var(--bg-color); border-top: 1px solid #333; border-bottom-left-radius: 10px; border-bottom-right-radius: 10px; }
         .chat-input-area input { flex: 1; background: var(--bg-color); border: 1px solid var(--border-color); padding: 6px; color: #ffffff; border-radius: 4px; outline: none; font-size: 12px; }
         .chat-input-area button { background: var(--card-bg); color: var(--text); border: none; padding: 0 10px; margin-left: 6px; border-radius: 4px; font-weight: bold; cursor: pointer; font-size: 12px; }
+
+        /* --- PERFECT SCORE CELEBRATION OVERLAY --- */
+        #celebration-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.92);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #D1A954;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .celebration-title {
+            font-size: 26px;
+            font-weight: bold;
+            color: #a3e635;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            animation: pulseText 1.5s infinite alternate;
+        }
+
+        .celebration-timer {
+            font-size: 75px;
+            font-weight: bold;
+            color: #ffffff;
+            margin: 20px 0;
+            text-shadow: 0 0 20px #a3e635;
+        }
+
+        .celebration-sub {
+            font-size: 16px;
+            color: #cccccc;
+            max-width: 400px;
+            line-height: 1.5;
+        }
+
+        @keyframes pulseText {
+            0% { transform: scale(1); text-shadow: 0 0 10px #a3e635; }
+            100% { transform: scale(1.05); text-shadow: 0 0 25px #a3e635, 0 0 35px #ffffff; }
+        }
     </style>
 </head>
 <body>
 
     <div id="notification-banner" onclick="dismissAndRefresh()">🔔 New announcement or quiz posted! Click to view.</div>
+
+<!-- PERFECT SCORE CELEBRATION OVERLAY -->
+    <div id="celebration-overlay" class="hidden">
+        <div id="celebration-title" class="celebration-title">🏆 PERFECT SCORE ACHIEVED! 🏆</div>
+        <div class="celebration-sub">Submitting your score records in...</div>
+        <div id="celebration-timer-num" class="celebration-timer">10</div>
+        <div style="font-size: 13px; color: #888;">🎶 Playing Victory Celebration Track (20s)</div>
+    </div>
+
 
     <!-- LOGIN SCREEN -->
     <div id="login-screen">
@@ -736,6 +805,24 @@
         }
 
         applySavedTheme();
+
+        // --- WEB AUDIO API SYNTHESIZER (20-SEC VICTORY TRACK) ---
+function playVictoryMusic20s() {
+    try {
+        // Replace 'victory.mp3' with your actual audio filename if it's different
+        const audio = new Audio('victory.mp3'); 
+        audio.currentTime = 0;
+        audio.play().catch(e => console.log("Audio autoplay prevented or file not found:", e));
+
+        // Stop the music automatically after 20 seconds
+        setTimeout(() => {
+            audio.pause();
+            audio.currentTime = 0;
+        }, 20000);
+    } catch (e) {
+        console.log("Audio play error:", e);
+    }
+}
 
         // --- SUPABASE CONFIGURATION ---
         const SUPABASE_URL = "https://ddwedkhokaeoarczscpo.supabase.co";
@@ -1414,25 +1501,75 @@
                 }
             });
 
-            const scoreRecord = {
-                exam_timestamp: Number(examTimestamp),
-                student_id: currentExamSession.identifier,
-                student_name: currentExamSession.name,
-                correct: correctCount,
-                wrong: wrongCount,
-                score: `${correctCount} / ${total}`,
-                strikes: examStrikes,
-                timestamp: new Date().getTime()
+            const executeSubmission = async () => {
+                const scoreRecord = {
+                    exam_timestamp: Number(examTimestamp),
+                    student_id: currentExamSession.identifier,
+                    student_name: currentExamSession.name,
+                    correct: correctCount,
+                    wrong: wrongCount,
+                    score: `${correctCount} / ${total}`,
+                    strikes: examStrikes,
+                    timestamp: new Date().getTime()
+                };
+
+                const { error } = await supabaseClient.from('submissions').insert([scoreRecord]);
+                if (error) {
+                    alert("Failed to submit score: " + error.message);
+                } else {
+                    alert(`Exam Submitted Successfully!\n✤ CORRECT: ${correctCount}\n✤ Wrong: ${wrongCount}\nCheating Strikes: ${examStrikes}`);
+                    updatePresence(currentExamSession.name, "finished");
+                    fetchDataFromCloud();
+                }
             };
 
-            const { error } = await supabaseClient.from('submissions').insert([scoreRecord]);
-            if (error) {
-                alert("Failed to submit score: " + error.message);
+            // CHECK FOR PERFECT SCORE WITH ZERO CHEATING STRIKES
+            const isPerfectScore = (correctCount === total) && (examStrikes === 0);
+
+            if (isPerfectScore) {
+                // Play custom audio file (make sure 'victory.mp3' is in your Spck Editor folder)
+                try {
+                    const audio = new Audio('victory.mp3'); 
+                    audio.currentTime = 0;
+                    audio.play().catch(e => console.log("Audio play error:", e));
+
+                    setTimeout(() => {
+                        audio.pause();
+                        audio.currentTime = 0;
+                    }, 20000);
+                } catch (e) {
+                    console.log("Audio error:", e);
+                }
+
+                // Show full screen overlay countdown with Personalized Nickname
+                const overlay = document.getElementById('celebration-overlay');
+                const titleElem = document.getElementById('celebration-title');
+                const timerElem = document.getElementById('celebration-timer-num');
+                
+                const studentNick = currentExamSession.nickname || currentExamSession.name || "Friend";
+                titleElem.innerText = `🏆 CONGRATULATIONS ${studentNick.toUpperCase()}! PERFECT SCORE! 🏆`;
+                
+                overlay.classList.remove('hidden');
+
+                let celebrationCount = 10;
+                timerElem.innerText = celebrationCount;
+
+                const cInterval = setInterval(() => {
+                    celebrationCount--;
+                    if (celebrationCount >= 0) {
+                        timerElem.innerText = celebrationCount;
+                    }
+
+                    if (celebrationCount <= 0) {
+                        clearInterval(cInterval);
+                        overlay.classList.add('hidden');
+                        executeSubmission();
+                    }
+                }, 1000);
             } else {
-                alert(`Exam Submitted Successfully!\n✤ CORRECT: ${correctCount}\n✤ Wrong: ${wrongCount}\nCheating Strikes: ${examStrikes}`);
-                updatePresence(currentExamSession.name, "finished");
-                fetchDataFromCloud();
+                executeSubmission();
             }
+
         }
 
         document.addEventListener("visibilitychange", () => {
@@ -1522,7 +1659,7 @@
                     html += `
                         <div class="exam-gate-container-s">
                             <h3>♘ Welcome Back, ${escapeHtml(recognizedStudent.nickname)}</h3>
-                            <p style="font-size:12px; color:#ddd; margin-bottom:15px;">Hope your day was wonderful 😊</p>
+                            <p style="font-size:12px; color:#ddd; margin-bottom:15px;">I Hope your day was wonderful 😊</p>
                             <button onclick="loginExamStudent()">Proceed to Quizzes</button>
                         </div>
                     `;
@@ -1641,7 +1778,7 @@
 
                 html += `
                     <button onclick="currentExamSession=null; renderFeed();" style="background:#444; color:#fff; border:none; padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Back to Portals</button>
-                    <div class="announcement-item" style="max-width:100%; margin-bottom: 25px;">
+                    <div class="author-quescreator" style="max-width:100%; margin-bottom: 25px;">
                         <h3>✍️ Author Questionnaire Creator</h3>
                         <input type="text" id="exam-title-input" placeholder="Examination / Quiz Title" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px;">
                         <input type="number" id="exam-duration-input" placeholder="Timer Duration in Seconds (e.g. 300 for 5 mins, 0 for none)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px;">
