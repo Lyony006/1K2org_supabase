@@ -671,13 +671,195 @@
             0% { transform: scale(1); text-shadow: 0 0 10px #a3e635; }
             100% { transform: scale(1.05); text-shadow: 0 0 25px #a3e635, 0 0 35px #ffffff; }
         }
+
+        /* --- SPINNING WHEEL MODAL STYLES --- */
+        #wheel-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 9000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px;
+            box-sizing: border-box;
+        }
+
+        .wheel-modal-content {
+            background: var(--bg-color);
+            border: 2px solid var(--border-color);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 520px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+            color: var(--accent);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .wheel-close-btn {
+            position: absolute;
+            top: 12px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: var(--accent);
+            font-size: 20px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .wheel-canvas-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 15px 0;
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 14px solid transparent;
+            border-right: 14px solid transparent;
+            border-top: 25px solid #ff4d4d;
+            z-index: 10;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+
+        canvas#wheel-canvas {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(209, 169, 84, 0.4);
+        }
+
+        .wheel-controls {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .wheel-btn {
+            background-color: var(--btn-bg);
+            color: white;
+            border: 2px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            max-width: 250px;
+            font-size: 14px;
+            transition: transform 0.1s;
+        }
+
+        .wheel-btn:active { transform: scale(0.96); }
+
+        .wheel-selector-row {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            max-width: 350px;
+            margin-bottom: 10px;
+        }
+
+        .wheel-selector-row select {
+            flex: 1;
+            background: var(--text-dark);
+            color: var(--accent);
+            border: 1px solid var(--border-color);
+            padding: 6px 10px;
+            border-radius: 8px;
+            outline: none;
+            font-size: 13px;
+        }
+
+        .custom-wheel-form {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 12px;
+            width: 100%;
+            box-sizing: border-box;
+            margin-top: 10px;
+        }
+
+        .custom-wheel-form input, .custom-wheel-form textarea {
+            width: 100%;
+            background: var(--text-dark);
+            color: var(--accent);
+            border: 1px solid var(--border-color);
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+            box-sizing: border-box;
+            outline: none;
+            font-size: 12px;
+        }
+
+        /* --- SELECTED WINNER MODAL --- */
+        #winner-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0,0,0,0.85);
+            z-index: 9500;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .winner-card {
+            background: var(--bg-color);
+            border: 3px solid var(--border-color);
+            border-radius: 20px;
+            padding: 25px;
+            text-align: center;
+            max-width: 360px;
+            width: 100%;
+            color: var(--accent);
+            box-shadow: 0 0 25px rgba(209, 169, 84, 0.6);
+            animation: popIn 0.3s ease-out;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .winner-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #a3e635;
+            margin: 15px 0;
+            word-break: break-word;
+        }
     </style>
 </head>
 <body>
 
     <div id="notification-banner" onclick="dismissAndRefresh()">🔔 New announcement or quiz posted! Click to view.</div>
 
-<!-- PERFECT SCORE CELEBRATION OVERLAY -->
+    <!-- PERFECT SCORE CELEBRATION OVERLAY -->
     <div id="celebration-overlay" class="hidden">
         <div id="celebration-title" class="celebration-title">🏆 PERFECT SCORE ACHIEVED! 🏆</div>
         <div class="celebration-sub">Submitting your score records in...</div>
@@ -685,6 +867,56 @@
         <div style="font-size: 13px; color: #888;">🎶 Playing Victory Celebration Track (20s)</div>
     </div>
 
+    <!-- SPINNING WHEEL MODAL -->
+    <div id="wheel-modal" class="hidden">
+        <div class="wheel-modal-content">
+            <button class="wheel-close-btn" onclick="closeWheelModal()">✕</button>
+            <h3 style="margin: 0 0 10px 0; font-family: Serif; color: var(--accent);">🎡 Randomizer Wheel</h3>
+
+            <!-- Wheel Selector & Custom Wheel Tools -->
+            <div class="wheel-selector-row">
+                <select id="wheel-select" onchange="switchWheel(this.value)">
+                    <option value="default">Authorized Students (Last Names)</option>
+                </select>
+                <button onclick="toggleCustomWheelManager()" style="background:var(--btn-bg); color:#fff; border:1px solid var(--border-color); border-radius:8px; padding:0 10px; font-size:12px; cursor:pointer;">Custom wheel</button>
+            </div>
+
+            <!-- Canvas Container -->
+            <div class="wheel-canvas-container">
+                <div class="wheel-pointer"></div>
+                <canvas id="wheel-canvas" width="300" height="300"></canvas>
+            </div>
+
+            <div class="wheel-controls">
+                <button class="wheel-btn" id="spin-btn" onclick="spinWheel()">SPIN WHEEL</button>
+                <button class="wheel-btn" onclick="resetActiveWheel()" style="background:#444; font-size:12px; max-width:200px;">Reset Wheel Items</button>
+            </div>
+
+            <!-- Custom Wheel Builder Form -->
+            <div id="custom-wheel-form" class="custom-wheel-form hidden">
+                <h4 style="margin:0 0 8px 0; font-size:13px;">Create / Modify Custom Wheel</h4>
+                <input type="text" id="custom-wheel-name" placeholder="Wheel Name (e.g. Wheel 1)">
+                <textarea id="custom-wheel-items" rows="3" placeholder="Enter names/items separated by commas (e.g. Item 1, Item 2, Item 3)"></textarea>
+                <div style="display:flex; gap:6px;">
+                    <button onclick="saveCustomWheel()" style="flex:1; background:#1b4332; color:#fff; border:none; padding:6px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">Save Wheel</button>
+                    <button onclick="deleteCurrentCustomWheel()" id="delete-wheel-btn" class="hidden" style="background:#9b2226; color:#fff; border:none; padding:6px 10px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WINNER RESULT MODAL -->
+    <div id="winner-modal" class="hidden">
+        <div class="winner-card">
+            <h4 style="margin: 0; color: var(--accent); font-size: 14px;">❉ Selected Student ❉</h4>
+            <div id="winner-display-name" class="winner-name">Student Name</div>
+            <p style="font-size: 11px; color: #aaa; margin-bottom: 15px;">Item was automatically removed from active wheel slices.</p>
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+                <button onclick="returnLastSelectedName()" style="background: #1b4332; color: white; border: 1px solid var(--border-color); padding: 8px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 12px;">↩ Return Name to Wheel</button>
+                <button onclick="closeWinnerModal()" style="background: var(--btn-bg); color: white; border: 1px solid var(--border-color); padding: 8px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 12px;">Continue</button>
+            </div>
+        </div>
+    </div>
 
     <!-- LOGIN SCREEN -->
     <div id="login-screen">
@@ -807,22 +1039,20 @@
         applySavedTheme();
 
         // --- WEB AUDIO API SYNTHESIZER (20-SEC VICTORY TRACK) ---
-function playVictoryMusic20s() {
-    try {
-        // Replace 'victory.mp3' with your actual audio filename if it's different
-        const audio = new Audio('victory.mp3'); 
-        audio.currentTime = 0;
-        audio.play().catch(e => console.log("Audio autoplay prevented or file not found:", e));
+        function playVictoryMusic20s() {
+            try {
+                const audio = new Audio('victory.mp3'); 
+                audio.currentTime = 0;
+                audio.play().catch(e => console.log("Audio autoplay prevented or file not found:", e));
 
-        // Stop the music automatically after 20 seconds
-        setTimeout(() => {
-            audio.pause();
-            audio.currentTime = 0;
-        }, 20000);
-    } catch (e) {
-        console.log("Audio play error:", e);
-    }
-}
+                setTimeout(() => {
+                    audio.pause();
+                    audio.currentTime = 0;
+                }, 20000);
+            } catch (e) {
+                console.log("Audio play error:", e);
+            }
+        }
 
         // --- SUPABASE CONFIGURATION ---
         const SUPABASE_URL = "https://ddwedkhokaeoarczscpo.supabase.co";
@@ -877,6 +1107,266 @@ function playVictoryMusic20s() {
         let examStrikes = 0;
         let activeExamTimestampForTracker = null;
         let activeExamTimers = {};
+
+        // --- SPINNING WHEEL SYSTEM VARIABLES & ENGINE ---
+        const DEFAULT_STUDENT_NAMES = AUTHORIZED_STUDENTS.map(s => s.lastName);
+        let activeWheelKey = 'default'; // 'default' or custom ID
+        let activeItems = [...DEFAULT_STUDENT_NAMES];
+        let lastSelectedName = null;
+        let currentAngle = 0;
+        let isSpinning = false;
+        const sliceColors = ["#1b4332", "#7A4E2D", "#6C0200", "#111111", "#34373B", "#5D0786", "#10b981", "#D1A954"];
+
+        function getCustomWheelsFromStorage() {
+            try {
+                return JSON.parse(localStorage.getItem('user_custom_wheels')) || [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveCustomWheelsToStorage(wheels) {
+            localStorage.setItem('user_custom_wheels', JSON.stringify(wheels));
+        }
+
+        function populateWheelDropdown() {
+            const select = document.getElementById('wheel-select');
+            select.innerHTML = `<option value="default">Authorized Students (Last Names)</option>`;
+            const customWheels = getCustomWheelsFromStorage();
+            customWheels.forEach(w => {
+                const opt = document.createElement('option');
+                opt.value = w.id;
+                opt.innerText = w.name;
+                select.appendChild(opt);
+            });
+            select.value = activeWheelKey;
+        }
+
+        function openWheelModal() {
+            populateWheelDropdown();
+            document.getElementById('wheel-modal').classList.remove('hidden');
+            switchWheel(activeWheelKey);
+        }
+
+        function closeWheelModal() {
+            document.getElementById('wheel-modal').classList.add('hidden');
+        }
+
+        function switchWheel(key) {
+            activeWheelKey = key;
+            const deleteBtn = document.getElementById('delete-wheel-btn');
+            
+            if (key === 'default') {
+                activeItems = [...DEFAULT_STUDENT_NAMES];
+                if (deleteBtn) deleteBtn.classList.add('hidden');
+            } else {
+                const customWheels = getCustomWheelsFromStorage();
+                const found = customWheels.find(w => w.id === key);
+                if (found) {
+                    activeItems = [...found.items];
+                    document.getElementById('custom-wheel-name').value = found.name;
+                    document.getElementById('custom-wheel-items').value = found.items.join(', ');
+                    if (deleteBtn) deleteBtn.classList.remove('hidden');
+                }
+            }
+            drawWheel();
+        }
+
+        function resetActiveWheel() {
+            switchWheel(activeWheelKey);
+            alert("Wheel items have been reset!");
+        }
+
+        function toggleCustomWheelManager() {
+            const form = document.getElementById('custom-wheel-form');
+            form.classList.toggle('hidden');
+            if (!form.classList.contains('hidden') && activeWheelKey !== 'default') {
+                const customWheels = getCustomWheelsFromStorage();
+                const found = customWheels.find(w => w.id === activeWheelKey);
+                if (found) {
+                    document.getElementById('custom-wheel-name').value = found.name;
+                    document.getElementById('custom-wheel-items').value = found.items.join(', ');
+                }
+            }
+        }
+
+        function saveCustomWheel() {
+            const name = document.getElementById('custom-wheel-name').value.trim();
+            const rawItems = document.getElementById('custom-wheel-items').value;
+            const items = rawItems.split(',').map(i => i.trim()).filter(i => i.length > 0);
+
+            if (!name || items.length < 2) {
+                alert("Please enter a wheel name and at least 2 items (comma separated).");
+                return;
+            }
+
+            let customWheels = getCustomWheelsFromStorage();
+            let targetId = activeWheelKey !== 'default' ? activeWheelKey : 'wheel_' + Date.now();
+
+            const existingIdx = customWheels.findIndex(w => w.id === targetId);
+            if (existingIdx >= 0) {
+                customWheels[existingIdx] = { id: targetId, name, items };
+            } else {
+                customWheels.push({ id: targetId, name, items });
+            }
+
+            saveCustomWheelsToStorage(customWheels);
+            activeWheelKey = targetId;
+            populateWheelDropdown();
+            switchWheel(targetId);
+            alert("Custom wheel saved successfully!");
+        }
+
+        function deleteCurrentCustomWheel() {
+            if (activeWheelKey === 'default') return;
+            if (!confirm("Are you sure you want to delete this custom wheel?")) return;
+
+            let customWheels = getCustomWheelsFromStorage();
+            customWheels = customWheels.filter(w => w.id !== activeWheelKey);
+            saveCustomWheelsToStorage(customWheels);
+            
+            document.getElementById('custom-wheel-name').value = "";
+            document.getElementById('custom-wheel-items').value = "";
+            activeWheelKey = 'default';
+            populateWheelDropdown();
+            switchWheel('default');
+            alert("Custom wheel deleted.");
+        }
+
+        function drawWheel() {
+            const canvas = document.getElementById('wheel-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            const numSlices = activeItems.length;
+            const width = canvas.width;
+            const height = canvas.height;
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = width / 2 - 5;
+
+            ctx.clearRect(0, 0, width, height);
+
+            if (numSlices === 0) {
+                ctx.fillStyle = "#222";
+                ctx.beginPath();
+                ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.fillStyle = "#fff";
+                ctx.font = "bold 14px sans-serif";
+                ctx.textAlign = "center";
+                ctx.fillText("No Items Left", centerX, centerY);
+                return;
+            }
+
+            const sliceAngle = (2 * Math.PI) / numSlices;
+
+            for (let i = 0; i < numSlices; i++) {
+                const angle = currentAngle + i * sliceAngle;
+                ctx.fillStyle = sliceColors[i % sliceColors.length];
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, angle, angle + sliceAngle);
+                ctx.closePath();
+                ctx.fill();
+                ctx.strokeStyle = "rgba(255,255,255,0.3)";
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+
+                // Draw Text
+                ctx.save();
+                ctx.translate(centerX, centerY);
+                ctx.rotate(angle + sliceAngle / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#ffffff";
+                const fontSize = numSlices > 20 ? 10 : (numSlices > 10 ? 12 : 14);
+                ctx.font = `bold ${fontSize}px sans-serif`;
+                ctx.fillText(activeItems[i], radius - 15, 4);
+                ctx.restore();
+            }
+
+            // Draw center pin
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 15, 0, 2 * Math.PI);
+            ctx.fill();
+            ctx.strokeStyle = "#D1A954";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        function spinWheel() {
+            if (isSpinning) return;
+            if (activeItems.length === 0) {
+                alert("No names left on the wheel! Click 'Reset Wheel Items' to replenish.");
+                return;
+            }
+
+            isSpinning = true;
+            document.getElementById('spin-btn').disabled = true;
+
+            const spinDuration = 4000;
+            const startRot = currentAngle;
+            const totalRotation = Math.PI * 2 * (5 + Math.random() * 5); // 5 to 10 rotations
+            const startTime = performance.now();
+
+            function animateSpin(now) {
+                const elapsed = now - startTime;
+                const progress = Math.min(elapsed / spinDuration, 1);
+                
+                // Cubic ease-out formula
+                const easeOut = 1 - Math.pow(1 - progress, 3);
+                currentAngle = startRot + totalRotation * easeOut;
+                drawWheel();
+
+                if (progress < 1) {
+                    requestAnimationFrame(animateSpin);
+                } else {
+                    isSpinning = false;
+                    document.getElementById('spin-btn').disabled = false;
+                    determineWinner();
+                }
+            }
+
+            requestAnimationFrame(animateSpin);
+        }
+
+        function determineWinner() {
+            const numSlices = activeItems.length;
+            const sliceAngle = (2 * Math.PI) / numSlices;
+            
+            // Normalize current angle to 0 - 2PI range
+            let normalizedAngle = (currentAngle % (2 * Math.PI));
+            if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
+
+            // Top pointer sits at 270 degrees (1.5 * PI)
+            const pointerAngle = (1.5 * Math.PI);
+            let winningIndex = Math.floor((pointerAngle - normalizedAngle) / sliceAngle) % numSlices;
+            if (winningIndex < 0) winningIndex += numSlices;
+
+            lastSelectedName = activeItems[winningIndex];
+            
+            // Automatically remove name from active wheel
+            activeItems.splice(winningIndex, 1);
+            drawWheel();
+
+            // Display Winner Popup
+            document.getElementById('winner-display-name').innerText = lastSelectedName;
+            document.getElementById('winner-modal').classList.remove('hidden');
+        }
+
+        function returnLastSelectedName() {
+            if (lastSelectedName) {
+                activeItems.push(lastSelectedName);
+                drawWheel();
+                alert(`"${lastSelectedName}" has been returned to the wheel!`);
+                lastSelectedName = null;
+            }
+            closeWinnerModal();
+        }
+
+        function closeWinnerModal() {
+            document.getElementById('winner-modal').classList.add('hidden');
+        }
 
         function handleExamContextMenu(e) {
             if (currentExamSession && currentExamSession.role === 'student') {
@@ -1131,7 +1621,6 @@ function playVictoryMusic20s() {
             updatePresence(matchedStudent.fullName, "taking_exam");
             examStrikes = 0;
 
-            // Trigger Welcome Popup for first live quiz if available
             if (examPosts.length > 0) {
                 let firstExam = examPosts[0];
                 let timeStr = firstExam.duration_seconds > 0 ? `${Math.floor(firstExam.duration_seconds / 60)} minutes` : "Untimed";
@@ -1523,11 +2012,9 @@ function playVictoryMusic20s() {
                 }
             };
 
-            // CHECK FOR PERFECT SCORE WITH ZERO CHEATING STRIKES
             const isPerfectScore = (correctCount === total) && (examStrikes === 0);
 
             if (isPerfectScore) {
-                // Play custom audio file (make sure 'victory.mp3' is in your Spck Editor folder)
                 try {
                     const audio = new Audio('victory.mp3'); 
                     audio.currentTime = 0;
@@ -1541,7 +2028,6 @@ function playVictoryMusic20s() {
                     console.log("Audio error:", e);
                 }
 
-                // Show full screen overlay countdown with Personalized Nickname
                 const overlay = document.getElementById('celebration-overlay');
                 const titleElem = document.getElementById('celebration-title');
                 const timerElem = document.getElementById('celebration-timer-num');
@@ -1999,6 +2485,11 @@ function playVictoryMusic20s() {
 
         function getVanyaResponse(query) {
             const cleanQuery = query.toLowerCase().trim();
+
+            if (cleanQuery === 'wheel') {
+                openWheelModal();
+                return "🎡 Opening the Randomizer Spinning Wheel! You can pick students or manage custom wheels.";
+            }
 
             if (cleanQuery === 'clear device' || cleanQuery === 'switch account') {
                 localStorage.removeItem('recognized_student_id');
