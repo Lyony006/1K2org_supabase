@@ -869,9 +869,65 @@
             margin: 15px 0;
             word-break: break-word;
         }
+        /* --- SERVER FETCH LOADING OVERLAY --- */
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.88);
+            backdrop-filter: blur(8px);
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            box-sizing: border-box;
+            color: var(--accent);
+        }
+
+        .loader-spinner {
+            width: 55px;
+            height: 55px;
+            border: 4px solid rgba(255, 255, 255, 0.15);
+            border-top: 4px solid var(--border-color);
+            border-radius: 50%;
+            animation: spinLoader 1s linear infinite;
+            margin-bottom: 20px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .loading-text {
+            font-size: 16px;
+            font-weight: bold;
+            letter-spacing: 0.5px;
+            color: var(--accent);
+            max-width: 320px;
+            line-height: 1.5;
+            animation: pulseLoading 1.5s infinite alternate;
+        }
+
+        @keyframes spinLoader {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @keyframes pulseLoading {
+            0% { opacity: 0.65; }
+            100% { opacity: 1; }
+        }
+        
     </style>
 </head>
 <body>
+    <!-- SERVER FETCH LOADING OVERLAY -->
+    <div id="loading-overlay" class="hidden">
+        <div class="loader-spinner"></div>
+        <div class="loading-text">Please wait while I'm fetching data from the server...</div>
+    </div>
 
     <div id="notification-banner" onclick="dismissAndRefresh()">🔔 New announcement or quiz posted! Click to view.</div>
 
@@ -1422,28 +1478,45 @@
         document.addEventListener('contextmenu', handleExamContextMenu);
         document.addEventListener('keydown', handleExamKeydown);
 
-        function loginAsStudent() {
+        async function loginAsStudent() {
+            const loader = document.getElementById('loading-overlay');
+            loader.classList.remove('hidden'); // Show loading screen immediately
+
             isUserAdmin = false;
+            adjustPostBoxVisibility();
+            
+            // Wait for Supabase to finish fetching all data
+            await fetchDataFromCloud();
+            startRealtimeListener();
+
+            // Reveal dashboard and hide loading screen
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard-screen').classList.remove('hidden');
-            adjustPostBoxVisibility();
-            fetchDataFromCloud();
-            startRealtimeListener();
+            loader.classList.add('hidden');
         }
 
-        function loginAsDeveloper() {
+        async function loginAsDeveloper() {
             const val = document.getElementById('dev-code-input').value.trim();
             if (val !== SECRET_DEV_CODE) {
                 alert("Incorrect developer code!");
                 return;
             }
+
+            const loader = document.getElementById('loading-overlay');
+            loader.classList.remove('hidden'); // Show loading screen immediately
+
             isUserAdmin = true;
+            adjustPostBoxVisibility();
+            
+            // Wait for presence update and Supabase data fetch
+            await updatePresence("Developer Admin", "online");
+            await fetchDataFromCloud();
+            startRealtimeListener();
+
+            // Reveal dashboard and hide loading screen
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard-screen').classList.remove('hidden');
-            adjustPostBoxVisibility();
-            updatePresence("Developer Admin", "online");
-            fetchDataFromCloud();
-            startRealtimeListener();
+            loader.classList.add('hidden');
         }
 
         function logout() {
