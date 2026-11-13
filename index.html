@@ -12,9 +12,10 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.28/jspdf.plugin.autotable.min.js"></script>
 
     <style>
-        /* --- THEME DEFINITIONS --- */
+        /* --- THEME DEFINITIONS WITH BACKGROUND IMAGES --- */
         :root, [data-theme="default"] {
             --bg-color: #000000;
+            --bg-image: url('bg-default.jpg');
             --card-bg: #c4c4c4;
             --timer-bg:#111111;
             --timer-text:#D1A954;
@@ -31,6 +32,7 @@
 
         [data-theme="brown"] {
             --bg-color: #523B35;
+            --bg-image: url('bg-brown.jpg');
             --card-bg: #c4c4c4;
             --timer-bg:#111111;
             --timer-text:#D1A954;            
@@ -45,6 +47,7 @@
         }
         [data-theme="imperial"] {
             --bg-color: #080808;
+            --bg-image: url('bg-imperial.jpg');
             --card-bg: #6C0200;
             --timer-bg:#D9B6A3;
             --timer-text:#111111;            
@@ -60,6 +63,7 @@
         }
         [data-theme="emerald"] {
             --bg-color: #07120a;
+            --bg-image: url('bg-emerald.jpg');
             --card-bg: #1b2e21;
             --timer-bg:#333;
             --timer-text:#a3e635;            
@@ -75,6 +79,7 @@
         }
         [data-theme="purple"] {
             --bg-color: #30003A;
+            --bg-image: url('bg-purple.jpg');
             --card-bg: #440052;
             --timer-bg:#111111;
             --timer-text:#D1A954;            
@@ -90,6 +95,7 @@
         }        
         [data-theme="vader"] {
             --bg-color: #050505;
+            --bg-image: url('bg-vader.jpg');
             --card-bg: #34373B;
             --timer-bg:#18191C;
             --timer-text:#C62828;            
@@ -107,6 +113,12 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
+            /* Semi-transparent dark overlay gradient + background image for readability */
+            background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), var(--bg-image);
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
             color: var(--accent);
             margin: 0;
             padding: 0;
@@ -205,7 +217,8 @@
         .theme-selector-box {
             width: 100%;
             margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(1px);
             border: 2px solid var(--border-color);
             padding: 12px 15px;
             border-radius: 80px;
@@ -241,7 +254,8 @@
             border-radius: 25px;
             text-align: center;
             box-sizing: border-box;
-            background-color: transparent;
+            background: rgba(0, 0, 0, 0.35);
+            backdrop-filter: blur(6px);
         }
 
         .login-card p {
@@ -304,7 +318,8 @@
 
         .sidebar {
             width: 260px;
-            background-color: var(--bg-color);
+            background-color: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
             border-right: 2px solid var(--border-color);
             display: flex;
             flex-direction: column;
@@ -356,7 +371,8 @@
 
         .main-content {
             flex: 1;
-            background-color: var(--bg-color);
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(8px);
             display: flex;
             flex-direction: column;
             padding: 30px;
@@ -930,7 +946,7 @@
 
         <!-- THEME SELECTION OPTION ON LOGIN -->
         <div class="theme-selector-box">
-            <label for="theme-select">✤ Color Theme:</label>
+            <label for="theme-select">✤ Background Theme:</label>
             <select id="theme-select" onchange="changeTheme(this.value)">
                 <option value="default">Aurelius</option>
                 <option value="brown">Velmora</option>
@@ -1023,12 +1039,31 @@
     </div>
 
     <script>
-        // --- THEME AUTO-LOADER & MANAGER ---
+        // --- THEME AUTO-LOADER & IDLE PRELOADER ---
+        const backgroundImagesList = [
+            'bg-default.jpg',
+            'bg-brown.webp',
+            'bg-imperial.webp',
+            'bg-vader.webp',
+            'bg-emerald.webp',
+            'bg-purple.webp'
+        ];
+
         function applySavedTheme() {
             const savedTheme = localStorage.getItem('site_color_theme') || 'default';
             document.documentElement.setAttribute('data-theme', savedTheme);
             const themeSelect = document.getElementById('theme-select');
             if (themeSelect) themeSelect.value = savedTheme;
+            
+            // Silently preload all other background images after the initial render so switching is instant
+            window.addEventListener('load', () => {
+                setTimeout(() => {
+                    backgroundImagesList.forEach(imgUrl => {
+                        const img = new Image();
+                        img.src = imgUrl;
+                    });
+                }, 1000);
+            });
         }
 
         function changeTheme(themeName) {
