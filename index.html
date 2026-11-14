@@ -88,10 +88,11 @@
             --accent: #D1A954;
             --border-color: #fff;
             --btn-bg: #111111;
-            --std-cnt: #5D0786;            
-            --annc-bg: #5D0565;
+            --std-cnt: transparent;            
+            --annc-bg: transparent;
             --annc-meta: #fff;
             --nav-hover:#30003A;
+            --blur-effect: transparent;
         }        
         [data-theme="vader"] {
             --bg-color: #050505;
@@ -372,7 +373,7 @@
         .main-content {
             flex: 1;
             background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter: blur(8px);
+            backdrop-filter:blur(1px);
             display: flex;
             flex-direction: column;
             padding: 30px;
@@ -488,7 +489,7 @@
             text-align: center;
             color: #fff;
         }
-        .exam-gate-container { background: #111111; }
+        .exam-gate-container { background: transparent; }
         .exam-gate-container-s input, .exam-gate-container input {
             width: 100%;
             padding: 10px;
@@ -2482,7 +2483,7 @@
                                     </tr>
                             `;
                             exam.submissions.forEach((sub) => {
-                                const strikeColor = (sub.strikes || 0) > 0 ? "#9b2226" : "#1b4332";
+                                const strikeColor = (sub.strikes || 0) > 0 ? "#9b2226" : "var(--text)";
                                 const deleteScoreAction = isUserAdmin ? `<td style="padding:6px;"><button onclick="deleteStudentScore(${sub.id}, '${escapeHtml(sub.student_name)}')" style="background:#9b2226; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">🗑️ Delete</button></td>` : '';
                                 
                                 html += `
