@@ -31,7 +31,7 @@
         }
 
         [data-theme="brown"] {
-            --bg-color: #523B35;
+            --bg-color:#111;
             --bg-image: url('bg-brown.jpg');
             --card-bg: #c4c4c4;
             --timer-bg:#111111;
@@ -74,7 +74,7 @@
             --border-color: #10b981;
             --btn-bg: #047857;
             --std-cnt: #23643D;            
-            --annc-bg: #111111;
+            --annc-bg:transparent;
             --annc-meta: #9ca3af;
         }
         [data-theme="purple"] {
@@ -89,10 +89,9 @@
             --border-color: #fff;
             --btn-bg: #111111;
             --std-cnt: transparent;            
-            --annc-bg: transparent;
+            --annc-bg:  transparent;
             --annc-meta: #fff;
             --nav-hover:#30003A;
-            --blur-effect: transparent;
         }        
         [data-theme="vader"] {
             --bg-color: #050505;
@@ -372,8 +371,8 @@
 
         .main-content {
             flex: 1;
-            background-color: rgba(0, 0, 0, 0.5);
-            backdrop-filter:blur(1px);
+
+
             display: flex;
             flex-direction: column;
             padding: 30px;
