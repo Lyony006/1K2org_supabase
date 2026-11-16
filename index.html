@@ -113,7 +113,6 @@
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
-            /* Semi-transparent dark overlay gradient + background image for readability */
             background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), var(--bg-image);
             background-size: cover;
             background-position: center;
@@ -213,7 +212,6 @@
             color: #aaaaaa;
         }
 
-        /* Theme Selector Container on Login */
         .theme-selector-box {
             width: 100%;
             margin-bottom: 20px;
@@ -371,8 +369,6 @@
 
         .main-content {
             flex: 1;
-
-
             display: flex;
             flex-direction: column;
             padding: 30px;
@@ -509,16 +505,6 @@
             cursor: pointer;
             width: 100%;
         }
-
-        .status-dot {
-            height: 10px;
-            width: 10px;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 6px;
-        }
-        .status-green { background-color: #2a9d8f; }
-        .status-blue { background-color: #3a86ff; }
 
         .logout-link {
             position: fixed;
@@ -869,6 +855,7 @@
             margin: 15px 0;
             word-break: break-word;
         }
+
         /* --- SERVER FETCH LOADING OVERLAY --- */
         #loading-overlay {
             position: fixed;
@@ -935,16 +922,15 @@
             0% { opacity: 0.65; }
             100% { opacity: 1; }
         }
-        
     </style>
 </head>
 <body>
     <!-- SERVER FETCH LOADING OVERLAY -->
-<div id="loading-overlay" class="hidden">
-    <div class="loader-logo">
-        <div class="loader-spinner"></div>
-        <div class="loader-symbol">❉</div>
-    </div>
+    <div id="loading-overlay" class="hidden">
+        <div class="loader-logo">
+            <div class="loader-spinner"></div>
+            <div class="loader-symbol">❉</div>
+        </div>
         <div class="loading-text">Please wait while I'm fetching data from the server...</div>
     </div>
 
@@ -964,7 +950,6 @@
             <button class="wheel-close-btn" onclick="closeWheelModal()">✕</button>
             <h3 style="margin: 0 0 10px 0; font-family: Serif; color: var(--accent);">🎡 Randomizer Wheel</h3>
 
-            <!-- Wheel Selector & Custom Wheel Tools -->
             <div class="wheel-selector-row">
                 <select id="wheel-select" onchange="switchWheel(this.value)">
                     <option value="default">Authorized Students (Last Names)</option>
@@ -972,7 +957,6 @@
                 <button onclick="toggleCustomWheelManager()" style="background:var(--btn-bg); color:#fff; border:1px solid var(--border-color); border-radius:8px; padding:0 10px; font-size:12px; cursor:pointer;">Custom wheel</button>
             </div>
 
-            <!-- Canvas Container -->
             <div class="wheel-canvas-container">
                 <div class="wheel-pointer"></div>
                 <canvas id="wheel-canvas" width="300" height="300"></canvas>
@@ -983,7 +967,6 @@
                 <button class="wheel-btn" onclick="resetActiveWheel()" style="background:#444; font-size:12px; max-width:200px;">Reset Wheel Items</button>
             </div>
 
-            <!-- Custom Wheel Builder Form -->
             <div id="custom-wheel-form" class="custom-wheel-form hidden">
                 <h4 style="margin:0 0 8px 0; font-size:13px;">Create / Modify Custom Wheel</h4>
                 <input type="text" id="custom-wheel-name" placeholder="Wheel Name (e.g. Wheel 1)">
@@ -1019,7 +1002,6 @@
             </div>
         </div>
 
-        <!-- THEME SELECTION OPTION ON LOGIN -->
         <div class="theme-selector-box">
             <label for="theme-select">✤ Background Theme:</label>
             <select id="theme-select" onchange="changeTheme(this.value)">
@@ -1114,7 +1096,6 @@
     </div>
 
     <script>
-        // --- THEME AUTO-LOADER & IDLE PRELOADER ---
         const backgroundImagesList = [
             'bg-default.jpg',
             'bg-brown.webp',
@@ -1130,7 +1111,6 @@
             const themeSelect = document.getElementById('theme-select');
             if (themeSelect) themeSelect.value = savedTheme;
             
-            // Silently preload all other background images after the initial render so switching is instant
             window.addEventListener('load', () => {
                 setTimeout(() => {
                     backgroundImagesList.forEach(imgUrl => {
@@ -1147,22 +1127,6 @@
         }
 
         applySavedTheme();
-
-        // --- WEB AUDIO API SYNTHESIZER (20-SEC VICTORY TRACK) ---
-        function playVictoryMusic20s() {
-            try {
-                const audio = new Audio('victory.mp3'); 
-                audio.currentTime = 0;
-                audio.play().catch(e => console.log("Audio autoplay prevented or file not found:", e));
-
-                setTimeout(() => {
-                    audio.pause();
-                    audio.currentTime = 0;
-                }, 20000);
-            } catch (e) {
-                console.log("Audio play error:", e);
-            }
-        }
 
         // --- SUPABASE CONFIGURATION ---
         const SUPABASE_URL = "https://ddwedkhokaeoarczscpo.supabase.co";
@@ -1220,7 +1184,7 @@
 
         // --- SPINNING WHEEL SYSTEM VARIABLES & ENGINE ---
         const DEFAULT_STUDENT_NAMES = AUTHORIZED_STUDENTS.map(s => s.lastName);
-        let activeWheelKey = 'default'; // 'default' or custom ID
+        let activeWheelKey = 'default';
         let activeItems = [...DEFAULT_STUDENT_NAMES];
         let lastSelectedName = null;
         let currentAngle = 0;
@@ -1382,7 +1346,6 @@
                 ctx.lineWidth = 1.5;
                 ctx.stroke();
 
-                // Draw Text
                 ctx.save();
                 ctx.translate(centerX, centerY);
                 ctx.rotate(angle + sliceAngle / 2);
@@ -1394,7 +1357,6 @@
                 ctx.restore();
             }
 
-            // Draw center pin
             ctx.fillStyle = "#ffffff";
             ctx.beginPath();
             ctx.arc(centerX, centerY, 15, 0, 2 * Math.PI);
@@ -1416,14 +1378,13 @@
 
             const spinDuration = 4000;
             const startRot = currentAngle;
-            const totalRotation = Math.PI * 2 * (5 + Math.random() * 5); // 5 to 10 rotations
+            const totalRotation = Math.PI * 2 * (5 + Math.random() * 5);
             const startTime = performance.now();
 
             function animateSpin(now) {
                 const elapsed = now - startTime;
                 const progress = Math.min(elapsed / spinDuration, 1);
                 
-                // Cubic ease-out formula
                 const easeOut = 1 - Math.pow(1 - progress, 3);
                 currentAngle = startRot + totalRotation * easeOut;
                 drawWheel();
@@ -1444,22 +1405,18 @@
             const numSlices = activeItems.length;
             const sliceAngle = (2 * Math.PI) / numSlices;
             
-            // Normalize current angle to 0 - 2PI range
             let normalizedAngle = (currentAngle % (2 * Math.PI));
             if (normalizedAngle < 0) normalizedAngle += 2 * Math.PI;
 
-            // Top pointer sits at 270 degrees (1.5 * PI)
             const pointerAngle = (1.5 * Math.PI);
             let winningIndex = Math.floor((pointerAngle - normalizedAngle) / sliceAngle) % numSlices;
             if (winningIndex < 0) winningIndex += numSlices;
 
             lastSelectedName = activeItems[winningIndex];
             
-            // Automatically remove name from active wheel
             activeItems.splice(winningIndex, 1);
             drawWheel();
 
-            // Display Winner Popup
             document.getElementById('winner-display-name').innerText = lastSelectedName;
             document.getElementById('winner-modal').classList.remove('hidden');
         }
@@ -1499,16 +1456,14 @@
 
         async function loginAsStudent() {
             const loader = document.getElementById('loading-overlay');
-            loader.classList.remove('hidden'); // Show loading screen immediately
+            loader.classList.remove('hidden');
 
             isUserAdmin = false;
             adjustPostBoxVisibility();
             
-            // Wait for Supabase to finish fetching all data
             await fetchDataFromCloud();
             startRealtimeListener();
 
-            // Reveal dashboard and hide loading screen
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard-screen').classList.remove('hidden');
             loader.classList.add('hidden');
@@ -1522,17 +1477,15 @@
             }
 
             const loader = document.getElementById('loading-overlay');
-            loader.classList.remove('hidden'); // Show loading screen immediately
+            loader.classList.remove('hidden');
 
             isUserAdmin = true;
             adjustPostBoxVisibility();
             
-            // Wait for presence update and Supabase data fetch
             await updatePresence("Developer Admin", "online");
             await fetchDataFromCloud();
             startRealtimeListener();
 
-            // Reveal dashboard and hide loading screen
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('dashboard-screen').classList.remove('hidden');
             loader.classList.add('hidden');
@@ -1689,7 +1642,7 @@
             let matchedStudent = null;
 
             if (isUserAdmin) {
-                currentExamSession = { role: 'student', identifier: "ADMIN", name: "Admin Examiner", nickname: "Admin" };
+                currentExamSession = { role: 'student', identifier: "ADMIN", name: "Admin Examiner", nickname: "Admin", selectedQuizTimestamp: null };
                 updatePresence("Admin Examiner", "taking_exam");
                 examStrikes = 0;
                 renderFeed();
@@ -1743,23 +1696,51 @@
                 role: 'student', 
                 identifier: matchedStudent.id, 
                 name: matchedStudent.fullName, 
-                nickname: matchedStudent.nickname 
+                nickname: matchedStudent.nickname,
+                selectedQuizTimestamp: null
             };
             updatePresence(matchedStudent.fullName, "taking_exam");
             examStrikes = 0;
 
-            if (examPosts.length > 0) {
-                let firstExam = examPosts[0];
-                let timeStr = firstExam.duration_seconds > 0 ? `${Math.floor(firstExam.duration_seconds / 60)} minutes` : "Untimed";
-                let numQuestions = firstExam.questions ? firstExam.questions.length : 0;
-                let authorName = firstExam.creator_name || "Public / Guest";
-                let quizTitle = firstExam.title;
-                let strikesLimit = "3 Cheating strikes limit";
-                let nickname = matchedStudent.nickname;
-                let fullName = matchedStudent.fullName;
-                let idNumber = matchedStudent.id;
+            if (examPosts.length === 1) {
+                selectStudentQuiz(examPosts[0].timestamp);
+            } else {
+                renderFeed();
+            }
+        }
 
-                alert(`ID No. ${idNumber}\nGreetings dear ${fullName}  you will be entering the quiz form posted on this webpage, the Exam ${quizTitle} uploaded by ${authorName} with a given time of ${timeStr} and total of ${numQuestions} questions.\n\nAlso I'd like to remind you that there are ${strikesLimit} that includes taking screenshots or switching to other applications during the examination may be recorded as a violation and result in a strike. \n\nThis examination is monitored by Vanya the assistant\n\nWithout further a do, I wish you have a great day and good luck ${nickname}\n\nPress OK to begin`);
+        function selectStudentQuiz(timestamp) {
+            if (!currentExamSession) return;
+            
+            const exam = cachedPosts.find(p => Number(p.timestamp) === Number(timestamp));
+            if (!exam) return;
+
+            if (exam.blocked_students && currentExamSession.identifier !== "ADMIN") {
+                const savedStudentId = localStorage.getItem('recognized_student_id');
+                const matchedStudent = AUTHORIZED_STUDENTS.find(s => s.id === savedStudentId);
+                if (matchedStudent) {
+                    let blockedList = exam.blocked_students.split(',').map(name => name.trim().toLowerCase());
+                    if (blockedList.includes(matchedStudent.lastName.toLowerCase())) {
+                        alert("The developer did not allow you to take this particular live quiz right now");
+                        return;
+                    }
+                }
+            }
+
+            currentExamSession.selectedQuizTimestamp = timestamp;
+            examStrikes = 0;
+
+            let timeStr = exam.duration_seconds > 0 ? `${Math.floor(exam.duration_seconds / 60)} minutes` : "Untimed";
+            let numQuestions = exam.questions ? exam.questions.length : 0;
+            let authorName = exam.creator_name || "Public / Guest";
+            let quizTitle = exam.title;
+            let strikesLimit = "3 Cheating strikes limit";
+            let nickname = currentExamSession.nickname;
+            let fullName = currentExamSession.name;
+            let idNumber = currentExamSession.identifier;
+
+            if (currentExamSession.identifier !== "ADMIN") {
+                alert(`ID No. ${idNumber}\nGreetings dear ${fullName} you will be entering the quiz form posted on this webpage, the Exam ${quizTitle} uploaded by ${authorName} with a given time of ${timeStr} and total of ${numQuestions} questions.\n\nAlso I'd like to remind you that there are ${strikesLimit} that includes taking screenshots or switching to other applications during the examination may be recorded as a violation and result in a strike. \n\nThis examination is monitored by Vanya the assistant\n\nWithout further a do, I wish you have a great day and good luck ${nickname}\n\nPress OK to begin`);
             }
 
             renderFeed();
@@ -2134,8 +2115,17 @@
                     alert("Failed to submit score: " + error.message);
                 } else {
                     alert(`Exam Submitted Successfully!\n✤ CORRECT: ${correctCount}\n✤ Wrong: ${wrongCount}\nCheating Strikes: ${examStrikes}`);
-                    updatePresence(currentExamSession.name, "finished");
-                    fetchDataFromCloud();
+                    
+                    // NEW: Prompt asking if they want to proceed to the next quiz
+                    const proceedNext = confirm("You have finished the quiz that you took. Would you like to proceed to the next one?");
+                    if (proceedNext) {
+                        currentExamSession.selectedQuizTimestamp = null;
+                    } else {
+                        currentExamSession = null;
+                    }
+
+                    updatePresence(currentExamSession ? currentExamSession.name : "Finished", currentExamSession ? "taking_exam" : "finished");
+                    await fetchDataFromCloud();
                 }
             };
 
@@ -2182,7 +2172,6 @@
             } else {
                 executeSubmission();
             }
-
         }
 
         document.addEventListener("visibilitychange", () => {
@@ -2230,7 +2219,7 @@
                 return;
             }
 
-            feed.innerHTML = posts.map((p, index) => {
+            feed.innerHTML = posts.map((p) => {
                 const deleteButtonHtml = isUserAdmin ? `<button class="delete-btn" onclick="deletePost(${p.timestamp})">🗑️ Delete</button>` : '';
 
                 if (p.type === 'confession') {
@@ -2303,79 +2292,122 @@
                 html += `<button onclick="Object.values(activeExamTimers).forEach(t => clearInterval(t)); activeExamTimers={}; currentExamSession=null; renderFeed();" style="background:var(--bg-color); color:var(--accent); border: 2px solid var(--border-color); padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Back to Portals</button>`;
                 
                 const liveExams = examPosts.filter(exam => exam.is_live !== false);
+                const uncompletedLiveExams = liveExams.filter(exam => !(exam.submissions && exam.submissions.some(sub => sub.student_id === currentExamSession.identifier)));
 
                 if (liveExams.length === 0) {
                     html += `<div style="color:var(--accent);">No active/live examinations posted yet.</div>`;
-                } else {
-                    liveExams.forEach(exam => {
-                        const hasAlreadyTaken = exam.submissions && exam.submissions.some(sub => sub.student_id === currentExamSession.identifier);
-
-                        if (hasAlreadyTaken && !isUserAdmin) {
-                            html += `
-                                <div class="announcement-item" style="max-width:100%; background:#2c1b1b; color:#fff;">
-                                    <h4>Exam: ${escapeHtml(exam.title)}</h4>
-                                    <p style="color:#ff6b6b; font-weight:bold;">✤ Thanks for submitting, You have already completed this Examination. Have a great day Мой Друг! 🤗</p>
+                } else if (uncompletedLiveExams.length === 0) {
+                    html += `
+                        <div class="announcement-item" style="max-width:100%; background:#2c1b1b; color:#fff;">
+                            <h4 style="margin-top:0;">Examinations Completed</h4>
+                            <p style="color:#ff6b6b; font-weight:bold;">✤ You have already completed all available active examinations. Great job Мой Друг! 🤗</p>
+                        </div>
+                    `;
+                } else if (uncompletedLiveExams.length > 1 && !currentExamSession.selectedQuizTimestamp) {
+                    html += `
+                        <div class="announcement-item" style="max-width:100%;">
+                            <h3 style="margin-top:0; color:var(--text); border-bottom:1px solid #444; padding-bottom:8px;">Select a Quiz to Take</h3>
+                            <p style="font-size:13px; color:var(--text); margin-bottom:15px;">There are multiple live quizzes available. Please choose which quiz you would like to take first:</p>
+                            <div style="display:flex; flex-direction:column; gap:12px;">
+                    `;
+                    uncompletedLiveExams.forEach(exam => {
+                        let durationMins = exam.duration_seconds > 0 ? `${Math.floor(exam.duration_seconds / 60)} mins` : "Untimed";
+                        let qCount = exam.questions ? exam.questions.length : 0;
+                        html += `
+                            <div style="background:#111; border:1px solid var(--border-color); padding:15px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                                <div>
+                                    <h4 style="margin:0 0 5px 0; color:var(--accent);">➳ ${escapeHtml(exam.title)}</h4>
+                                    <span style="font-size:12px; color:#aaa;">Creator: ${escapeHtml(exam.creator_name || 'Public')} | Questions: ${qCount} | Duration: ${durationMins}</span>
                                 </div>
-                            `;
-                            return;
-                        }
-
-                        activeExamTimestampForTracker = exam.timestamp;
-                        
-                        if (exam.duration_seconds && exam.duration_seconds > 0) {
-                            setTimeout(() => startExamTimer(exam.duration_seconds, exam.timestamp), 100);
-                        }
-
-                        let questionsToDisplay = exam.questions.map((q, originalIndex) => ({ q, originalIndex }));
-                        if (exam.randomize) {
-                            questionsToDisplay.sort(() => Math.random() - 0.5);
-                        }
-
-                        html += `
-                            <div class="announcement-item" style="max-width:100%;">
-                                <div id="timer-display-${exam.timestamp}" class="exam-timer-floating">Time Remaining: Loading...</div>
-                                <div class="announcement-meta"><span>${escapeHtml(exam.title)}</span></div>
-                                <form id="exam-form-${exam.timestamp}" onsubmit="event.preventDefault(); submitStudentExam(${exam.timestamp});">
-                        `;
-                        
-                        questionsToDisplay.forEach((item, displayIdx) => {
-                            const q = item.q;
-                            const originalIdx = item.originalIndex;
-                            
-                            html += `<div style="margin-bottom:15px; font-weight:bold;">Q${displayIdx+1}: ${escapeHtml(q.text)}</div>`;
-                            if (q.type === 'mc') {
-                                q.options.forEach((opt, optIdx) => {
-                                    const optLetter = String.fromCharCode(65 + optIdx);
-                                    html += `
-                                        <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-weight: normal; cursor: pointer;">
-                                            <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="${optLetter}" style="margin-top: 3px; flex-shrink: 0;">
-                                            <span>${optLetter}. ${escapeHtml(opt)}</span>
-                                        </label>
-                                    `;
-                                });
-                            } else if (q.type === 'tf') {
-                                html += `
-                                    <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-weight: normal; cursor: pointer;">
-                                        <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="True" style="margin-top: 3px; flex-shrink: 0;">
-                                        <span>True</span>
-                                    </label>
-                                    <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-weight: normal; cursor: pointer;">
-                                        <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="False" style="margin-top: 3px; flex-shrink: 0;">
-                                        <span>False</span>
-                                    </label>
-                                `;
-                            } else if (q.type === 'enumeration') {
-                                html += `
-                                    <input type="text" name="exam_q_${exam.timestamp}_${originalIdx}" placeholder="Type your answer here" style="width:100%; padding:8px; background:#222; color:#fff; border:1px solid #555; border-radius:4px; margin-bottom:10px; outline:none;">
-                                `;
-                            }
-                        });
-                        html += `
-                                    <button type="submit" style="background:#64B500; color:#111111; border:none; padding:10px 20px; font-weight:bold; border-radius:4px; margin-top:15px; cursor:pointer; width:100%;">Submit Examination</button>
-                                </form>
+                                <button onclick="selectStudentQuiz(${exam.timestamp})" style="background:#64B500; color:#111; border:none; padding:8px 16px; font-weight:bold; border-radius:20px; cursor:pointer;">Take This Quiz</button>
                             </div>
                         `;
                     });
+                    html += `</div></div>`;
+                } else {
+                    let targetExamTimestamp = currentExamSession.selectedQuizTimestamp;
+                    if (!targetExamTimestamp && uncompletedLiveExams.length === 1) {
+                        targetExamTimestamp = uncompletedLiveExams[0].timestamp;
+                        currentExamSession.selectedQuizTimestamp = targetExamTimestamp;
+                    }
+
+                    const exam = liveExams.find(e => Number(e.timestamp) === Number(targetExamTimestamp));
+                    
+                    if (!exam) {
+                        currentExamSession.selectedQuizTimestamp = null;
+                        renderFeed();
+                        return;
+                    }
+
+                    const hasAlreadyTaken = exam.submissions && exam.submissions.some(sub => sub.student_id === currentExamSession.identifier);
+
+                    if (hasAlreadyTaken && !isUserAdmin) {
+                        html += `
+                            <div class="announcement-item" style="max-width:100%; background:#2c1b1b; color:#fff;">
+                                <h4>Exam: ${escapeHtml(exam.title)}</h4>
+                                <p style="color:#ff6b6b; font-weight:bold;">✤ Thanks for submitting, You have already completed this Examination. Have a great day Мой Друг! 🤗</p>
+                                ${uncompletedLiveExams.length > 1 ? `<button onclick="currentExamSession.selectedQuizTimestamp=null; renderFeed();" style="background:#444; color:#fff; border:none; padding:6px 12px; border-radius:4px; margin-top:10px; cursor:pointer;">⬅ Choose Another Quiz</button>` : ''}
+                            </div>
+                        `;
+                        return;
+                    }
+
+                    activeExamTimestampForTracker = exam.timestamp;
+                    
+                    if (exam.duration_seconds && exam.duration_seconds > 0) {
+                        setTimeout(() => startExamTimer(exam.duration_seconds, exam.timestamp), 100);
+                    }
+
+                    let questionsToDisplay = exam.questions.map((q, originalIndex) => ({ q, originalIndex }));
+                    if (exam.randomize) {
+                        questionsToDisplay.sort(() => Math.random() - 0.5);
+                    }
+
+                    html += `
+                        ${uncompletedLiveExams.length > 1 ? `<button onclick="Object.values(activeExamTimers).forEach(t => clearInterval(t)); activeExamTimers={}; currentExamSession.selectedQuizTimestamp=null; renderFeed();" style="background:#333; color:#fff; border:1px solid var(--border-color); padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Choose Another Quiz</button>` : ''}
+                        <div class="announcement-item" style="max-width:100%;">
+                            <div id="timer-display-${exam.timestamp}" class="exam-timer-floating">Time Remaining: Loading...</div>
+                            <div class="announcement-meta"><span>${escapeHtml(exam.title)}</span></div>
+                            <form id="exam-form-${exam.timestamp}" onsubmit="event.preventDefault(); submitStudentExam(${exam.timestamp});">
+                    `;
+                    
+                    questionsToDisplay.forEach((item, displayIdx) => {
+                        const q = item.q;
+                        const originalIdx = item.originalIndex;
+                        
+                        html += `<div style="margin-bottom:15px; font-weight:bold;">Q${displayIdx+1}: ${escapeHtml(q.text)}</div>`;
+                        if (q.type === 'mc') {
+                            q.options.forEach((opt, optIdx) => {
+                                const optLetter = String.fromCharCode(65 + optIdx);
+                                html += `
+                                    <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-weight: normal; cursor: pointer;">
+                                        <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="${optLetter}" style="margin-top: 3px; flex-shrink: 0;">
+                                        <span>${optLetter}. ${escapeHtml(opt)}</span>
+                                    </label>
+                                `;
+                            });
+                        } else if (q.type === 'tf') {
+                            html += `
+                                <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-weight: normal; cursor: pointer;">
+                                    <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="True" style="margin-top: 3px; flex-shrink: 0;">
+                                    <span>True</span>
+                                </label>
+                                <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-weight: normal; cursor: pointer;">
+                                    <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="False" style="margin-top: 3px; flex-shrink: 0;">
+                                    <span>False</span>
+                                </label>
+                            `;
+                        } else if (q.type === 'enumeration') {
+                            html += `
+                                <input type="text" name="exam_q_${exam.timestamp}_${originalIdx}" placeholder="Type your answer here" style="width:100%; padding:8px; background:#222; color:#fff; border:1px solid #555; border-radius:4px; margin-bottom:10px; outline:none;">
+                            `;
+                        }
+                    });
+                    html += `
+                                <button type="submit" style="background:#64B500; color:#111111; border:none; padding:10px 20px; font-weight:bold; border-radius:4px; margin-top:15px; cursor:pointer; width:100%;">Submit Examination</button>
+                            </form>
+                        </div>
+                    `;
                 }
             } else if (currentExamSession.role === 'author') {
                 let currentAuthorName = "Public / Guest";
