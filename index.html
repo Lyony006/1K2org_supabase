@@ -990,7 +990,7 @@
             <div class="wheel-selector-row" style="margin-bottom: 5px;">
                 <select id="wheel-mode-select" style="width: 100%; text-align: center; font-weight: bold;">
                     <option value="normal">Normal Mode (4s Spin)</option>
-                    <option value="music">Music Wheel Mode (1:04 Sync)</option>
+                    <option value="music">Music Mode (1:04 Sync)</option>
                 </select>
             </div>
 
@@ -1248,7 +1248,7 @@
 
         function populateWheelDropdown() {
             const select = document.getElementById('wheel-select');
-            select.innerHTML = `<option value="default">Authorized Students (Last Names)</option>`;
+            select.innerHTML = `<option value="default">Auth. Student (Last Names)</option>`;
             const customWheels = getCustomWheelsFromStorage();
             customWheels.forEach(w => {
                 const opt = document.createElement('option');
