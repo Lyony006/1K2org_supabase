@@ -697,15 +697,55 @@
             border-radius: 16px;
             width: 100%;
             max-width: 520px;
-            max-height: 90vh;
+            max-height: 92dvh;
             overflow-y: auto;
-            padding: 20px;
+            padding: 16px 20px;
             color: var(--accent);
             box-shadow: 0 10px 30px rgba(0,0,0,0.8);
             position: relative;
             display: flex;
             flex-direction: column;
             align-items: center;
+            --wheel-size: min(68vw, 310px);
+        }
+
+        .wheel-canvas-container {
+            position: relative;
+            width: var(--wheel-size);
+            height: var(--wheel-size);
+            margin: 10px 0;
+            flex-shrink: 0;
+        }
+
+        canvas#wheel-canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: 50%;
+            box-shadow: 0 0 15px rgba(209, 169, 84, 0.4);
+        }
+
+        @media (orientation: landscape) and (max-height: 600px) {
+            .wheel-modal-content {
+                max-width: 720px;
+                padding: 12px 18px;
+                --wheel-size: min(44vh, 260px);
+            }
+
+            .wheel-canvas-container {
+                margin: 6px 0;
+            }
+
+            .wheel-controls {
+                flex-direction: row;
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .wheel-btn {
+                max-width: 200px;
+                padding: 8px 16px;
+            }
         }
 
         .wheel-close-btn {
@@ -720,12 +760,6 @@
             cursor: pointer;
         }
 
-        .wheel-canvas-container {
-            position: relative;
-            width: 300px;
-            height: 300px;
-            margin: 15px 0;
-        }
 
         .wheel-pointer {
             position: absolute;
@@ -741,12 +775,7 @@
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
         }
 
-        canvas#wheel-canvas {
-            width: 300px;
-            height: 300px;
-            border-radius: 50%;
-            box-shadow: 0 0 15px rgba(209, 169, 84, 0.4);
-        }
+
 
         .wheel-controls {
             width: 100%;
@@ -957,9 +986,21 @@
                 <button onclick="toggleCustomWheelManager()" style="background:var(--btn-bg); color:#fff; border:1px solid var(--border-color); border-radius:8px; padding:0 10px; font-size:12px; cursor:pointer;">Custom wheel</button>
             </div>
 
+            <!-- SPIN MODE SELECTOR -->
+            <div class="wheel-selector-row" style="margin-bottom: 5px;">
+                <select id="wheel-mode-select" style="width: 100%; text-align: center; font-weight: bold;">
+                    <option value="normal">Normal Mode (4s Spin)</option>
+                    <option value="music">Music Wheel Mode (1:04 Sync)</option>
+                </select>
+            </div>
+
+            <div id="wheel-music-status" class="hidden" style="font-size: 12px; color: #a3e635; font-weight: bold; margin-bottom: 5px;">
+                🎶 Ready...
+            </div>
+
             <div class="wheel-canvas-container">
                 <div class="wheel-pointer"></div>
-                <canvas id="wheel-canvas" width="300" height="300"></canvas>
+                <canvas id="wheel-canvas"></canvas>
             </div>
 
             <div class="wheel-controls">
@@ -1189,6 +1230,8 @@
         let lastSelectedName = null;
         let currentAngle = 0;
         let isSpinning = false;
+        let wheelMusicAudio = null;
+        let wheelAnimFrameId = null;
         const sliceColors = ["#1b4332", "#7A4E2D", "#6C0200", "#111111", "#34373B", "#5D0786", "#10b981", "#D1A954"];
 
         function getCustomWheelsFromStorage() {
@@ -1223,6 +1266,17 @@
         }
 
         function closeWheelModal() {
+            if (wheelMusicAudio) {
+                wheelMusicAudio.pause();
+                wheelMusicAudio.currentTime = 0;
+            }
+            if (wheelAnimFrameId) {
+                cancelAnimationFrame(wheelAnimFrameId);
+                wheelAnimFrameId = null;
+            }
+            isSpinning = false;
+            document.getElementById('spin-btn').disabled = false;
+            document.getElementById('wheel-music-status').classList.add('hidden');
             document.getElementById('wheel-modal').classList.add('hidden');
         }
 
@@ -1310,13 +1364,24 @@
         function drawWheel() {
             const canvas = document.getElementById('wheel-canvas');
             if (!canvas) return;
+
+            const rect = canvas.getBoundingClientRect();
+            const cssSize = Math.max(140, Math.round(rect.width || 280));
+            const dpr = window.devicePixelRatio || 1;
+            const targetPixelSize = Math.round(cssSize * dpr);
+
+            if (canvas.width !== targetPixelSize || canvas.height !== targetPixelSize) {
+                canvas.width = targetPixelSize;
+                canvas.height = targetPixelSize;
+            }
+
             const ctx = canvas.getContext('2d');
             const numSlices = activeItems.length;
             const width = canvas.width;
             const height = canvas.height;
             const centerX = width / 2;
             const centerY = height / 2;
-            const radius = width / 2 - 5;
+            const radius = width / 2 - Math.max(4, 5 * dpr);
 
             ctx.clearRect(0, 0, width, height);
 
@@ -1326,8 +1391,9 @@
                 ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
                 ctx.fill();
                 ctx.fillStyle = "#fff";
-                ctx.font = "bold 14px sans-serif";
+                ctx.font = `bold ${Math.round(14 * dpr)}px sans-serif`;
                 ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
                 ctx.fillText("No Items Left", centerX, centerY);
                 return;
             }
@@ -1343,28 +1409,42 @@
                 ctx.closePath();
                 ctx.fill();
                 ctx.strokeStyle = "rgba(255,255,255,0.3)";
-                ctx.lineWidth = 1.5;
+                ctx.lineWidth = Math.max(1, 1.5 * dpr);
                 ctx.stroke();
 
                 ctx.save();
                 ctx.translate(centerX, centerY);
                 ctx.rotate(angle + sliceAngle / 2);
                 ctx.textAlign = "right";
+                ctx.textBaseline = "middle";
                 ctx.fillStyle = "#ffffff";
-                const fontSize = numSlices > 20 ? 10 : (numSlices > 10 ? 12 : 14);
-                ctx.font = `bold ${fontSize}px sans-serif`;
-                ctx.fillText(activeItems[i], radius - 15, 4);
+                const baseFontSize = numSlices > 20 ? 10 : (numSlices > 10 ? 12 : 14);
+                const scaledFontSize = Math.max(8, Math.round(baseFontSize * (cssSize / 300) * dpr));
+                ctx.font = `bold ${scaledFontSize}px sans-serif`;
+                ctx.fillText(activeItems[i], radius - Math.round(14 * dpr), 0);
                 ctx.restore();
             }
 
             ctx.fillStyle = "#ffffff";
             ctx.beginPath();
-            ctx.arc(centerX, centerY, 15, 0, 2 * Math.PI);
+            ctx.arc(centerX, centerY, Math.round(15 * dpr), 0, 2 * Math.PI);
             ctx.fill();
             ctx.strokeStyle = "#D1A954";
-            ctx.lineWidth = 3;
+            ctx.lineWidth = Math.max(2, 3 * dpr);
             ctx.stroke();
         }
+
+        function handleWheelViewportResize() {
+            const modal = document.getElementById('wheel-modal');
+            if (modal && !modal.classList.contains('hidden')) {
+                drawWheel();
+            }
+        }
+
+        window.addEventListener('resize', handleWheelViewportResize);
+        window.addEventListener('orientationchange', () => {
+            setTimeout(handleWheelViewportResize, 150);
+        });
 
         function spinWheel() {
             if (isSpinning) return;
@@ -1373,6 +1453,15 @@
                 return;
             }
 
+            const mode = document.getElementById('wheel-mode-select').value;
+            if (mode === 'music') {
+                spinMusicWheel();
+            } else {
+                spinNormalWheel();
+            }
+        }
+
+        function spinNormalWheel() {
             isSpinning = true;
             document.getElementById('spin-btn').disabled = true;
 
@@ -1390,7 +1479,7 @@
                 drawWheel();
 
                 if (progress < 1) {
-                    requestAnimationFrame(animateSpin);
+                    wheelAnimFrameId = requestAnimationFrame(animateSpin);
                 } else {
                     isSpinning = false;
                     document.getElementById('spin-btn').disabled = false;
@@ -1398,7 +1487,81 @@
                 }
             }
 
-            requestAnimationFrame(animateSpin);
+            wheelAnimFrameId = requestAnimationFrame(animateSpin);
+        }
+
+        function spinMusicWheel() {
+            isSpinning = true;
+            document.getElementById('spin-btn').disabled = true;
+
+            const statusEl = document.getElementById('wheel-music-status');
+            statusEl.classList.remove('hidden');
+            statusEl.innerText = "0:00 — Music started! Wheel begins at 0:08...";
+
+            if (wheelMusicAudio) {
+                wheelMusicAudio.pause();
+            }
+            wheelMusicAudio = new Audio('wheel-music.mp3');
+            wheelMusicAudio.currentTime = 0;
+            wheelMusicAudio.play().catch(err => {
+                console.log("Audio play warning:", err);
+                statusEl.innerText = "Running timer sync (check wheel-music.mp3 path)";
+            });
+
+            const startRot = currentAngle;
+            const totalRotation = Math.PI * 2 * (45 + Math.random() * 5);
+            const fallbackStartTime = performance.now();
+
+            function getMusicSpinProgress(t) {
+                if (t <= 8) return 0;
+                if (t >= 64) return 1;
+
+                const accelSpan = 47;
+                const decelSpan = 9;
+                const weightAccel = accelSpan / (accelSpan + decelSpan);
+                const weightDecel = decelSpan / (accelSpan + decelSpan);
+
+                if (t <= 55) {
+                    const u = (t - 8) / accelSpan;
+                    return weightAccel * Math.pow(u, 3);
+                } else {
+                    const v = (t - 55) / decelSpan;
+                    return weightAccel + weightDecel * (1 - Math.pow(1 - v, 3));
+                }
+            }
+
+            function animateMusicSpin(now) {
+                const elapsedSec = (!wheelMusicAudio.paused && wheelMusicAudio.duration > 0)
+                    ? wheelMusicAudio.currentTime
+                    : (now - fallbackStartTime) / 1000;
+
+                const mins = Math.floor(elapsedSec / 60);
+                const secs = Math.floor(elapsedSec % 60).toString().padStart(2, '0');
+                if (elapsedSec < 8) {
+                    statusEl.innerText = `${mins}:${secs} — Wheel start at 0:08...`;
+                } else if (elapsedSec < 55) {
+                    statusEl.innerText = `${mins}:${secs} — Accelerating until 0:55...`;
+                } else if (elapsedSec < 64) {
+                    statusEl.innerText = `${mins}:${secs} — Slowing down to stop at 1:04...`;
+                }
+
+                const progress = getMusicSpinProgress(elapsedSec);
+                currentAngle = startRot + totalRotation * progress;
+                drawWheel();
+
+                if (elapsedSec < 64 && !wheelMusicAudio.ended) {
+                    wheelAnimFrameId = requestAnimationFrame(animateMusicSpin);
+                } else {
+                    wheelMusicAudio.pause();
+                    wheelMusicAudio.currentTime = 0;
+                    isSpinning = false;
+                    document.getElementById('spin-btn').disabled = false;
+                    statusEl.classList.add('hidden');
+                    determineWinner();
+                }
+            }
+
+            wheelAnimFrameId = requestAnimationFrame(animateMusicSpin);
         }
 
         function determineWinner() {
@@ -2116,7 +2279,6 @@
                 } else {
                     alert(`Exam Submitted Successfully!\n✤ CORRECT: ${correctCount}\n✤ Wrong: ${wrongCount}\nCheating Strikes: ${examStrikes}`);
                     
-                    // NEW: Prompt asking if they want to proceed to the next quiz
                     const proceedNext = confirm("You have finished the quiz that you took. Would you like to proceed to the next one?");
                     if (proceedNext) {
                         currentExamSession.selectedQuizTimestamp = null;
