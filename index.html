@@ -977,7 +977,7 @@
     <div id="wheel-modal" class="hidden">
         <div class="wheel-modal-content">
             <button class="wheel-close-btn" onclick="closeWheelModal()">✕</button>
-            <h3 style="margin: 0 0 10px 0; font-family: Serif; color: var(--accent);">🎡 Randomizer Wheel</h3>
+            <h3 style="margin: 0 0 10px 0; font-family: Serif; color: var(--accent);">❉ Randomizer Wheel</h3>
 
             <div class="wheel-selector-row">
                 <select id="wheel-select" onchange="switchWheel(this.value)">
@@ -1005,7 +1005,7 @@
 
             <div class="wheel-controls">
                 <button class="wheel-btn" id="spin-btn" onclick="spinWheel()">SPIN WHEEL</button>
-                <button class="wheel-btn" onclick="resetActiveWheel()" style="background:#444; font-size:12px; max-width:200px;">Reset Wheel Items</button>
+                <button class="wheel-btn" onclick="resetActiveWheel()" style="background:#444; font-size:12px; max-width:200px;">Reset Wheel</button>
             </div>
 
             <div id="custom-wheel-form" class="custom-wheel-form hidden">
@@ -1033,6 +1033,19 @@
         </div>
     </div>
 
+    <!-- QUIZ ANSWER PREVIEW / REVIEW MODAL -->
+    <div id="quiz-review-modal" class="hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.88); backdrop-filter:blur(5px); z-index:9600; display:flex; justify-content:center; align-items:center; padding:16px; box-sizing:border-box;">
+        <div style="background:var(--bg-color); border:2px solid var(--border-color); border-radius:16px; width:100%; max-width:560px; max-height:88vh; display:flex; flex-direction:column; padding:18px; box-sizing:border-box; color:var(--accent); box-shadow:0 10px 30px rgba(0,0,0,0.85);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:12px;">
+                <h3 style="margin:0; font-family:Serif; font-size:17px;">✪ Answer Review</h3>
+                <button onclick="closeQuizReviewModal()" style="background:transparent; border:none; color:var(--accent); font-size:18px; font-weight:bold; cursor:pointer;">✕</button>
+            </div>
+            <div id="quiz-review-summary" style="background:rgba(255,255,255,0.05); border:1px solid var(--border-color); border-radius:8px; padding:10px 12px; margin-bottom:12px;"></div>
+            <div id="quiz-review-list" style="overflow-y:auto; flex:1; padding-right:4px;"></div>
+            <button onclick="closeQuizReviewModal()" style="margin-top:12px; background:var(--btn-bg); color:#fff; border:2px solid var(--border-color); padding:10px; border-radius:20px; font-weight:bold; cursor:pointer; width:100%;">Done & Continue</button>
+        </div>
+    </div>
+
     <!-- LOGIN SCREEN -->
     <div id="login-screen">
         <div class="brand-header">
@@ -1044,7 +1057,7 @@
         </div>
 
         <div class="theme-selector-box">
-            <label for="theme-select">✤ Background Theme:</label>
+            <label for="theme-select">Theme:</label>
             <select id="theme-select" onchange="changeTheme(this.value)">
                 <option value="default">Aurelius</option>
                 <option value="brown">Velmora</option>
@@ -1057,13 +1070,7 @@
 
         <div class="login-card">
             <p>Click enter to access portal</p>
-            <button class="action-btn" onclick="loginAsStudent()">ENTER</button>
-
-            <p>For the developer, enter your code below.</p>
-            <div class="dev-input-row">
-                <input type="password" id="dev-code-input" placeholder="Type code">
-                <button class="action-btn" onclick="loginAsDeveloper()">ENTER</button>
-            </div>
+            <button class="action-btn" onclick="loginAsStudent()" style="margin-bottom: 0;">ENTER</button>
         </div>
 
         <div class="footer-credit">DEVELOPED BY YHODA LYONY Y.P.</div>
@@ -1222,6 +1229,8 @@
         let examStrikes = 0;
         let activeExamTimestampForTracker = null;
         let activeExamTimers = {};
+        let activeQuestionTimers = {};
+        let activeQuizRuntimeState = null;
 
         // --- SPINNING WHEEL SYSTEM VARIABLES & ENGINE ---
         const DEFAULT_STUDENT_NAMES = AUTHORIZED_STUDENTS.map(s => s.lastName);
@@ -1666,7 +1675,8 @@
             if (realTimeSubscription) supabaseClient.removeChannel(realTimeSubscription);
             document.getElementById('dashboard-screen').classList.add('hidden');
             document.getElementById('login-screen').classList.remove('hidden');
-            document.getElementById('dev-code-input').value = "";
+            const devInput = document.getElementById('dev-code-input');
+            if (devInput) devInput.value = "";
         }
 
         function togglePostBoxCollapse() {
@@ -1841,8 +1851,9 @@
             let isBlockedForAnyActiveQuiz = false;
 
             for (let exam of examPosts) {
-                if (exam.blocked_students) {
-                    let blockedList = exam.blocked_students.split(',').map(name => name.trim().toLowerCase());
+                const meta = parseExamMetadata(exam);
+                if (meta.blockedRaw) {
+                    let blockedList = meta.blockedRaw.split(',').map(name => name.trim().toLowerCase());
                     if (blockedList.includes(matchedStudent.lastName.toLowerCase())) {
                         isBlockedForAnyActiveQuiz = true;
                         break;
@@ -1872,17 +1883,90 @@
             }
         }
 
+        function parseExamMetadata(exam) {
+            const raw = (exam && exam.blocked_students) ? String(exam.blocked_students) : "";
+            const marker = "||META:";
+            const idx = raw.indexOf(marker);
+            if (idx === -1) {
+                return { blockedRaw: raw.trim(), pin: "", perQuestionSeconds: 0, oneQuestionAtATime: true };
+            }
+            const blockedRaw = raw.slice(0, idx).trim();
+            try {
+                const parsed = JSON.parse(raw.slice(idx + marker.length));
+                return {
+                    blockedRaw,
+                    pin: (parsed.pin || "").trim(),
+                    perQuestionSeconds: parseInt(parsed.perQuestionSeconds, 10) || 0,
+                    oneQuestionAtATime: parsed.oneQuestionAtATime !== false
+                };
+            } catch (e) {
+                return { blockedRaw, pin: "", perQuestionSeconds: 0, oneQuestionAtATime: true };
+            }
+        }
+
+        function shuffleArrayCopy(arr) {
+            const copy = [...arr];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        function clearAllExamTimers() {
+            Object.values(activeExamTimers).forEach(t => clearInterval(t));
+            activeExamTimers = {};
+            Object.values(activeQuestionTimers).forEach(t => clearInterval(t));
+            activeQuestionTimers = {};
+        }
+
+        function buildQuizRuntimeState(exam) {
+            const meta = parseExamMetadata(exam);
+            let indexedQuestions = (exam.questions || []).map((q, originalIndex) => {
+                let shuffledOptions = [];
+                if (q.type === 'mc' && Array.isArray(q.options)) {
+                    const labeled = q.options.map((optText, optIdx) => ({
+                        originalLetter: String.fromCharCode(65 + optIdx),
+                        text: optText
+                    })).filter(o => o.text !== "");
+                    shuffledOptions = exam.randomize ? shuffleArrayCopy(labeled) : labeled;
+                }
+                return {
+                    q,
+                    originalIndex,
+                    shuffledOptions
+                };
+            });
+
+            if (exam.randomize) {
+                indexedQuestions = shuffleArrayCopy(indexedQuestions);
+            }
+
+            return {
+                examTimestamp: Number(exam.timestamp),
+                questions: indexedQuestions,
+                currentIndex: 0,
+                answers: {}, // keyed by originalIndex -> selected value (originalLetter for MC, "True"/"False" for TF, string for enumeration)
+                oneQuestionAtATime: meta.oneQuestionAtATime,
+                perQuestionSeconds: meta.perQuestionSeconds,
+                questionTimeLeft: meta.perQuestionSeconds,
+                totalTimeLeft: exam.duration_seconds || 0
+            };
+        }
+
         function selectStudentQuiz(timestamp) {
             if (!currentExamSession) return;
             
             const exam = cachedPosts.find(p => Number(p.timestamp) === Number(timestamp));
             if (!exam) return;
 
-            if (exam.blocked_students && currentExamSession.identifier !== "ADMIN") {
+            const meta = parseExamMetadata(exam);
+
+            if (meta.blockedRaw && currentExamSession.identifier !== "ADMIN") {
                 const savedStudentId = localStorage.getItem('recognized_student_id');
                 const matchedStudent = AUTHORIZED_STUDENTS.find(s => s.id === savedStudentId);
                 if (matchedStudent) {
-                    let blockedList = exam.blocked_students.split(',').map(name => name.trim().toLowerCase());
+                    let blockedList = meta.blockedRaw.split(',').map(name => name.trim().toLowerCase());
                     if (blockedList.includes(matchedStudent.lastName.toLowerCase())) {
                         alert("The developer did not allow you to take this particular live quiz right now");
                         return;
@@ -1890,10 +1974,24 @@
                 }
             }
 
+            // Require Quiz Access PIN if configured by the Author
+            if (meta.pin && currentExamSession.identifier !== "ADMIN" && !isUserAdmin) {
+                const enteredPin = prompt(`✪ This quiz requires an Access PIN from your instructor/author.\nEnter Quiz Access PIN for "${exam.title}":`);
+                if (enteredPin === null) return;
+                if (enteredPin.trim() !== meta.pin) {
+                    alert("Incorrect Quiz Access PIN! Please verify the code with your instructor.");
+                    return;
+                }
+            }
+
+            clearAllExamTimers();
             currentExamSession.selectedQuizTimestamp = timestamp;
             examStrikes = 0;
+            activeQuizRuntimeState = buildQuizRuntimeState(exam);
 
-            let timeStr = exam.duration_seconds > 0 ? `${Math.floor(exam.duration_seconds / 60)} minutes` : "Untimed";
+            let timeStr = exam.duration_seconds > 0 ? `${Math.floor(exam.duration_seconds / 60)}m ${exam.duration_seconds % 60}s` : "Untimed";
+            let perQStr = meta.perQuestionSeconds > 0 ? ` (${meta.perQuestionSeconds}s per question)` : "";
+            let flowStr = meta.oneQuestionAtATime ? "One-way flow (1 question at a time, no going back)" : "Standard full-form view";
             let numQuestions = exam.questions ? exam.questions.length : 0;
             let authorName = exam.creator_name || "Public / Guest";
             let quizTitle = exam.title;
@@ -1903,7 +2001,7 @@
             let idNumber = currentExamSession.identifier;
 
             if (currentExamSession.identifier !== "ADMIN") {
-                alert(`ID No. ${idNumber}\nGreetings dear ${fullName} you will be entering the quiz form posted on this webpage, the Exam ${quizTitle} uploaded by ${authorName} with a given time of ${timeStr} and total of ${numQuestions} questions.\n\nAlso I'd like to remind you that there are ${strikesLimit} that includes taking screenshots or switching to other applications during the examination may be recorded as a violation and result in a strike. \n\nThis examination is monitored by Vanya the assistant\n\nWithout further a do, I wish you have a great day and good luck ${nickname}\n\nPress OK to begin`);
+                alert(`ID No. ${idNumber}\nGreetings dear ${fullName} you will be entering the quiz form posted on this webpage, the Exam ${quizTitle} uploaded by ${authorName} with a given time of ${timeStr}${perQStr} and total of ${numQuestions} questions.\n\nMode: ${flowStr}\nReminder: There is a ${strikesLimit}. Switching tabs or leaving the exam window will record a violation strike.\n\nThis examination is monitored by Vanya the assistant.\n\nGood luck ${nickname}! Press OK to begin.`);
             }
 
             renderFeed();
@@ -1976,7 +2074,7 @@
                 `;
             } else if (type === 'enumeration') {
                 optContainer.innerHTML = `
-                    <input type="text" placeholder="Correct Answer / Keywords" class="q-ans-enum" style="width:100%; padding:6px; background:#222; color:#fff; border:1px solid #444;">
+                    <input type="text" placeholder="Correct Answer (commas = multi-item, / = synonyms)" class="q-ans-enum" style="width:100%; padding:6px; background:#222; color:#fff; border:1px solid #444;">
                 `;
             }
         }
@@ -1984,7 +2082,10 @@
         async function publishExamQuiz() {
             const title = document.getElementById('exam-title-input').value.trim();
             const randomize = document.getElementById('exam-randomize-toggle').checked;
+            const oneQuestionAtATime = document.getElementById('exam-oneway-toggle').checked;
             const durationSec = parseInt(document.getElementById('exam-duration-input').value) || 0;
+            const perQuestionSec = parseInt(document.getElementById('exam-per-q-duration-input').value) || 0;
+            const accessPin = document.getElementById('exam-pin-input').value.trim();
             const blockedStudentsInput = document.getElementById('exam-blocked-input').value.trim();
             const qItems = document.querySelectorAll('.question-builder-item');
 
@@ -2005,7 +2106,7 @@
                         item.querySelector('.opt-c').value.trim(),
                         item.querySelector('.opt-d').value.trim()
                     ];
-                    ans = item.querySelector('.q-ans-mc').value.trim();
+                    ans = item.querySelector('.q-ans-mc').value.trim().toUpperCase();
                 } else if (type === 'tf') {
                     ans = item.querySelector('.q-ans-tf').value;
                 } else if (type === 'enumeration') {
@@ -2021,9 +2122,15 @@
                 const savedStudentId = localStorage.getItem('recognized_student_id');
                 if (savedStudentId) {
                     const found = AUTHORIZED_STUDENTS.find(s => s.id === savedStudentId);
-                    if (found) creatorName = found.nickname;
+                    if (found) creatorName = found.fullName;
                 }
             }
+
+            const packedBlockedAndMeta = `${blockedStudentsInput}||META:${JSON.stringify({
+                pin: accessPin,
+                perQuestionSeconds: perQuestionSec,
+                oneQuestionAtATime: oneQuestionAtATime
+            })}`;
 
             const now = new Date();
             const examData = {
@@ -2033,7 +2140,7 @@
                 creator_name: creatorName,
                 randomize: randomize,
                 duration_seconds: durationSec,
-                blocked_students: blockedStudentsInput,
+                blocked_students: packedBlockedAndMeta,
                 is_live: true,
                 questions: questions,
                 timestamp: now.getTime(),
@@ -2050,22 +2157,20 @@
             }
         }
 
+        function isCurrentUserQuizCreator(exam) {
+            if (isUserAdmin) return true;
+            const savedStudentId = localStorage.getItem('recognized_student_id');
+            if (!savedStudentId || !exam.creator_name) return false;
+            const found = AUTHORIZED_STUDENTS.find(s => s.id === savedStudentId);
+            if (!found) return false;
+            return exam.creator_name === found.fullName || exam.creator_name === found.nickname;
+        }
+
         async function toggleQuizLiveStatus(examTimestamp) {
             const exam = cachedPosts.find(p => Number(p.timestamp) === Number(examTimestamp));
             if (!exam) return;
 
-            let currentAuthorName = "Public / Guest";
-            if (isUserAdmin) {
-                currentAuthorName = "Developer Admin";
-            } else {
-                const savedStudentId = localStorage.getItem('recognized_student_id');
-                if (savedStudentId) {
-                    const found = AUTHORIZED_STUDENTS.find(s => s.id === savedStudentId);
-                    if (found) currentAuthorName = found.fullName;
-                }
-            }
-
-            if (!isUserAdmin && exam.creator_name && exam.creator_name !== currentAuthorName) {
+            if (!isCurrentUserQuizCreator(exam)) {
                 alert("Unauthorized: Only the original creator or developer can change the live status of this quiz.");
                 return;
             }
@@ -2084,18 +2189,7 @@
             const exam = cachedPosts.find(p => Number(p.timestamp) === Number(examTimestamp));
             if (!exam) return;
 
-            let currentAuthorName = "Public / Guest";
-            if (isUserAdmin) {
-                currentAuthorName = "Developer Admin";
-            } else {
-                const savedStudentId = localStorage.getItem('recognized_student_id');
-                if (savedStudentId) {
-                    const found = AUTHORIZED_STUDENTS.find(s => s.id === savedStudentId);
-                    if (found) currentAuthorName = found.fullName;
-                }
-            }
-
-            if (!isUserAdmin && exam.creator_name && exam.creator_name !== currentAuthorName) {
+            if (!isCurrentUserQuizCreator(exam)) {
                 alert("Unauthorized: Only the original creator or developer can delete this quiz.");
                 return;
             }
@@ -2197,9 +2291,85 @@
             if (previewElem) previewElem.classList.toggle('hidden');
         }
 
+        function recordStudentAnswer(originalIdx, value) {
+            if (!activeQuizRuntimeState) return;
+            activeQuizRuntimeState.answers[originalIdx] = value;
+        }
+
+        function captureCurrentDisplayedAnswers(examTimestamp) {
+            if (!activeQuizRuntimeState) return;
+            activeQuizRuntimeState.questions.forEach(item => {
+                const idx = item.originalIndex;
+                if (item.q.type === 'enumeration') {
+                    const inputElem = document.querySelector(`[name="exam_q_${examTimestamp}_${idx}"]`);
+                    if (inputElem) {
+                        activeQuizRuntimeState.answers[idx] = inputElem.value.trim();
+                    }
+                } else {
+                    const checkedElem = document.querySelector(`[name="exam_q_${examTimestamp}_${idx}"]:checked`);
+                    if (checkedElem) {
+                        activeQuizRuntimeState.answers[idx] = checkedElem.value.trim();
+                    }
+                }
+            });
+        }
+
+        function advanceOneWayQuestion(examTimestamp) {
+            if (!activeQuizRuntimeState) return;
+            captureCurrentDisplayedAnswers(examTimestamp);
+
+            if (activeQuestionTimers[examTimestamp]) {
+                clearInterval(activeQuestionTimers[examTimestamp]);
+                delete activeQuestionTimers[examTimestamp];
+            }
+
+            if (activeQuizRuntimeState.currentIndex + 1 < activeQuizRuntimeState.questions.length) {
+                activeQuizRuntimeState.currentIndex++;
+                activeQuizRuntimeState.questionTimeLeft = activeQuizRuntimeState.perQuestionSeconds;
+                renderFeed();
+            } else {
+                submitStudentExam(examTimestamp);
+            }
+        }
+
+        function startPerQuestionTimer(perQSeconds, examTimestamp) {
+            if (!perQSeconds || perQSeconds <= 0) return;
+            if (activeQuestionTimers[examTimestamp]) {
+                clearInterval(activeQuestionTimers[examTimestamp]);
+            }
+
+            activeQuestionTimers[examTimestamp] = setInterval(() => {
+                if (!activeQuizRuntimeState || activeQuizRuntimeState.examTimestamp !== Number(examTimestamp)) {
+                    clearInterval(activeQuestionTimers[examTimestamp]);
+                    delete activeQuestionTimers[examTimestamp];
+                    return;
+                }
+
+                const qDisplay = document.getElementById(`q-timer-display-${examTimestamp}`);
+                if (!qDisplay) {
+                    clearInterval(activeQuestionTimers[examTimestamp]);
+                    delete activeQuestionTimers[examTimestamp];
+                    return;
+                }
+
+                const t = activeQuizRuntimeState.questionTimeLeft;
+                qDisplay.innerText = `Qtn Timer: ${t}s`;
+
+                if (t <= 0) {
+                    clearInterval(activeQuestionTimers[examTimestamp]);
+                    delete activeQuestionTimers[examTimestamp];
+                    advanceOneWayQuestion(examTimestamp);
+                    return;
+                }
+                activeQuizRuntimeState.questionTimeLeft--;
+            }, 1000);
+        }
+
         function startExamTimer(durationSeconds, examTimestamp) {
             if (activeExamTimers[examTimestamp]) return;
-            let timeLeft = durationSeconds;
+            let timeLeft = (activeQuizRuntimeState && activeQuizRuntimeState.totalTimeLeft > 0)
+                ? activeQuizRuntimeState.totalTimeLeft
+                : durationSeconds;
 
             activeExamTimers[examTimestamp] = setInterval(() => {
                 const currentDisplay = document.getElementById(`timer-display-${examTimestamp}`);
@@ -2209,9 +2379,13 @@
                     return;
                 }
 
+                if (activeQuizRuntimeState) {
+                    activeQuizRuntimeState.totalTimeLeft = timeLeft;
+                }
+
                 let mins = Math.floor(timeLeft / 60);
                 let secs = timeLeft % 60;
-                currentDisplay.innerText = `Time Remaining: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                currentDisplay.innerText = `Time: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
 
                 if (timeLeft <= 0) {
                     clearInterval(activeExamTimers[examTimestamp]);
@@ -2223,19 +2397,150 @@
             }, 1000);
         }
 
+        function normalizeAnswerToken(str) {
+            return String(str || "")
+                .toLowerCase()
+                .replace(/[.,;:!?'"()\[\]{}\-_]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function gradeSingleItemMatch(userToken, expectedToken) {
+            const normUser = normalizeAnswerToken(userToken);
+            if (!normUser) return false;
+            const alternatives = String(expectedToken || "")
+                .split('/')
+                .map(alt => normalizeAnswerToken(alt))
+                .filter(Boolean);
+            return alternatives.includes(normUser);
+        }
+
+        function gradeEnumerationQuestion(userRaw, expectedRaw) {
+            const expectedParts = String(expectedRaw || "")
+                .split(',')
+                .map(p => p.trim())
+                .filter(Boolean);
+
+            if (expectedParts.length === 0) return false;
+
+            if (expectedParts.length === 1) {
+                return gradeSingleItemMatch(userRaw, expectedParts[0]);
+            }
+
+            const userParts = String(userRaw || "")
+                .split(',')
+                .map(p => p.trim())
+                .filter(Boolean);
+
+            if (userParts.length !== expectedParts.length) return false;
+
+            const usedUserIndices = new Set();
+            for (const expPart of expectedParts) {
+                let matchedIdx = -1;
+                for (let i = 0; i < userParts.length; i++) {
+                    if (usedUserIndices.has(i)) continue;
+                    if (gradeSingleItemMatch(userParts[i], expPart)) {
+                        matchedIdx = i;
+                        break;
+                    }
+                }
+                if (matchedIdx === -1) return false;
+                usedUserIndices.add(matchedIdx);
+            }
+            return true;
+        }
+
+        function evaluateQuestionResponse(q, userVal) {
+            const cleanUser = String(userVal || "").trim();
+            if (q.type === 'enumeration') {
+                return gradeEnumerationQuestion(cleanUser, q.ans);
+            }
+            return cleanUser.toLowerCase() === String(q.ans || "").trim().toLowerCase();
+        }
+
+        function formatOptionLabel(q, val) {
+            if (!val) return "(No answer)";
+            if (q.type === 'mc' && Array.isArray(q.options)) {
+                const idx = val.toUpperCase().charCodeAt(0) - 65;
+                if (idx >= 0 && idx < q.options.length && q.options[idx]) {
+                    return `${val.toUpperCase()}. ${q.options[idx]}`;
+                }
+            }
+            return val;
+        }
+
+        let lastQuizReviewData = null;
+
+        function closeQuizReviewModal() {
+            const modal = document.getElementById('quiz-review-modal');
+            if (modal) modal.classList.add('hidden');
+            if (lastQuizReviewData && typeof lastQuizReviewData.onClose === 'function') {
+                const cb = lastQuizReviewData.onClose;
+                lastQuizReviewData = null;
+                cb();
+            }
+        }
+
+        function showQuizReviewModal(reviewData) {
+            lastQuizReviewData = reviewData;
+            const modal = document.getElementById('quiz-review-modal');
+            const summaryEl = document.getElementById('quiz-review-summary');
+            const listEl = document.getElementById('quiz-review-list');
+
+            summaryEl.innerHTML = `
+                <div style="font-size:15px; font-weight:bold; color:var(--accent);">${escapeHtml(reviewData.title)}</div>
+                <div style="font-size:13px; margin-top:4px; color:#ddd;">
+                    Score: <strong style="color:#a3e635;">${reviewData.correct} / ${reviewData.total}</strong> &nbsp;|&nbsp;
+                    Wrong: <strong style="color:#ff6b6b;">${reviewData.wrong}</strong> &nbsp;|&nbsp;
+                    Strikes: <strong>${reviewData.strikes}</strong>
+                </div>
+            `;
+
+            listEl.innerHTML = reviewData.items.map((item, i) => {
+                const badge = item.isCorrect
+                    ? `<span style="background:#1b4332; color:#a3e635; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:bold;">Correct</span>`
+                    : `<span style="background:#590d22; color:#ff8fa3; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:bold;">Wrong</span>`;
+                const borderCol = item.isCorrect ? '#2d6a4f' : '#9b2226';
+                return `
+                    <div style="background:#141414; border-left:4px solid ${borderCol}; border-radius:6px; padding:10px 12px; margin-bottom:10px; text-align:left;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px; margin-bottom:6px;">
+                            <strong style="color:#fff; font-size:13px;">Q${i + 1}: ${escapeHtml(item.questionText)}</strong>
+                            ${badge}
+                        </div>
+                        <div style="font-size:12px; color:${item.isCorrect ? '#a3e635' : '#ff8fa3'}; margin-bottom:3px;">
+                            Your Answer: <strong>${escapeHtml(item.userDisplay)}</strong>
+                        </div>
+                        ${!item.isCorrect ? `
+                            <div style="font-size:12px; color:#a3e635;">
+                                Correct Answer: <strong>${escapeHtml(item.correctDisplay)}</strong>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+
+            modal.classList.remove('hidden');
+        }
+
         async function submitStudentExam(examTimestamp) {
             if (!currentExamSession || currentExamSession.role !== 'student') return;
 
-            if (activeExamTimers[examTimestamp]) {
-                clearInterval(activeExamTimers[examTimestamp]);
-                delete activeExamTimers[examTimestamp];
-            }
+            captureCurrentDisplayedAnswers(examTimestamp);
+            clearAllExamTimers();
 
             const exam = cachedPosts.find(p => Number(p.timestamp) === Number(examTimestamp));
             if (!exam) return;
 
-            if (exam.submissions && exam.submissions.some(sub => sub.student_id === currentExamSession.identifier)) {
+            // Server-side freshness check to block duplicate submissions for the same student ID
+            const { data: latestSubs } = await supabaseClient
+                .from('submissions')
+                .select('student_id')
+                .eq('exam_timestamp', Number(examTimestamp))
+                .eq('student_id', currentExamSession.identifier);
+
+            if ((latestSubs && latestSubs.length > 0 && !isUserAdmin) || (exam.submissions && exam.submissions.some(sub => sub.student_id === currentExamSession.identifier) && !isUserAdmin)) {
                 alert("You have already submitted this examination!");
+                activeQuizRuntimeState = null;
                 renderFeed();
                 return;
             }
@@ -2243,10 +2548,13 @@
             let correctCount = 0;
             let wrongCount = 0;
             let total = exam.questions.length;
+            let reviewItems = [];
 
             exam.questions.forEach((q, idx) => {
                 let userVal = "";
-                if (q.type === 'enumeration') {
+                if (activeQuizRuntimeState && activeQuizRuntimeState.answers[idx] !== undefined) {
+                    userVal = String(activeQuizRuntimeState.answers[idx]).trim();
+                } else if (q.type === 'enumeration') {
                     const inputElem = document.querySelector(`[name="exam_q_${examTimestamp}_${idx}"]`);
                     userVal = inputElem ? inputElem.value.trim() : "";
                 } else {
@@ -2254,11 +2562,19 @@
                     userVal = userAnsElem ? userAnsElem.value.trim() : "";
                 }
 
-                if (userVal.toLowerCase() === q.ans.toLowerCase()) {
+                const isCorrect = evaluateQuestionResponse(q, userVal);
+                if (isCorrect) {
                     correctCount++;
                 } else {
                     wrongCount++;
                 }
+
+                reviewItems.push({
+                    questionText: q.text,
+                    isCorrect,
+                    userDisplay: formatOptionLabel(q, userVal),
+                    correctDisplay: formatOptionLabel(q, q.ans)
+                });
             });
 
             const executeSubmission = async () => {
@@ -2277,17 +2593,25 @@
                 if (error) {
                     alert("Failed to submit score: " + error.message);
                 } else {
-                    alert(`Exam Submitted Successfully!\n✤ CORRECT: ${correctCount}\n✤ Wrong: ${wrongCount}\nCheating Strikes: ${examStrikes}`);
-                    
-                    const proceedNext = confirm("You have finished the quiz that you took. Would you like to proceed to the next one?");
-                    if (proceedNext) {
-                        currentExamSession.selectedQuizTimestamp = null;
-                    } else {
-                        currentExamSession = null;
-                    }
-
-                    updatePresence(currentExamSession ? currentExamSession.name : "Finished", currentExamSession ? "taking_exam" : "finished");
-                    await fetchDataFromCloud();
+                    activeQuizRuntimeState = null;
+                    showQuizReviewModal({
+                        title: exam.title,
+                        correct: correctCount,
+                        wrong: wrongCount,
+                        total: total,
+                        strikes: examStrikes,
+                        items: reviewItems,
+                        onClose: async () => {
+                            const proceedNext = confirm("You have finished the quiz that you took. Would you like to proceed to the next one?");
+                            if (proceedNext) {
+                                currentExamSession.selectedQuizTimestamp = null;
+                            } else {
+                                currentExamSession = null;
+                            }
+                            updatePresence(currentExamSession ? currentExamSession.name : "Finished", currentExamSession ? "taking_exam" : "finished");
+                            await fetchDataFromCloud();
+                        }
+                    });
                 }
             };
 
@@ -2364,6 +2688,8 @@
             if (examStrikes >= 3) {
                 alert("Maximum cheating strikes exceeded (3 strikes). Your examination is now auto-submitting.");
                 submitStudentExam(activeExamTimestampForTracker);
+            } else if (currentExamSession && currentExamSession.role === 'student') {
+                renderFeed();
             }
         }
 
@@ -2382,7 +2708,7 @@
             }
 
             feed.innerHTML = posts.map((p) => {
-                const deleteButtonHtml = isUserAdmin ? `<button class="delete-btn" onclick="deletePost(${p.timestamp})">🗑️ Delete</button>` : '';
+                const deleteButtonHtml = isUserAdmin ? `<button class="delete-btn" onclick="deletePost(${p.timestamp})">Delete</button>` : '';
 
                 if (p.type === 'confession') {
                     const devNameTag = (isUserAdmin && p.author_name) ? `<br><span style="color:#777; font-size:11px;">👤 Sender Name: ${escapeHtml(p.author_name)}</span>` : '';
@@ -2437,21 +2763,9 @@
                     `;
                 }
 
-                html += `
-                    <div class="exam-gate-container">
-                        <h3>♔ Author Login</h3>
-                        <input type="password" id="exam-author-code" placeholder="Enter Author Passcode">
-                        <button onclick="loginExamAuthor()">Proceed to Author Studio</button>
-                    </div>
 
-                    <div class="exam-gate-container">
-                        <h3>♖ Spectator Login</h3>
-                        <input type="password" id="exam-spectator-code" placeholder="Enter Spectator Passcode">
-                        <button onclick="loginExamSpectator()">Proceed to Spectator Room</button>
-                    </div>
-                `;
             } else if (currentExamSession.role === 'student') {
-                html += `<button onclick="Object.values(activeExamTimers).forEach(t => clearInterval(t)); activeExamTimers={}; currentExamSession=null; renderFeed();" style="background:var(--bg-color); color:var(--accent); border: 2px solid var(--border-color); padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Back to Portals</button>`;
+                html += `<button onclick="clearAllExamTimers(); activeQuizRuntimeState=null; activeExamTimestampForTracker=null; currentExamSession=null; renderFeed();" style="background:var(--bg-color); color:var(--accent); border: 2px solid var(--border-color); padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Back to Portals</button>`;
                 
                 const liveExams = examPosts.filter(exam => exam.is_live !== false);
                 const uncompletedLiveExams = liveExams.filter(exam => !(exam.submissions && exam.submissions.some(sub => sub.student_id === currentExamSession.identifier)));
@@ -2473,13 +2787,18 @@
                             <div style="display:flex; flex-direction:column; gap:12px;">
                     `;
                     uncompletedLiveExams.forEach(exam => {
+                        const meta = parseExamMetadata(exam);
                         let durationMins = exam.duration_seconds > 0 ? `${Math.floor(exam.duration_seconds / 60)} mins` : "Untimed";
                         let qCount = exam.questions ? exam.questions.length : 0;
+                        let badges = [];
+                        if (meta.pin) badges.push("✤ PIN Required");
+                        if (meta.oneQuestionAtATime) badges.push("➡ One-Way Flow");
+                        if (meta.perQuestionSeconds > 0) badges.push(`⏱ ${meta.perQuestionSeconds}s/Q`);
                         html += `
                             <div style="background:#111; border:1px solid var(--border-color); padding:15px; border-radius:8px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
                                 <div>
                                     <h4 style="margin:0 0 5px 0; color:var(--accent);">➳ ${escapeHtml(exam.title)}</h4>
-                                    <span style="font-size:12px; color:#aaa;">Creator: ${escapeHtml(exam.creator_name || 'Public')} | Questions: ${qCount} | Duration: ${durationMins}</span>
+                                    <span style="font-size:12px; color:#aaa;">Creator: ${escapeHtml(exam.creator_name || 'Public')} | Questions: ${qCount} | Duration: ${durationMins}${badges.length ? ' | ' + badges.join(' · ') : ''}</span>
                                 </div>
                                 <button onclick="selectStudentQuiz(${exam.timestamp})" style="background:#64B500; color:#111; border:none; padding:8px 16px; font-weight:bold; border-radius:20px; cursor:pointer;">Take This Quiz</button>
                             </div>
@@ -2497,6 +2816,7 @@
                     
                     if (!exam) {
                         currentExamSession.selectedQuizTimestamp = null;
+                        activeQuizRuntimeState = null;
                         renderFeed();
                         return;
                     }
@@ -2508,10 +2828,14 @@
                             <div class="announcement-item" style="max-width:100%; background:#2c1b1b; color:#fff;">
                                 <h4>Exam: ${escapeHtml(exam.title)}</h4>
                                 <p style="color:#ff6b6b; font-weight:bold;">✤ Thanks for submitting, You have already completed this Examination. Have a great day Мой Друг! 🤗</p>
-                                ${uncompletedLiveExams.length > 1 ? `<button onclick="currentExamSession.selectedQuizTimestamp=null; renderFeed();" style="background:#444; color:#fff; border:none; padding:6px 12px; border-radius:4px; margin-top:10px; cursor:pointer;">⬅ Choose Another Quiz</button>` : ''}
+                                ${uncompletedLiveExams.length > 1 ? `<button onclick="currentExamSession.selectedQuizTimestamp=null; activeQuizRuntimeState=null; renderFeed();" style="background:#444; color:#fff; border:none; padding:6px 12px; border-radius:4px; margin-top:10px; cursor:pointer;">⬅ Choose Another Quiz</button>` : ''}
                             </div>
                         `;
                         return;
+                    }
+
+                    if (!activeQuizRuntimeState || activeQuizRuntimeState.examTimestamp !== Number(exam.timestamp)) {
+                        activeQuizRuntimeState = buildQuizRuntimeState(exam);
                     }
 
                     activeExamTimestampForTracker = exam.timestamp;
@@ -2519,54 +2843,82 @@
                     if (exam.duration_seconds && exam.duration_seconds > 0) {
                         setTimeout(() => startExamTimer(exam.duration_seconds, exam.timestamp), 100);
                     }
-
-                    let questionsToDisplay = exam.questions.map((q, originalIndex) => ({ q, originalIndex }));
-                    if (exam.randomize) {
-                        questionsToDisplay.sort(() => Math.random() - 0.5);
+                    if (activeQuizRuntimeState.oneQuestionAtATime && activeQuizRuntimeState.perQuestionSeconds > 0) {
+                        setTimeout(() => startPerQuestionTimer(activeQuizRuntimeState.perQuestionSeconds, exam.timestamp), 100);
                     }
 
+                    const totalQCount = activeQuizRuntimeState.questions.length;
+                    const questionsToRender = activeQuizRuntimeState.oneQuestionAtATime
+                        ? [activeQuizRuntimeState.questions[activeQuizRuntimeState.currentIndex]]
+                        : activeQuizRuntimeState.questions;
+
                     html += `
-                        ${uncompletedLiveExams.length > 1 ? `<button onclick="Object.values(activeExamTimers).forEach(t => clearInterval(t)); activeExamTimers={}; currentExamSession.selectedQuizTimestamp=null; renderFeed();" style="background:#333; color:#fff; border:1px solid var(--border-color); padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Choose Another Quiz</button>` : ''}
+                        ${uncompletedLiveExams.length > 1 ? `<button onclick="clearAllExamTimers(); activeQuizRuntimeState=null; currentExamSession.selectedQuizTimestamp=null; renderFeed();" style="background:#333; color:#fff; border:1px solid var(--border-color); padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Choose Another Quiz</button>` : ''}
                         <div class="announcement-item" style="max-width:100%;">
-                            <div id="timer-display-${exam.timestamp}" class="exam-timer-floating">Time Remaining: Loading...</div>
-                            <div class="announcement-meta"><span>${escapeHtml(exam.title)}</span></div>
-                            <form id="exam-form-${exam.timestamp}" onsubmit="event.preventDefault(); submitStudentExam(${exam.timestamp});">
+                            <div class="exam-timer-floating" style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:8px;">
+                                <span id="timer-display-${exam.timestamp}">${exam.duration_seconds > 0 ? 'Loading...' : 'Total Time: Untimed'}</span>
+                                ${activeQuizRuntimeState.oneQuestionAtATime && activeQuizRuntimeState.perQuestionSeconds > 0 ? `<span id="q-timer-display-${exam.timestamp}" style="color:#ff6b6b;">Question Timer: ${activeQuizRuntimeState.questionTimeLeft}s</span>` : ''}
+                                <span>Strikes: ${examStrikes} / 3</span>
+                            </div>
+                            <div class="announcement-meta">
+                                <span>${escapeHtml(exam.title)}</span>
+                                ${activeQuizRuntimeState.oneQuestionAtATime ? `<span>Qtn ${activeQuizRuntimeState.currentIndex + 1} of ${totalQCount}</span>` : `<span>${totalQCount} Questions</span>`}
+                            </div>
+                            <form id="exam-form-${exam.timestamp}" onsubmit="event.preventDefault(); ${activeQuizRuntimeState.oneQuestionAtATime ? `advanceOneWayQuestion(${exam.timestamp})` : `submitStudentExam(${exam.timestamp})`};">
                     `;
                     
-                    questionsToDisplay.forEach((item, displayIdx) => {
+                    questionsToRender.forEach((item, loopIdx) => {
                         const q = item.q;
                         const originalIdx = item.originalIndex;
+                        const displayNumber = activeQuizRuntimeState.oneQuestionAtATime
+                            ? (activeQuizRuntimeState.currentIndex + 1)
+                            : (loopIdx + 1);
+                        const savedAns = activeQuizRuntimeState.answers[originalIdx] || "";
                         
-                        html += `<div style="margin-bottom:15px; font-weight:bold;">Q${displayIdx+1}: ${escapeHtml(q.text)}</div>`;
+                        html += `<div style="margin-bottom:15px; font-weight:bold;">Q${displayNumber}: ${escapeHtml(q.text)}</div>`;
                         if (q.type === 'mc') {
-                            q.options.forEach((opt, optIdx) => {
-                                const optLetter = String.fromCharCode(65 + optIdx);
+                            item.shuffledOptions.forEach((optObj, displayOptIdx) => {
+                                const displayLetter = String.fromCharCode(65 + displayOptIdx);
+                                const isChecked = savedAns === optObj.originalLetter ? "checked" : "";
                                 html += `
                                     <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-weight: normal; cursor: pointer;">
-                                        <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="${optLetter}" style="margin-top: 3px; flex-shrink: 0;">
-                                        <span>${optLetter}. ${escapeHtml(opt)}</span>
+                                        <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="${optObj.originalLetter}" ${isChecked} onchange="recordStudentAnswer(${originalIdx}, this.value)" style="margin-top: 3px; flex-shrink: 0;">
+                                        <span>${displayLetter}. ${escapeHtml(optObj.text)}</span>
                                     </label>
                                 `;
                             });
                         } else if (q.type === 'tf') {
                             html += `
                                 <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-weight: normal; cursor: pointer;">
-                                    <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="True" style="margin-top: 3px; flex-shrink: 0;">
+                                    <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="True" ${savedAns === 'True' ? 'checked' : ''} onchange="recordStudentAnswer(${originalIdx}, this.value)" style="margin-top: 3px; flex-shrink: 0;">
                                     <span>True</span>
                                 </label>
                                 <label style="display: flex; align-items: flex-start; gap: 8px; margin-bottom: 8px; font-weight: normal; cursor: pointer;">
-                                    <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="False" style="margin-top: 3px; flex-shrink: 0;">
+                                    <input type="radio" name="exam_q_${exam.timestamp}_${originalIdx}" value="False" ${savedAns === 'False' ? 'checked' : ''} onchange="recordStudentAnswer(${originalIdx}, this.value)" style="margin-top: 3px; flex-shrink: 0;">
                                     <span>False</span>
                                 </label>
                             `;
                         } else if (q.type === 'enumeration') {
                             html += `
-                                <input type="text" name="exam_q_${exam.timestamp}_${originalIdx}" placeholder="Type your answer here" style="width:100%; padding:8px; background:#222; color:#fff; border:1px solid #555; border-radius:4px; margin-bottom:10px; outline:none;">
+                                <input type="text" name="exam_q_${exam.timestamp}_${originalIdx}" value="${escapeHtml(savedAns)}" oninput="recordStudentAnswer(${originalIdx}, this.value)" placeholder="Type your answer here" style="width:100%; padding:8px; background:#222; color:#fff; border:1px solid #555; border-radius:4px; margin-bottom:10px; outline:none; box-sizing:border-box;">
                             `;
                         }
                     });
+
+                    if (activeQuizRuntimeState.oneQuestionAtATime) {
+                        const isLastQuestion = (activeQuizRuntimeState.currentIndex + 1) >= totalQCount;
+                        html += `
+                            <p style="font-size:10px; color:#9b2226; font-weight:bold; margin-top:10px;">⚠ One-way mode: Once you advance, you cannot return to previous questions.</p>
+                            <button type="submit" style="background:${isLastQuestion ? '#64B500' : '#D1A954'}; color:#111111; border:none; padding:10px 20px; font-weight:bold; border-radius:4px; margin-top:8px; cursor:pointer; width:100%;">
+                                ${isLastQuestion ? 'Submit Examination' : 'Next Question ➳'}
+                            </button>
+                        `;
+                    } else {
+                        html += `
+                            <button type="submit" style="background:#64B500; color:#111111; border:none; padding:10px 20px; font-weight:bold; border-radius:4px; margin-top:15px; cursor:pointer; width:100%;">Submit Examination</button>
+                        `;
+                    }
                     html += `
-                                <button type="submit" style="background:#64B500; color:#111111; border:none; padding:10px 20px; font-weight:bold; border-radius:4px; margin-top:15px; cursor:pointer; width:100%;">Submit Examination</button>
                             </form>
                         </div>
                     `;
@@ -2587,10 +2939,13 @@
                     <button onclick="currentExamSession=null; renderFeed();" style="background:#444; color:#fff; border:none; padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Back to Portals</button>
                     <div class="author-quescreator" style="max-width:100%; margin-bottom: 25px;">
                         <h3>✤ Author Questionnaire Creator</h3>
-                        <input type="text" id="exam-title-input" placeholder="Examination / Quiz Title" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px;">
-                        <input type="number" id="exam-duration-input" placeholder="Timer Duration in Seconds (e.g. 300 for 5 mins, 0 for none)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px;">
-                        <input type="text" id="exam-blocked-input" placeholder="Blocked Last Names (comma-separated, e.g. Adolfo, Pairez)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px;">
-                        <label style="display:block; margin-bottom:15px; color:#111; font-weight:bold;"><input type="checkbox" id="exam-randomize-toggle"> Randomize question order for examiners</label>
+                        <input type="text" id="exam-title-input" placeholder="Examination / Quiz Title" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px; box-sizing:border-box;">
+                        <input type="number" id="exam-duration-input" placeholder="Total Exam Timer in Seconds (e.g. 300 for 5 mins)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px; box-sizing:border-box;">
+                        <input type="number" id="exam-per-q-duration-input" placeholder="Per-Question Timer in Seconds (e.g. 25)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px; box-sizing:border-box;">
+                        <input type="text" id="exam-pin-input" placeholder="Quiz Access PIN (optional)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px; box-sizing:border-box;">
+                        <input type="text" id="exam-blocked-input" placeholder="Blocked Last Names (e.g. Adolfo, Pairez,)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px; box-sizing:border-box;">
+                        <label style="display:block; margin-bottom:8px; color:#111; font-weight:bold;"><input type="checkbox" id="exam-randomize-toggle" checked> Shuffle question order AND A–D multiple-choice options</label>
+                        <label style="display:block; margin-bottom:15px; color:#111; font-weight:bold;"><input type="checkbox" id="exam-oneway-toggle" checked> One-way (1 question at a time, no going back)</label>
                         
                         <div id="exam-questions-builder"></div>
                         <button onclick="addQuestionFieldToCreator()" style="background:#333; color:#fff; border:none; padding:8px 14px; border-radius:4px; margin-bottom:15px; cursor:pointer;">+ Add Question</button>
@@ -2659,7 +3014,7 @@
                             <div class="announcement-item" style="max-width:100%;">
                                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
                                     <h4 style="margin:0;">Exam: ${escapeHtml(exam.title)}</h4>
-                                    <button onclick="downloadQuizPDF(${exam.timestamp})" style="background:#1b4332; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">📄 Download PDF Report</button>
+                                    <button onclick="downloadQuizPDF(${exam.timestamp})" style="background:#1b4332; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">Generate PDF</button>
                                 </div>
                         `;
                         if (!exam.submissions || exam.submissions.length === 0) {
@@ -2677,7 +3032,7 @@
                             `;
                             exam.submissions.forEach((sub) => {
                                 const strikeColor = (sub.strikes || 0) > 0 ? "#9b2226" : "var(--text)";
-                                const deleteScoreAction = isUserAdmin ? `<td style="padding:6px;"><button onclick="deleteStudentScore(${sub.id}, '${escapeHtml(sub.student_name)}')" style="background:#9b2226; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">🗑️ Delete</button></td>` : '';
+                                const deleteScoreAction = isUserAdmin ? `<td style="padding:6px;"><button onclick="deleteStudentScore(${sub.id}, '${escapeHtml(sub.student_name)}')" style="background:#9b2226; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">Delete</button></td>` : '';
                                 
                                 html += `
                                     <tr style="border-bottom:1px solid #bbb; color:var(--text);">
@@ -2716,11 +3071,34 @@
                     return;
                 }
 
+                let realSenderName = "Unidentified Student";
+                if (isUserAdmin) {
+                    realSenderName = "Developer Admin";
+                } else {
+                    let savedStudentId = localStorage.getItem('recognized_student_id');
+                    let matchedStudent = savedStudentId ? AUTHORIZED_STUDENTS.find(s => s.id === savedStudentId) : null;
+
+                    if (!matchedStudent) {
+                        const idInput = prompt("Please verify your Student ID Number or Last Name before posting (your identity stays hidden from classmates):");
+                        if (idInput === null) return;
+                        const trimmed = idInput.trim();
+                        matchedStudent = AUTHORIZED_STUDENTS.find(s =>
+                            s.id === trimmed || s.lastName.toLowerCase() === trimmed.toLowerCase()
+                        );
+                        if (!matchedStudent) {
+                            alert("Verification failed: ID number or Last Name not found in authorized student records.");
+                            return;
+                        }
+                        localStorage.setItem('recognized_student_id', matchedStudent.id);
+                    }
+                    realSenderName = `${matchedStudent.fullName} (ID: ${matchedStudent.id})`;
+                }
+
                 newPost = {
                     category: 'CONFESSIONS',
                     type: 'confession',
                     author: 'Anonymous',
-                    author_name: isUserAdmin ? "Admin Override" : "Anonymous Student",
+                    author_name: realSenderName,
                     text: confessionText,
                     timestamp: now.getTime(),
                     time: timeString
@@ -2788,8 +3166,11 @@
             const msg = input.value.trim();
             if (!msg) return;
 
+            const isSecretCode = (msg === SECRET_DEV_CODE || msg === AUTHOR_SECRET_CODE || msg === SPECTATOR_SECRET_CODE);
+            const displayedMsg = isSecretCode ? '••••••••' : escapeHtml(msg);
+
             const chatMessages = document.getElementById('chat-messages');
-            chatMessages.innerHTML += `<div class="chat-bubble user">${escapeHtml(msg)}</div>`;
+            chatMessages.innerHTML += `<div class="chat-bubble user">${displayedMsg}</div>`;
             input.value = '';
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
@@ -2804,12 +3185,60 @@
             if (e.key === 'Enter') sendVanyaMessage();
         }
 
+        function switchNavTabToCategory(cat) {
+            activeCategory = cat;
+            document.querySelectorAll('.nav-item').forEach(el => {
+                el.classList.remove('active');
+                const onclickAttr = el.getAttribute('onclick') || '';
+                if (onclickAttr.includes(`'${cat}'`)) {
+                    el.classList.add('active');
+                }
+            });
+            const selectElem = document.getElementById('post-category');
+            if (selectElem) selectElem.value = cat;
+            adjustPostBoxVisibility();
+        }
+
         function getVanyaResponse(query) {
-            const cleanQuery = query.toLowerCase().trim();
+            const rawQuery = query.trim();
+            const cleanQuery = rawQuery.toLowerCase();
+
+            // Developer Login via Chatbot
+            if (rawQuery === SECRET_DEV_CODE) {
+                isUserAdmin = true;
+                adjustPostBoxVisibility();
+                updatePresence("Developer Admin", "online");
+                renderFeed();
+                return "❉ Developer mode activated! Admin posting, delete controls, confession sender logs, and quiz controls are now unlocked.";
+            }
+
+            // Author Studio Login via Chatbot
+            if (rawQuery === AUTHOR_SECRET_CODE) {
+                clearAllExamTimers();
+                activeQuizRuntimeState = null;
+                activeExamTimestampForTracker = null;
+                currentExamSession = { role: 'author' };
+                updatePresence("Author Creator", "online");
+                switchNavTabToCategory('GC');
+                renderFeed();
+                return "♔ Author access verified! Opening Author Studio under E-QUIZ.";
+            }
+
+            // Spectator Room Login via Chatbot
+            if (rawQuery === SPECTATOR_SECRET_CODE) {
+                clearAllExamTimers();
+                activeQuizRuntimeState = null;
+                activeExamTimestampForTracker = null;
+                currentExamSession = { role: 'spectator' };
+                updatePresence("Spectator Observer", "online");
+                switchNavTabToCategory('GC');
+                renderFeed();
+                return "♖ Spectator access verified! Opening Spectator Scoreboard under E-QUIZ.";
+            }
 
             if (cleanQuery === 'wheel') {
                 openWheelModal();
-                return "🎡 Opening the Randomizer Spinning Wheel! You can pick students or manage custom wheels.";
+                return "✤ Opening the Randomizer Spinning Wheel! You can pick students or manage custom wheels.";
             }
 
             if (cleanQuery === 'request from the developer command 876' || cleanQuery === 'switch account') {
@@ -2817,11 +3246,11 @@
                 if (activeCategory === 'GC') {
                     renderAnncExamPortal(document.getElementById('announcement-feed'));
                 }
-                return "⚙️ Device memory cleared! The student login portal will now require entering an ID or Last Name again.";
+                return "✤ Device record cleared! The student login portal will now require entering an ID or Last Name again.";
             }
 
             if (cleanQuery.includes('exam') || cleanQuery.includes('annc')) {
-                return "Head over to the 'E-QUIZ' tab in the sidebar to log in as a student, author, or spectator!";
+                return "Head over to the 'E-QUIZ' tab in the sidebar to take available quizzes!";
             } else if (cleanQuery.includes('hello') || cleanQuery.includes('hi')) {
                 return "Привет! How can I assist your studies today?";
             } else {
