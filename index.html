@@ -977,7 +977,7 @@
     <div id="wheel-modal" class="hidden">
         <div class="wheel-modal-content">
             <button class="wheel-close-btn" onclick="closeWheelModal()">✕</button>
-            <h3 style="margin: 0 0 10px 0; font-family: Serif; color: var(--accent);">❉ Randomizer Wheel</h3>
+            <h3 style="margin: 0 0 10px 0; font-family: Serif; color: var(--accent);">🎡 Randomizer Wheel</h3>
 
             <div class="wheel-selector-row">
                 <select id="wheel-select" onchange="switchWheel(this.value)">
@@ -1005,7 +1005,7 @@
 
             <div class="wheel-controls">
                 <button class="wheel-btn" id="spin-btn" onclick="spinWheel()">SPIN WHEEL</button>
-                <button class="wheel-btn" onclick="resetActiveWheel()" style="background:#444; font-size:12px; max-width:200px;">Reset Wheel</button>
+                <button class="wheel-btn" onclick="resetActiveWheel()" style="background:#444; font-size:12px; max-width:200px;">Reset Wheel Items</button>
             </div>
 
             <div id="custom-wheel-form" class="custom-wheel-form hidden">
@@ -1037,7 +1037,7 @@
     <div id="quiz-review-modal" class="hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.88); backdrop-filter:blur(5px); z-index:9600; display:flex; justify-content:center; align-items:center; padding:16px; box-sizing:border-box;">
         <div style="background:var(--bg-color); border:2px solid var(--border-color); border-radius:16px; width:100%; max-width:560px; max-height:88vh; display:flex; flex-direction:column; padding:18px; box-sizing:border-box; color:var(--accent); box-shadow:0 10px 30px rgba(0,0,0,0.85);">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:12px;">
-                <h3 style="margin:0; font-family:Serif; font-size:17px;">✪ Answer Review</h3>
+                <h3 style="margin:0; font-family:Serif; font-size:17px;">📋 Answer Review</h3>
                 <button onclick="closeQuizReviewModal()" style="background:transparent; border:none; color:var(--accent); font-size:18px; font-weight:bold; cursor:pointer;">✕</button>
             </div>
             <div id="quiz-review-summary" style="background:rgba(255,255,255,0.05); border:1px solid var(--border-color); border-radius:8px; padding:10px 12px; margin-bottom:12px;"></div>
@@ -1057,7 +1057,7 @@
         </div>
 
         <div class="theme-selector-box">
-            <label for="theme-select">Theme:</label>
+            <label for="theme-select">✤ Background Theme:</label>
             <select id="theme-select" onchange="changeTheme(this.value)">
                 <option value="default">Aurelius</option>
                 <option value="brown">Velmora</option>
@@ -1231,6 +1231,274 @@
         let activeExamTimers = {};
         let activeQuestionTimers = {};
         let activeQuizRuntimeState = null;
+
+        // --- ANTI-IMPERSONATION: CROSS-MODE HARDWARE FINGERPRINT + INCOGNITO DETECTOR + DEVICE BINDING ---
+        let cachedDeviceBindings = []; // entries from posts where type === 'device_binding'
+
+        async function detectIncognitoMode() {
+            try {
+                // Check 1: Storage quota heuristic (Chromium / Edge / Brave / Opera incognito limits temporary quota)
+                if (navigator.storage && navigator.storage.estimate) {
+                    const { quota } = await navigator.storage.estimate();
+                    // Normal browsers allocate gigabytes; incognito typically allocates < 250MB - 500MB
+                    if (quota && quota < 300 * 1024 * 1024) {
+                        return true;
+                    }
+                }
+                // Check 2: FileSystem API in Chromium
+                if (window.webkitRequestFileSystem) {
+                    const isPrivate = await new Promise((resolve) => {
+                        window.webkitRequestFileSystem(
+                            window.TEMPORARY,
+                            100,
+                            () => resolve(false),
+                            () => resolve(true)
+                        );
+                    });
+                    if (isPrivate) return true;
+                }
+                // Check 3: IndexedDB test (Safari / Firefox private browsing quirks)
+                if (!window.indexedDB) return true;
+            } catch (e) {
+                return false;
+            }
+            return false;
+        }
+
+        function getCanvasSignature() {
+            try {
+                const canvas = document.createElement('canvas');
+                canvas.width = 240;
+                canvas.height = 60;
+                const ctx = canvas.getContext('2d');
+                ctx.textBaseline = 'top';
+                ctx.font = '14px Arial';
+                ctx.fillStyle = '#f60';
+                ctx.fillRect(10, 10, 100, 30);
+                ctx.fillStyle = '#069';
+                ctx.fillText('BTVTED-1K2-HW-SIG-2026', 14, 15);
+                ctx.fillStyle = 'rgba(102, 204, 0, 0.7)';
+                ctx.fillText('BTVTED-1K2-HW-SIG-2026', 16, 17);
+                return canvas.toDataURL();
+            } catch (e) {
+                return 'no-canvas';
+            }
+        }
+
+        function getWebGLSignature() {
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (!gl) return 'no-webgl';
+                const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                const vendor = debugInfo ? gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL) : gl.getParameter(gl.VENDOR);
+                const renderer = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER);
+                return `${vendor}|${renderer}`;
+            } catch (e) {
+                return 'webgl-err';
+            }
+        }
+
+        async function computeHardwareFingerprint() {
+            // Collect ONLY hardware/OS signals that stay IDENTICAL between Normal Mode and Incognito Mode on the same device
+            const screenDims = [screen.width, screen.height].sort((a, b) => a - b).join('x');
+            const signals = [
+                screenDims,
+                screen.colorDepth || '',
+                window.devicePixelRatio || 1,
+                navigator.hardwareConcurrency || '',
+                navigator.deviceMemory || '',
+                navigator.platform || '',
+                Intl.DateTimeFormat().resolvedOptions().timeZone || '',
+                navigator.maxTouchPoints || 0,
+                getWebGLSignature(),
+                getCanvasSignature()
+            ].join('||');
+
+            if (window.crypto && window.crypto.subtle) {
+                const msgUint8 = new TextEncoder().encode(signals);
+                const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+                const hashArray = Array.from(new Uint8Array(hashBuffer));
+                return hashArray.map(b => b.toString(16).padStart(2, '0')).join('').slice(0, 24);
+            }
+
+            // Fallback djb2 hash
+            let hash = 5381;
+            for (let i = 0; i < signals.length; i++) {
+                hash = ((hash << 5) + hash) + signals.charCodeAt(i);
+            }
+            return 'fp_' + (hash >>> 0).toString(16);
+        }
+
+        function getDeviceSummaryLabel() {
+            const ua = navigator.userAgent || '';
+            let os = 'Unknown OS';
+            if (/Android/i.test(ua)) os = 'Android';
+            else if (/iPhone|iPad|iPod/i.test(ua)) os = 'iOS';
+            else if (/Windows/i.test(ua)) os = 'Windows';
+            else if (/Mac/i.test(ua)) os = 'macOS';
+            else if (/Linux/i.test(ua)) os = 'Linux';
+
+            let browser = 'Browser';
+            if (/Edg\//i.test(ua)) browser = 'Edge';
+            else if (/Chrome\//i.test(ua)) browser = 'Chrome';
+            else if (/Safari\//i.test(ua)) browser = 'Safari';
+            else if (/Firefox\//i.test(ua)) browser = 'Firefox';
+
+            return `${os} (${browser}, ${screen.width}x${screen.height})`;
+        }
+
+        async function refreshDeviceBindingsFromCloud() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('posts')
+                    .select('*')
+                    .eq('type', 'device_binding')
+                    .order('timestamp', { ascending: false });
+
+                if (!error && Array.isArray(data)) {
+                    cachedDeviceBindings = data;
+                }
+            } catch (e) {
+                console.error("Device binding fetch error:", e);
+            }
+        }
+
+        async function verifyAndBindStudentDevice(matchedStudent, actionLabel = "access quizzes") {
+            if (isUserAdmin) return { allowed: true, fpHash: 'ADMIN' };
+
+            const isIncognito = await detectIncognitoMode();
+            if (isIncognito) {
+                return {
+                    allowed: false,
+                    reason: `🚫 Private / Incognito browsing is disabled to ${actionLabel}.
+
+Please open this website in your regular (non-Incognito) browser window.`
+                };
+            }
+
+            const fpHash = await computeHardwareFingerprint();
+            await refreshDeviceBindingsFromCloud();
+
+            // Option C: Device-to-Student Lock Only
+            // - This physical device (fpHash) can only belong to one student at a time.
+            // - A student CAN log in as themselves on multiple devices (e.g., both CP and Laptop).
+            // - Another student CANNOT log in on a device already bound to someone else unless unbound.
+            const existingDeviceOwner = cachedDeviceBindings.find(b => b.text === fpHash);
+            if (existingDeviceOwner && existingDeviceOwner.author !== matchedStudent.id) {
+                return {
+                    allowed: false,
+                    reason: `🔒 DEVICE LOCKED TO ANOTHER STUDENT
+
+This phone/computer is already registered to:
+• ${existingDeviceOwner.author_name} (ID: ${existingDeviceOwner.author})
+
+You cannot log in as ${matchedStudent.fullName} from this device unless this device is unbound first. You may request a direct command from the developer`
+                };
+            }
+
+            // If this physical device is not yet bound to any student, bind this device to matchedStudent
+            if (!existingDeviceOwner) {
+                const now = new Date();
+                const bindingRecord = {
+                    category: getDeviceSummaryLabel(),
+                    type: 'device_binding',
+                    author: matchedStudent.id,
+                    author_name: matchedStudent.fullName,
+                    text: fpHash,
+                    timestamp: now.getTime(),
+                    time: `${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')} / ${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`
+                };
+                const { error } = await supabaseClient.from('posts').insert([bindingRecord]);
+                if (!error) {
+                    cachedDeviceBindings.unshift(bindingRecord);
+                }
+            }
+
+            return { allowed: true, fpHash };
+        }
+
+        async function unbindStudentDevice(bindingTimestamp, studentName) {
+            if (!isUserAdmin) return;
+            if (!confirm(`Unbind registered device for ${studentName}? They will be able to register a new device on their next login.`)) return;
+
+            const { error } = await supabaseClient
+                .from('posts')
+                .delete()
+                .eq('timestamp', bindingTimestamp);
+
+            if (error) {
+                alert("Failed to unbind device: " + error.message);
+            } else {
+                alert(`Device binding removed for ${studentName}.`);
+                await fetchDataFromCloud();
+            }
+        }
+
+        async function resetAllDeviceBindings() {
+            if (!isUserAdmin) return;
+            if (!confirm("⚠️ Reset ALL registered student devices? Every student will re-bind their device on next login.")) return;
+
+            const { error } = await supabaseClient
+                .from('posts')
+                .delete()
+                .eq('type', 'device_binding');
+
+            if (error) {
+                alert("Failed to reset devices: " + error.message);
+            } else {
+                alert("All student device bindings have been cleared.");
+                await fetchDataFromCloud();
+            }
+        }
+
+        async function selfUnbindCurrentDevice() {
+            const isIncognito = await detectIncognitoMode();
+            if (isIncognito) {
+                return {
+                    ok: false,
+                    message: "🚫 Please use your regular (non-Incognito) browser window to unbind this device."
+                };
+            }
+
+            const fpHash = await computeHardwareFingerprint();
+            await refreshDeviceBindingsFromCloud();
+
+            const binding = cachedDeviceBindings.find(b => b.text === fpHash);
+            if (!binding) {
+                localStorage.removeItem('recognized_student_id');
+                return {
+                    ok: true,
+                    message: "🔓 This device has no active student binding. It is ready to be registered to any student!"
+                };
+            }
+
+            const { error } = await supabaseClient
+                .from('posts')
+                .delete()
+                .eq('type', 'device_binding')
+                .eq('text', fpHash);
+
+            if (error) {
+                return {
+                    ok: false,
+                    message: "❌ Failed to unbind device: " + error.message
+                };
+            }
+
+            cachedDeviceBindings = cachedDeviceBindings.filter(b => b.text !== fpHash);
+            localStorage.removeItem('recognized_student_id');
+            clearAllExamTimers();
+            activeQuizRuntimeState = null;
+            activeExamTimestampForTracker = null;
+            currentExamSession = null;
+            renderFeed();
+
+            return {
+                ok: true,
+                message: `🔓 Device unbound from <strong>${escapeHtml(binding.author_name)}</strong> (ID: ${escapeHtml(binding.author)})! This device can now be registered to a new student.`
+            };
+        }
 
         // --- SPINNING WHEEL SYSTEM VARIABLES & ENGINE ---
         const DEFAULT_STUDENT_NAMES = AUTHORIZED_STUDENTS.map(s => s.lastName);
@@ -1767,7 +2035,10 @@
 
                 if (subsError) throw subsError;
 
-                cachedPosts = (postsData || []).map(post => {
+                const allRows = postsData || [];
+                cachedDeviceBindings = allRows.filter(p => p.type === 'device_binding');
+
+                cachedPosts = allRows.filter(p => p.type !== 'device_binding').map(post => {
                     if (post.type === 'exam_quiz') {
                         post.submissions = (subsData || []).filter(sub => Number(sub.exam_timestamp) === Number(post.timestamp));
                     }
@@ -1811,7 +2082,7 @@
             }
         }
 
-        function loginExamStudent() {
+        async function loginExamStudent() {
             let matchedStudent = null;
 
             if (isUserAdmin) {
@@ -1829,7 +2100,8 @@
             }
 
             if (!matchedStudent) {
-                const inputVal = document.getElementById('exam-student-id').value.trim();
+                const inputEl = document.getElementById('exam-student-id');
+                const inputVal = inputEl ? inputEl.value.trim() : "";
                 if (!inputVal) {
                     alert("Please enter your ID number or Last Name.");
                     return;
@@ -1843,9 +2115,18 @@
                     alert("Access Denied: ID number or Last Name not found in authorized student records!");
                     return;
                 }
-
-                localStorage.setItem('recognized_student_id', matchedStudent.id);
             }
+
+            // Anti-Incognito & Single-Device Hardware Fingerprint Lock
+            const deviceCheck = await verifyAndBindStudentDevice(matchedStudent, "take quizzes");
+            if (!deviceCheck.allowed) {
+                localStorage.removeItem('recognized_student_id');
+                alert(deviceCheck.reason);
+                renderFeed();
+                return;
+            }
+
+            localStorage.setItem('recognized_student_id', matchedStudent.id);
 
             let examPosts = cachedPosts.filter(p => p.type === 'exam_quiz' && p.is_live !== false);
             let isBlockedForAnyActiveQuiz = false;
@@ -1976,7 +2257,7 @@
 
             // Require Quiz Access PIN if configured by the Author
             if (meta.pin && currentExamSession.identifier !== "ADMIN" && !isUserAdmin) {
-                const enteredPin = prompt(`✪ This quiz requires an Access PIN from your instructor/author.\nEnter Quiz Access PIN for "${exam.title}":`);
+                const enteredPin = prompt(`🔐 This quiz requires an Access PIN from your instructor/author.\nEnter Quiz Access PIN for "${exam.title}":`);
                 if (enteredPin === null) return;
                 if (enteredPin.trim() !== meta.pin) {
                     alert("Incorrect Quiz Access PIN! Please verify the code with your instructor.");
@@ -2353,7 +2634,7 @@
                 }
 
                 const t = activeQuizRuntimeState.questionTimeLeft;
-                qDisplay.innerText = `Qtn Timer: ${t}s`;
+                qDisplay.innerText = `Question Timer: ${t}s`;
 
                 if (t <= 0) {
                     clearInterval(activeQuestionTimers[examTimestamp]);
@@ -2385,7 +2666,7 @@
 
                 let mins = Math.floor(timeLeft / 60);
                 let secs = timeLeft % 60;
-                currentDisplay.innerText = `Time: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                currentDisplay.innerText = `Total Time Remaining: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
 
                 if (timeLeft <= 0) {
                     clearInterval(activeExamTimers[examTimestamp]);
@@ -2498,8 +2779,8 @@
 
             listEl.innerHTML = reviewData.items.map((item, i) => {
                 const badge = item.isCorrect
-                    ? `<span style="background:#1b4332; color:#a3e635; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:bold;">Correct</span>`
-                    : `<span style="background:#590d22; color:#ff8fa3; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:bold;">Wrong</span>`;
+                    ? `<span style="background:#1b4332; color:#a3e635; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:bold;">✓ Correct</span>`
+                    : `<span style="background:#590d22; color:#ff8fa3; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:bold;">✕ Wrong</span>`;
                 const borderCol = item.isCorrect ? '#2d6a4f' : '#9b2226';
                 return `
                     <div style="background:#141414; border-left:4px solid ${borderCol}; border-radius:6px; padding:10px 12px; margin-bottom:10px; text-align:left;">
@@ -2708,7 +2989,7 @@
             }
 
             feed.innerHTML = posts.map((p) => {
-                const deleteButtonHtml = isUserAdmin ? `<button class="delete-btn" onclick="deletePost(${p.timestamp})">Delete</button>` : '';
+                const deleteButtonHtml = isUserAdmin ? `<button class="delete-btn" onclick="deletePost(${p.timestamp})">🗑️ Delete</button>` : '';
 
                 if (p.type === 'confession') {
                     const devNameTag = (isUserAdmin && p.author_name) ? `<br><span style="color:#777; font-size:11px;">👤 Sender Name: ${escapeHtml(p.author_name)}</span>` : '';
@@ -2791,7 +3072,7 @@
                         let durationMins = exam.duration_seconds > 0 ? `${Math.floor(exam.duration_seconds / 60)} mins` : "Untimed";
                         let qCount = exam.questions ? exam.questions.length : 0;
                         let badges = [];
-                        if (meta.pin) badges.push("✤ PIN Required");
+                        if (meta.pin) badges.push("🔐 PIN Required");
                         if (meta.oneQuestionAtATime) badges.push("➡ One-Way Flow");
                         if (meta.perQuestionSeconds > 0) badges.push(`⏱ ${meta.perQuestionSeconds}s/Q`);
                         html += `
@@ -2856,13 +3137,13 @@
                         ${uncompletedLiveExams.length > 1 ? `<button onclick="clearAllExamTimers(); activeQuizRuntimeState=null; currentExamSession.selectedQuizTimestamp=null; renderFeed();" style="background:#333; color:#fff; border:1px solid var(--border-color); padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Choose Another Quiz</button>` : ''}
                         <div class="announcement-item" style="max-width:100%;">
                             <div class="exam-timer-floating" style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:8px;">
-                                <span id="timer-display-${exam.timestamp}">${exam.duration_seconds > 0 ? 'Loading...' : 'Total Time: Untimed'}</span>
+                                <span id="timer-display-${exam.timestamp}">${exam.duration_seconds > 0 ? 'Total Time Remaining: Loading...' : 'Total Time: Untimed'}</span>
                                 ${activeQuizRuntimeState.oneQuestionAtATime && activeQuizRuntimeState.perQuestionSeconds > 0 ? `<span id="q-timer-display-${exam.timestamp}" style="color:#ff6b6b;">Question Timer: ${activeQuizRuntimeState.questionTimeLeft}s</span>` : ''}
                                 <span>Strikes: ${examStrikes} / 3</span>
                             </div>
                             <div class="announcement-meta">
                                 <span>${escapeHtml(exam.title)}</span>
-                                ${activeQuizRuntimeState.oneQuestionAtATime ? `<span>Qtn ${activeQuizRuntimeState.currentIndex + 1} of ${totalQCount}</span>` : `<span>${totalQCount} Questions</span>`}
+                                ${activeQuizRuntimeState.oneQuestionAtATime ? `<span>Question ${activeQuizRuntimeState.currentIndex + 1} of ${totalQCount} (One-Way Flow)</span>` : `<span>${totalQCount} Questions</span>`}
                             </div>
                             <form id="exam-form-${exam.timestamp}" onsubmit="event.preventDefault(); ${activeQuizRuntimeState.oneQuestionAtATime ? `advanceOneWayQuestion(${exam.timestamp})` : `submitStudentExam(${exam.timestamp})`};">
                     `;
@@ -2908,9 +3189,9 @@
                     if (activeQuizRuntimeState.oneQuestionAtATime) {
                         const isLastQuestion = (activeQuizRuntimeState.currentIndex + 1) >= totalQCount;
                         html += `
-                            <p style="font-size:10px; color:#9b2226; font-weight:bold; margin-top:10px;">⚠ One-way mode: Once you advance, you cannot return to previous questions.</p>
+                            <p style="font-size:11px; color:#9b2226; font-weight:bold; margin-top:10px;">⚠ One-way mode: Once you advance, you cannot return to previous questions.</p>
                             <button type="submit" style="background:${isLastQuestion ? '#64B500' : '#D1A954'}; color:#111111; border:none; padding:10px 20px; font-weight:bold; border-radius:4px; margin-top:8px; cursor:pointer; width:100%;">
-                                ${isLastQuestion ? 'Submit Examination' : 'Next Question ➳'}
+                                ${isLastQuestion ? 'Lock & Submit Examination' : 'Lock Answer & Next Question ➔'}
                             </button>
                         `;
                     } else {
@@ -2940,12 +3221,12 @@
                     <div class="author-quescreator" style="max-width:100%; margin-bottom: 25px;">
                         <h3>✤ Author Questionnaire Creator</h3>
                         <input type="text" id="exam-title-input" placeholder="Examination / Quiz Title" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px; box-sizing:border-box;">
-                        <input type="number" id="exam-duration-input" placeholder="Total Exam Timer in Seconds (e.g. 300 for 5 mins)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px; box-sizing:border-box;">
-                        <input type="number" id="exam-per-q-duration-input" placeholder="Per-Question Timer in Seconds (e.g. 25)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px; box-sizing:border-box;">
-                        <input type="text" id="exam-pin-input" placeholder="Quiz Access PIN (optional)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px; box-sizing:border-box;">
-                        <input type="text" id="exam-blocked-input" placeholder="Blocked Last Names (e.g. Adolfo, Pairez,)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px; box-sizing:border-box;">
+                        <input type="number" id="exam-duration-input" placeholder="Total Exam Timer in Seconds (e.g. 300 for 5 mins, 0 for none)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px; box-sizing:border-box;">
+                        <input type="number" id="exam-per-q-duration-input" placeholder="Per-Question Timer in Seconds (e.g. 25, or 0 for none)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px; box-sizing:border-box;">
+                        <input type="text" id="exam-pin-input" placeholder="Quiz Access PIN (optional — stops random account logins without the code)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px; box-sizing:border-box;">
+                        <input type="text" id="exam-blocked-input" placeholder="Blocked Last Names (comma-separated, e.g. Adolfo, Pairez)" style="width:100%; padding:8px; background:#111; color:#fff; border:1px solid #555; margin-bottom:10px; border-radius:4px; box-sizing:border-box;">
                         <label style="display:block; margin-bottom:8px; color:#111; font-weight:bold;"><input type="checkbox" id="exam-randomize-toggle" checked> Shuffle question order AND A–D multiple-choice options</label>
-                        <label style="display:block; margin-bottom:15px; color:#111; font-weight:bold;"><input type="checkbox" id="exam-oneway-toggle" checked> One-way (1 question at a time, no going back)</label>
+                        <label style="display:block; margin-bottom:15px; color:#111; font-weight:bold;"><input type="checkbox" id="exam-oneway-toggle" checked> One-way flow (1 question at a time, lock previous answers)</label>
                         
                         <div id="exam-questions-builder"></div>
                         <button onclick="addQuestionFieldToCreator()" style="background:#333; color:#fff; border:none; padding:8px 14px; border-radius:4px; margin-bottom:15px; cursor:pointer;">+ Add Question</button>
@@ -3014,7 +3295,7 @@
                             <div class="announcement-item" style="max-width:100%;">
                                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
                                     <h4 style="margin:0;">Exam: ${escapeHtml(exam.title)}</h4>
-                                    <button onclick="downloadQuizPDF(${exam.timestamp})" style="background:#1b4332; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">Generate PDF</button>
+                                    <button onclick="downloadQuizPDF(${exam.timestamp})" style="background:#1b4332; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">📄 Download PDF Report</button>
                                 </div>
                         `;
                         if (!exam.submissions || exam.submissions.length === 0) {
@@ -3032,7 +3313,7 @@
                             `;
                             exam.submissions.forEach((sub) => {
                                 const strikeColor = (sub.strikes || 0) > 0 ? "#9b2226" : "var(--text)";
-                                const deleteScoreAction = isUserAdmin ? `<td style="padding:6px;"><button onclick="deleteStudentScore(${sub.id}, '${escapeHtml(sub.student_name)}')" style="background:#9b2226; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">Delete</button></td>` : '';
+                                const deleteScoreAction = isUserAdmin ? `<td style="padding:6px;"><button onclick="deleteStudentScore(${sub.id}, '${escapeHtml(sub.student_name)}')" style="background:#9b2226; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">🗑️ Delete</button></td>` : '';
                                 
                                 html += `
                                     <tr style="border-bottom:1px solid #bbb; color:var(--text);">
@@ -3049,6 +3330,42 @@
                         html += `</div>`;
                     });
                 }
+            }
+
+            if (isUserAdmin) {
+                html += `
+                    <div class="announcement-item" style="max-width:100%; background:#141414; color:#fff; margin-top:25px; border:2px solid var(--border-color);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-bottom:1px solid #333; padding-bottom:8px; margin-bottom:10px;">
+                            <h3 style="margin:0; font-size:15px; color:var(--accent);">🛡️ Developer Device Registry (${cachedDeviceBindings.length} Bound)</h3>
+                            ${cachedDeviceBindings.length > 0 ? `<button onclick="resetAllDeviceBindings()" style="background:#9b2226; color:#fff; border:none; padding:5px 10px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">Reset All Devices</button>` : ''}
+                        </div>
+                        <p style="font-size:11px; color:#aaa; margin-top:0;">Option C active: Each device is bound to one student at a time (blocks Incognito & impersonation on a bound device), while a student can log in as themselves across their own devices (e.g., CP & laptop).</p>
+                `;
+                if (cachedDeviceBindings.length === 0) {
+                    html += `<div style="font-size:12px; color:#888;">No student devices registered yet.</div>`;
+                } else {
+                    html += `
+                        <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                            <tr style="background:#222; color:var(--accent); text-align:left;">
+                                <th style="padding:6px;">Student</th>
+                                <th style="padding:6px;">Device / OS</th>
+                                <th style="padding:6px;">HW Hash</th>
+                                <th style="padding:6px;">Action</th>
+                            </tr>
+                    `;
+                    cachedDeviceBindings.forEach(b => {
+                        html += `
+                            <tr style="border-bottom:1px solid #2b2b2b;">
+                                <td style="padding:6px;"><strong>${escapeHtml(b.author_name)}</strong><br><span style="color:#888; font-size:11px;">ID: ${escapeHtml(b.author)}</span></td>
+                                <td style="padding:6px; color:#ccc;">${escapeHtml(b.category || 'Unknown')}<br><span style="color:#777; font-size:10px;">${escapeHtml(b.time || '')}</span></td>
+                                <td style="padding:6px; font-family:monospace; color:#a3e635;">${escapeHtml((b.text || '').slice(0, 10))}…</td>
+                                <td style="padding:6px;"><button onclick="unbindStudentDevice(${b.timestamp}, '${escapeHtml(b.author_name)}')" style="background:#9b2226; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;">Unbind</button></td>
+                            </tr>
+                        `;
+                    });
+                    html += `</table>`;
+                }
+                html += `</div>`;
             }
 
             feed.innerHTML = html;
@@ -3079,7 +3396,7 @@
                     let matchedStudent = savedStudentId ? AUTHORIZED_STUDENTS.find(s => s.id === savedStudentId) : null;
 
                     if (!matchedStudent) {
-                        const idInput = prompt("Please verify your Student ID Number or Last Name before posting (your identity stays hidden from classmates):");
+                        const idInput = prompt("Please verify your Student ID Number or Last Name before posting");
                         if (idInput === null) return;
                         const trimmed = idInput.trim();
                         matchedStudent = AUTHORIZED_STUDENTS.find(s =>
@@ -3089,9 +3406,17 @@
                             alert("Verification failed: ID number or Last Name not found in authorized student records.");
                             return;
                         }
-                        localStorage.setItem('recognized_student_id', matchedStudent.id);
                     }
-                    realSenderName = `${matchedStudent.fullName} (ID: ${matchedStudent.id})`;
+
+                    const deviceCheck = await verifyAndBindStudentDevice(matchedStudent, "post confessions");
+                    if (!deviceCheck.allowed) {
+                        localStorage.removeItem('recognized_student_id');
+                        alert(deviceCheck.reason);
+                        return;
+                    }
+
+                    localStorage.setItem('recognized_student_id', matchedStudent.id);
+                    realSenderName = `${matchedStudent.fullName} (ID: ${matchedStudent.id}) [HW: ${deviceCheck.fpHash.slice(0, 8)}]`;
                 }
 
                 newPost = {
@@ -3161,18 +3486,32 @@
             document.getElementById('chat-popup').classList.toggle('hidden');
         }
 
-        function sendVanyaMessage() {
+        const SELF_UNBIND_DEVICE_CODE = "unbind device";
+
+        async function sendVanyaMessage() {
             const input = document.getElementById('chat-user-input');
             const msg = input.value.trim();
             if (!msg) return;
 
-            const isSecretCode = (msg === SECRET_DEV_CODE || msg === AUTHOR_SECRET_CODE || msg === SPECTATOR_SECRET_CODE);
+            const isSecretCode = (
+                msg === SECRET_DEV_CODE ||
+                msg === AUTHOR_SECRET_CODE ||
+                msg === SPECTATOR_SECRET_CODE ||
+                msg.toLowerCase() === SELF_UNBIND_DEVICE_CODE
+            );
             const displayedMsg = isSecretCode ? '••••••••' : escapeHtml(msg);
 
             const chatMessages = document.getElementById('chat-messages');
             chatMessages.innerHTML += `<div class="chat-bubble user">${displayedMsg}</div>`;
             input.value = '';
             chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            if (msg.toLowerCase() === SELF_UNBIND_DEVICE_CODE) {
+                const res = await selfUnbindCurrentDevice();
+                chatMessages.innerHTML += `<div class="chat-bubble">${res.message}</div>`;
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                return;
+            }
 
             setTimeout(() => {
                 const reply = getVanyaResponse(msg);
@@ -3209,7 +3548,7 @@
                 adjustPostBoxVisibility();
                 updatePresence("Developer Admin", "online");
                 renderFeed();
-                return "❉ Developer mode activated! Admin posting, delete controls, confession sender logs, and quiz controls are now unlocked.";
+                return "🔓 Developer mode activated! Admin posting, delete controls, confession sender logs, and quiz controls are now unlocked.";
             }
 
             // Author Studio Login via Chatbot
@@ -3238,7 +3577,7 @@
 
             if (cleanQuery === 'wheel') {
                 openWheelModal();
-                return "✤ Opening the Randomizer Spinning Wheel! You can pick students or manage custom wheels.";
+                return "🎡 Opening the Randomizer Spinning Wheel! You can pick students or manage custom wheels.";
             }
 
             if (cleanQuery === 'request from the developer command 876' || cleanQuery === 'switch account') {
@@ -3246,7 +3585,7 @@
                 if (activeCategory === 'GC') {
                     renderAnncExamPortal(document.getElementById('announcement-feed'));
                 }
-                return "✤ Device record cleared! The student login portal will now require entering an ID or Last Name again.";
+                return "⚙️ Device memory cleared! The student login portal will now require entering an ID or Last Name again.";
             }
 
             if (cleanQuery.includes('exam') || cleanQuery.includes('annc')) {
