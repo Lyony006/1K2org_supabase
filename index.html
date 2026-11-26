@@ -213,7 +213,7 @@
         }
 
         .theme-selector-box {
-            width: 90%;
+            width: 85%;
             margin-bottom: 20px;
             background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(1px);
@@ -239,7 +239,7 @@
             padding: 6px 12px;
             border-radius: 12px;
             outline: none;
-            font-size: 13px;
+            font-size: 12px;
             font-family: Serif;
             cursor: pointer;
         }
@@ -257,7 +257,7 @@
         }
 
         .login-card p {
-            font-size: 14px;
+            font-size: 15px;
             color: var(--accent);
             font-weight: 500;
             margin-bottom: 15px;
@@ -301,7 +301,7 @@
             margin-top: 30px;
             font-size: 12px;
             letter-spacing: 1px;
-            color: #F2F0EA;
+            color:  #F2F0EA;
             text-align: center;
         }
 
@@ -977,7 +977,7 @@
     <div id="wheel-modal" class="hidden">
         <div class="wheel-modal-content">
             <button class="wheel-close-btn" onclick="closeWheelModal()">✕</button>
-            <h3 style="margin: 0 0 10px 0; font-family: Serif; color: var(--accent);">🎡 Randomizer Wheel</h3>
+            <h3 style="margin: 0 0 10px 0; font-family: Serif; color: var(--accent);">Randomizer Wheel</h3>
 
             <div class="wheel-selector-row">
                 <select id="wheel-select" onchange="switchWheel(this.value)">
@@ -1025,7 +1025,7 @@
         <div class="winner-card">
             <h4 style="margin: 0; color: var(--accent); font-size: 14px;">❉ Selected Student ❉</h4>
             <div id="winner-display-name" class="winner-name">Student Name</div>
-            <p style="font-size: 11px; color: #aaa; margin-bottom: 15px;">Item was automatically removed from active wheel slices.</p>
+            <p style="font-size: 11px; color: #aaa; margin-bottom: 15px;">Automatically removed from active wheel slices.</p>
             <div style="display: flex; flex-direction: column; gap: 8px;">
                 <button onclick="returnLastSelectedName()" style="background: #1b4332; color: white; border: 1px solid var(--border-color); padding: 8px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 12px;">↩ Return Name to Wheel</button>
                 <button onclick="closeWinnerModal()" style="background: var(--btn-bg); color: white; border: 1px solid var(--border-color); padding: 8px; border-radius: 12px; font-weight: bold; cursor: pointer; font-size: 12px;">Continue</button>
@@ -1037,7 +1037,7 @@
     <div id="quiz-review-modal" class="hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.88); backdrop-filter:blur(5px); z-index:9600; display:flex; justify-content:center; align-items:center; padding:16px; box-sizing:border-box;">
         <div style="background:var(--bg-color); border:2px solid var(--border-color); border-radius:16px; width:100%; max-width:560px; max-height:88vh; display:flex; flex-direction:column; padding:18px; box-sizing:border-box; color:var(--accent); box-shadow:0 10px 30px rgba(0,0,0,0.85);">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:12px;">
-                <h3 style="margin:0; font-family:Serif; font-size:17px;"> Answer Review</h3>
+                <h3 style="margin:0; font-family:Serif; font-size:17px;">Answer Review</h3>
                 <button onclick="closeQuizReviewModal()" style="background:transparent; border:none; color:var(--accent); font-size:18px; font-weight:bold; cursor:pointer;">✕</button>
             </div>
             <div id="quiz-review-summary" style="background:rgba(255,255,255,0.05); border:1px solid var(--border-color); border-radius:8px; padding:10px 12px; margin-bottom:12px;"></div>
@@ -1134,7 +1134,7 @@
                 <button class="close-chat" onclick="toggleChatWindow()">✕</button>
             </div>
             <div id="chat-messages" class="chat-messages">
-                <div class="chat-bubble">Hello, I'm Vanya. A Virtual Authority Node for Your Administration created by Yhoda Lyony. How can I assist you today?</div>
+                <div class="chat-bubble">Привет мой друг 👋 , I'm Vanya, a Virtual Analytic Network Yoked Algorithm created by Yhoda Lyony. How can I assist you today?</div>
             </div>
             <div class="chat-input-area">
                 <input type="text" id="chat-user-input" placeholder="Type a message..." onkeypress="handleChatKey(event)">
@@ -1190,22 +1190,22 @@
             { id: "1391137", lastName: "Akiatan", fullName: "Akiatan, Samantha Nicole V.", nickname:"Ms. Samantha" },
             { id: "1395454", lastName: "Almencion", fullName: "Almencion, Yya B.", nickname:"Ms. Yya" },
             { id: "1391200", lastName: "Bancale", fullName: "Bancale, Jaylord D.", nickname :"Mr. Jaylord" },
-            { id: "1391367", lastName: "Bihag", fullName: "Bihag, Madonna M.", nickname:"Ms.Madonna" },
+            { id: "1391367", lastName: "Bihag", fullName: "Bihag, Madonna M.", nickname:"Ms. Madonna" },
             { id: "1391634", lastName: "Caga-anan", fullName: "Caga-anan, Ronjay Miguel H.", nickname:"Master Ronjay" },
-            { id: "1391257", lastName: "Compuesto", fullName: "Compuesto, Michelle Ann G.", nickname:"Ms. Ayisha" },
-            { id: "1391590", lastName: "Moreno", fullName: "Moreno, Vince Josh U.", nickname:"Mr.Vince" },
+            { id: "1391257", lastName: "Compuesto", fullName: "Compuesto, Michelle Ann G.", nickname:"Ms. Michelle" },
+            { id: "1391590", lastName: "Moreno", fullName: "Moreno, Vince Josh U.", nickname:"Mr. Josh" },
             { id: "1388623", lastName: "Pairez", fullName: "Pairez, Yhoda Lyony Y.", nickname:"Master Lyony" },
             { id: "1393427", lastName: "Cañete", fullName: "Cañete, Joanna Westly", nickname:"Ms. Joanna" },
             { id: "1390800", lastName: "Cañazares", fullName: "Cañazares, Nicolas M.", nickname:"Mr. Nicolas" },
             { id: "1391392", lastName: "Caratao", fullName: "Caratao, Ada Roshlyn B.", nickname:"Ms. Ada" },
-            { id: "1392379", lastName: "Cavan", fullName: "Cavan, Jett Louie E.", nickname:"Mr.Jett Louie" },
+            { id: "1392379", lastName: "Cavan", fullName: "Cavan, Jett Louie E.", nickname:"Mr. Jett Louie" },
             { id: "1391124", lastName: "Enriquez", fullName: "Enriquez, Neil Andrei V.", nickname:"Master Andrei" },
             { id: "1391268", lastName: "Gabutan", fullName: "Gabutan, Ayisha C.", nickname:"Ms. Ayisha" },
-            { id: "1391242", lastName: "Holiva", fullName: "Holiva, Princess Ella T.", nickname:"Ms.Ella" },
+            { id: "1391242", lastName: "Holiva", fullName: "Holiva, Princess Ella T.", nickname:"Ms. Ella" },
             { id: "1391123", lastName: "Lagahit", fullName: "Lagahit, Jan Gyle U.", nickname:"Mr. Jan Gyle" },
-            { id: "1391359", lastName: "Lazareno", fullName: "Lazareno, Pearl Angelah R.", nickname:"Ms. Pearl" },
-            { id: "1391132", lastName: "Martinez", fullName: "Martinez, Ray A.", nickname:"Mr. Ray" },
-            { id: "1391821", lastName: "Pineda", fullName: "Pineda, Marc Russel R.", nickname:"Mr. Russel" },
+            { id: "1391359", lastName: "Lazareno", fullName: "Lazareno, Pearl Angelah R.", nickname:"Ms. Lazareno" },
+            { id: "1391132", lastName: "Martinez", fullName: "Martinez, Ray A.", nickname:"Mr. Barry" },
+            { id: "1391821", lastName: "Pineda", fullName: "Pineda, Marc Russel R.", nickname:"Mr. Pineda" },
             { id: "1392567", lastName: "Portolaso", fullName: "Portolaso, Gian Dave C.", nickname:"Mr. Gian" },
             { id: "1392080", lastName: "Ragasajo", fullName: "Ragasajo, John Rainier O.", nickname:"Master Rainier" },
             { id: "1370261", lastName: "Requioma", fullName: "Requioma, Niño Raymond B.", nickname:"Mr. Raymond" },
@@ -1232,8 +1232,201 @@
         let activeQuestionTimers = {};
         let activeQuizRuntimeState = null;
 
+        // --- MULTI-PRESS GUARD + SLOW-SIGNAL LOADING FEEDBACK + DEVICE BLOCKING ---
+        const busyActionLocks = new Set();
+
+        function setLoadingOverlayState(isLoading, message = "Please wait while I'm processing your request...") {
+            const loader = document.getElementById('loading-overlay');
+            if (!loader) return;
+            const textEl = loader.querySelector('.loading-text');
+            if (textEl && message) textEl.innerText = message;
+            if (isLoading) {
+                loader.classList.remove('hidden');
+            } else {
+                loader.classList.add('hidden');
+            }
+        }
+
+        function setButtonBusyState(btnOrSelector, isBusy, busyLabel = "Processing...") {
+            const btn = typeof btnOrSelector === 'string' ? document.querySelector(btnOrSelector) : btnOrSelector;
+            if (!btn) return;
+            if (isBusy) {
+                if (!btn.dataset.origHtml) {
+                    btn.dataset.origHtml = btn.innerHTML;
+                }
+                btn.disabled = true;
+                btn.dataset.busy = "1";
+                btn.style.opacity = "0.65";
+                btn.style.cursor = "not-allowed";
+                btn.innerHTML = `⏳ ${busyLabel}`;
+            } else {
+                btn.disabled = false;
+                delete btn.dataset.busy;
+                btn.style.opacity = "";
+                btn.style.cursor = "";
+                if (btn.dataset.origHtml) {
+                    btn.innerHTML = btn.dataset.origHtml;
+                    delete btn.dataset.origHtml;
+                }
+            }
+        }
+
+        async function runGuardedAsyncAction(lockKey, asyncFn, options = {}) {
+            if (busyActionLocks.has(lockKey)) {
+                return null;
+            }
+            busyActionLocks.add(lockKey);
+
+            const { btn = null, busyLabel = "Working...", overlayMessage = null } = options;
+            if (btn) setButtonBusyState(btn, true, busyLabel);
+            if (overlayMessage) setLoadingOverlayState(true, overlayMessage);
+
+            try {
+                return await asyncFn();
+            } finally {
+                busyActionLocks.delete(lockKey);
+                if (btn) setButtonBusyState(btn, false);
+                if (overlayMessage) setLoadingOverlayState(false);
+            }
+        }
+
+        function isDeviceBindingBlocked(binding) {
+            if (!binding) return false;
+            return String(binding.category || '').includes('[BLOCKED]');
+        }
+
+        async function toggleBlockStudentDevice(bindingTimestamp, studentName) {
+            if (!isUserAdmin) return;
+            const binding = cachedDeviceBindings.find(b => Number(b.timestamp) === Number(bindingTimestamp));
+            if (!binding) return;
+
+            const currentlyBlocked = isDeviceBindingBlocked(binding);
+            const nextBlocked = !currentlyBlocked;
+            const actionWord = nextBlocked ? "BLOCK" : "UNBLOCK";
+
+            if (!confirm(`${actionWord} this specific device (${studentName}) from entering / taking quizzes / posting confessions?`)) {
+                return;
+            }
+
+            await runGuardedAsyncAction(`toggle_block_${bindingTimestamp}`, async () => {
+                const baseCategory = String(binding.category || 'Unknown Device').replace(/\s*\[BLOCKED\]\s*/g, '').trim();
+                const updatedCategory = nextBlocked ? `${baseCategory} [BLOCKED]` : baseCategory;
+
+                const { error } = await supabaseClient
+                    .from('posts')
+                    .update({ category: updatedCategory })
+                    .eq('timestamp', bindingTimestamp);
+
+                if (error) {
+                    alert("Failed to update device block status: " + error.message);
+                } else {
+                    alert(`Device for ${studentName} is now ${nextBlocked ? "BLOCKED" : "UNBLOCKED"}.`);
+                    await fetchDataFromCloud();
+                }
+            }, { overlayMessage: `${nextBlocked ? "Blocking" : "Unblocking"} device...` });
+        }
+
         // --- ANTI-IMPERSONATION: CROSS-MODE HARDWARE FINGERPRINT + INCOGNITO DETECTOR + DEVICE BINDING ---
         let cachedDeviceBindings = []; // entries from posts where type === 'device_binding'
+        let cachedVisitLogs = []; // entries from posts where type === 'visit_log'
+
+        function formatVisitDateTime(dateObj) {
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const monthName = months[dateObj.getMonth()];
+            const day = String(dateObj.getDate()).padStart(2, '0');
+            const year = dateObj.getFullYear();
+            let hours = dateObj.getHours();
+            const mins = String(dateObj.getMinutes()).padStart(2, '0');
+            const secs = String(dateObj.getSeconds()).padStart(2, '0');
+            const ampm = hours >= 12 ? 'PM' : 'AM';
+            hours = hours % 12;
+            hours = hours ? hours : 12;
+            return `${monthName} ${day}, ${year} — ${hours}:${mins}:${secs} ${ampm}`;
+        }
+
+        function resolveVisitorIdentity(fpHash = '') {
+            const savedId = localStorage.getItem('recognized_student_id');
+            if (savedId) {
+                const matched = AUTHORIZED_STUDENTS.find(s => s.id === savedId);
+                if (matched) {
+                    return {
+                        nickname: matched.nickname || matched.lastName,
+                        fullName: matched.fullName,
+                        studentId: matched.id
+                    };
+                }
+            }
+            if (fpHash) {
+                const bound = cachedDeviceBindings.find(b => b.text === fpHash);
+                if (bound) {
+                    const matched = AUTHORIZED_STUDENTS.find(s => s.id === bound.author);
+                    return {
+                        nickname: matched ? (matched.nickname || matched.lastName) : bound.author_name,
+                        fullName: bound.author_name,
+                        studentId: bound.author
+                    };
+                }
+            }
+            return {
+                nickname: "Guest Visitor",
+                fullName: "Unregistered Visitor",
+                studentId: "GUEST"
+            };
+        }
+
+        async function recordSiteVisit(sourceLabel = "Portal Entry", explicitStudent = null) {
+            try {
+                const fpHash = await computeHardwareFingerprint();
+                let identity = explicitStudent
+                    ? {
+                        nickname: explicitStudent.nickname || explicitStudent.lastName,
+                        fullName: explicitStudent.fullName,
+                        studentId: explicitStudent.id
+                    }
+                    : resolveVisitorIdentity(fpHash);
+
+                const now = new Date();
+                const formattedTime = formatVisitDateTime(now);
+                const visitRecord = {
+                    category: sourceLabel,
+                    type: 'visit_log',
+                    author: identity.studentId,
+                    author_name: identity.nickname,
+                    text: `${identity.fullName} | ${getDeviceSummaryLabel()} | HW:${fpHash.slice(0, 8)}`,
+                    timestamp: now.getTime(),
+                    time: formattedTime
+                };
+
+                const { error } = await supabaseClient.from('posts').insert([visitRecord]);
+                if (!error) {
+                    cachedVisitLogs.unshift(visitRecord);
+                }
+            } catch (e) {
+                console.error("Visit logging error:", e);
+            }
+        }
+
+        async function deleteAllVisitHistory() {
+            if (!isUserAdmin) return;
+            if (!confirm("Permanently delete ALL visit history records from Supabase?")) return;
+
+            await runGuardedAsyncAction('delete_all_visits', async () => {
+                const { error } = await supabaseClient
+                    .from('posts')
+                    .delete()
+                    .eq('type', 'visit_log');
+
+                if (error) {
+                    alert("Failed to delete visit history: " + error.message);
+                } else {
+                    cachedVisitLogs = [];
+                    alert("All visit history records have been deleted.");
+                    await fetchDataFromCloud();
+                }
+            }, {
+                overlayMessage: "Deleting all visit history records..."
+            });
+        }
 
         async function detectIncognitoMode() {
             try {
@@ -1380,24 +1573,32 @@ Please open this website in your regular (non-Incognito) browser window.`
             const fpHash = await computeHardwareFingerprint();
             await refreshDeviceBindingsFromCloud();
 
+            // Check 0: Is THIS specific physical device blocked in the Developer Device Registry?
+            const existingDeviceOwner = cachedDeviceBindings.find(b => b.text === fpHash);
+            if (existingDeviceOwner && isDeviceBindingBlocked(existingDeviceOwner)) {
+                return {
+                    allowed: false,
+                    reason: `THIS DEVICE HAS BEEN MARKED BLOCKED BY VANYA
+
+Registered Owner: ${existingDeviceOwner.author_name} (ID: ${existingDeviceOwner.author})
+
+This specific device is disabled from entering quizzes or posting confessions. Contact the Developer if you believe this is a mistake.`
+                };
+            }
+
             // Option C: Device-to-Student Lock Only
             // - This physical device (fpHash) can only belong to one student at a time.
             // - A student CAN log in as themselves on multiple devices (e.g., both CP and Laptop).
             // - Another student CANNOT log in on a device already bound to someone else unless unbound.
-            const existingDeviceOwner = cachedDeviceBindings.find(b => b.text === fpHash);
             if (existingDeviceOwner && existingDeviceOwner.author !== matchedStudent.id) {
                 return {
                     allowed: false,
-                    reason: `DEVICE IS BOUND TO ANOTHER STUDENT
+                    reason: `DEVICE BOUNDED TO ANOTHER STUDENT
 
-You use this Device to log in as:
+This device is already registered to:
 • ${existingDeviceOwner.author_name} (ID: ${existingDeviceOwner.author})
 
-You cannot log in as [ ${matchedStudent.nickname} ] using this device.
-
-To maintain account security and prevent account sharing, device is restricted to one student only, as required by the Developer.
-
-This restriction applies even when using Incognito Mode.`
+You cannot log in as ${matchedStudent.fullName} from this device unless this device is unbound first.`
                 };
             }
 
@@ -1441,7 +1642,7 @@ This restriction applies even when using Incognito Mode.`
 
         async function resetAllDeviceBindings() {
             if (!isUserAdmin) return;
-            if (!confirm("⚠️ Reset ALL registered student devices? Every student will re-bind their device on next login.")) return;
+            if (!confirm("Reset ALL registered student devices? Every student will re-bind their device on next login.")) return;
 
             const { error } = await supabaseClient
                 .from('posts')
@@ -1899,18 +2100,32 @@ This restriction applies even when using Incognito Mode.`
         document.addEventListener('keydown', handleExamKeydown);
 
         async function loginAsStudent() {
-            const loader = document.getElementById('loading-overlay');
-            loader.classList.remove('hidden');
+            const btn = document.querySelector('#login-screen .action-btn');
+            await runGuardedAsyncAction('login_student_portal', async () => {
+                isUserAdmin = false;
+                adjustPostBoxVisibility();
 
-            isUserAdmin = false;
-            adjustPostBoxVisibility();
-            
-            await fetchDataFromCloud();
-            startRealtimeListener();
+                await fetchDataFromCloud();
 
-            document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('dashboard-screen').classList.remove('hidden');
-            loader.classList.add('hidden');
+                const fpHash = await computeHardwareFingerprint();
+                const blockedDevice = cachedDeviceBindings.find(b => b.text === fpHash && isDeviceBindingBlocked(b));
+                if (blockedDevice) {
+                    alert(`ACCESS DISABLED FOR THIS DEVICE\n\nThis device (${blockedDevice.author_name}) has been marked for unusual activity reports found by Vanya, that include taking a quiz for someone.`);
+                    return;
+                }
+
+                startRealtimeListener();
+
+                // Log student portal visit (non-blocking after initial check)
+                recordSiteVisit("Main Portal Entry");
+
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('dashboard-screen').classList.remove('hidden');
+            }, {
+                btn,
+                busyLabel: "Entering...",
+                overlayMessage: "Connecting to server, wait a moment..."
+            });
         }
 
         async function loginAsDeveloper() {
@@ -2041,8 +2256,9 @@ This restriction applies even when using Incognito Mode.`
 
                 const allRows = postsData || [];
                 cachedDeviceBindings = allRows.filter(p => p.type === 'device_binding');
+                cachedVisitLogs = allRows.filter(p => p.type === 'visit_log');
 
-                cachedPosts = allRows.filter(p => p.type !== 'device_binding').map(post => {
+                cachedPosts = allRows.filter(p => p.type !== 'device_binding' && p.type !== 'visit_log').map(post => {
                     if (post.type === 'exam_quiz') {
                         post.submissions = (subsData || []).filter(sub => Number(sub.exam_timestamp) === Number(post.timestamp));
                     }
@@ -2087,6 +2303,17 @@ This restriction applies even when using Incognito Mode.`
         }
 
         async function loginExamStudent() {
+            const triggerBtn = document.querySelector('.exam-gate-container-s button');
+            return await runGuardedAsyncAction('login_exam_student', async () => {
+                return await _executeLoginExamStudent();
+            }, {
+                btn: triggerBtn,
+                busyLabel: "Verifying...",
+                overlayMessage: "Verifying device & loading quizzes..."
+            });
+        }
+
+        async function _executeLoginExamStudent() {
             let matchedStudent = null;
 
             if (isUserAdmin) {
@@ -2116,7 +2343,7 @@ This restriction applies even when using Incognito Mode.`
                 );
 
                 if (!matchedStudent) {
-                    alert("ACCESS DENIED: ID number or Last Name not found in authorized student records!");
+                    alert("ACCESS DENIED:\n\n ID number / Last Name not found in authorized student records!");
                     return;
                 }
             }
@@ -2130,7 +2357,11 @@ This restriction applies even when using Incognito Mode.`
                 return;
             }
 
+            const wasUnrecognized = !localStorage.getItem('recognized_student_id');
             localStorage.setItem('recognized_student_id', matchedStudent.id);
+            if (wasUnrecognized) {
+                recordSiteVisit("E-Quiz Verification", matchedStudent);
+            }
 
             let examPosts = cachedPosts.filter(p => p.type === 'exam_quiz' && p.is_live !== false);
             let isBlockedForAnyActiveQuiz = false;
@@ -2365,6 +2596,17 @@ This restriction applies even when using Incognito Mode.`
         }
 
         async function publishExamQuiz() {
+            const quizBtn = document.querySelector('button[onclick="publishExamQuiz()"]');
+            return await runGuardedAsyncAction('publish_exam_quiz', async () => {
+                return await _executePublishExamQuiz();
+            }, {
+                btn: quizBtn,
+                busyLabel: "Publishing Quiz...",
+                overlayMessage: "Publishing examination to server..."
+            });
+        }
+
+        async function _executePublishExamQuiz() {
             const title = document.getElementById('exam-title-input').value.trim();
             const randomize = document.getElementById('exam-randomize-toggle').checked;
             const oneQuestionAtATime = document.getElementById('exam-oneway-toggle').checked;
@@ -2479,16 +2721,36 @@ This restriction applies even when using Incognito Mode.`
                 return;
             }
 
-            if (!confirm("Are you sure you want to permanently delete this entire quiz/examination?")) return;
-            const { error } = await supabaseClient
-                .from('posts')
-                .delete()
-                .eq('timestamp', examTimestamp);
+            if (!confirm("Are you sure you want to permanently delete this entire quiz/examination AND all of its student score records?")) return;
 
-            if (!error) {
-                alert("Quiz deleted successfully.");
-                fetchDataFromCloud();
-            }
+            await runGuardedAsyncAction(`delete_quiz_${examTimestamp}`, async () => {
+                // 1. Delete all score records linked to this quiz in Supabase 'submissions'
+                const { error: subsDeleteError } = await supabaseClient
+                    .from('submissions')
+                    .delete()
+                    .eq('exam_timestamp', Number(examTimestamp));
+
+                if (subsDeleteError) {
+                    alert("Failed to delete quiz score records: " + subsDeleteError.message);
+                    return;
+                }
+
+                // 2. Delete the quiz itself from Supabase 'posts'
+                const { error: postDeleteError } = await supabaseClient
+                    .from('posts')
+                    .delete()
+                    .eq('timestamp', examTimestamp);
+
+                if (postDeleteError) {
+                    alert("Failed to delete quiz: " + postDeleteError.message);
+                    return;
+                }
+
+                alert("Quiz and all associated score records deleted successfully.");
+                await fetchDataFromCloud();
+            }, {
+                overlayMessage: "Deleting quiz and score records from server..."
+            });
         }
 
         async function deleteStudentScore(submissionId, studentName) {
@@ -2599,22 +2861,45 @@ This restriction applies even when using Incognito Mode.`
             });
         }
 
-        function advanceOneWayQuestion(examTimestamp) {
+        async function advanceOneWayQuestion(examTimestamp) {
             if (!activeQuizRuntimeState) return;
-            captureCurrentDisplayedAnswers(examTimestamp);
+            const nextBtn = document.querySelector(`#exam-form-${examTimestamp} button[type="submit"]`);
+            const isLastQuestion = (activeQuizRuntimeState.currentIndex + 1) >= activeQuizRuntimeState.questions.length;
 
-            if (activeQuestionTimers[examTimestamp]) {
-                clearInterval(activeQuestionTimers[examTimestamp]);
-                delete activeQuestionTimers[examTimestamp];
+            if (isLastQuestion) {
+                return await runGuardedAsyncAction(`advance_oneway_${examTimestamp}`, async () => {
+                    captureCurrentDisplayedAnswers(examTimestamp);
+                    if (activeQuestionTimers[examTimestamp]) {
+                        clearInterval(activeQuestionTimers[examTimestamp]);
+                        delete activeQuestionTimers[examTimestamp];
+                    }
+                    await submitStudentExam(examTimestamp);
+                }, {
+                    btn: nextBtn,
+                    busyLabel: "Locking & Submitting..."
+                });
             }
 
-            if (activeQuizRuntimeState.currentIndex + 1 < activeQuizRuntimeState.questions.length) {
-                activeQuizRuntimeState.currentIndex++;
-                activeQuizRuntimeState.questionTimeLeft = activeQuizRuntimeState.perQuestionSeconds;
-                renderFeed();
-            } else {
-                submitStudentExam(examTimestamp);
-            }
+            return await runGuardedAsyncAction(`advance_oneway_${examTimestamp}`, async () => {
+                captureCurrentDisplayedAnswers(examTimestamp);
+
+                if (activeQuestionTimers[examTimestamp]) {
+                    clearInterval(activeQuestionTimers[examTimestamp]);
+                    delete activeQuestionTimers[examTimestamp];
+                }
+
+                // Brief visual confirmation so rapid double-taps cannot skip the next question
+                await new Promise(resolve => setTimeout(resolve, 250));
+
+                if (activeQuizRuntimeState && activeQuizRuntimeState.currentIndex + 1 < activeQuizRuntimeState.questions.length) {
+                    activeQuizRuntimeState.currentIndex++;
+                    activeQuizRuntimeState.questionTimeLeft = activeQuizRuntimeState.perQuestionSeconds;
+                    renderFeed();
+                }
+            }, {
+                btn: nextBtn,
+                busyLabel: "Locking Answer..."
+            });
         }
 
         function startPerQuestionTimer(perQSeconds, examTimestamp) {
@@ -2809,6 +3094,17 @@ This restriction applies even when using Incognito Mode.`
 
         async function submitStudentExam(examTimestamp) {
             if (!currentExamSession || currentExamSession.role !== 'student') return;
+            const submitBtn = document.querySelector(`#exam-form-${examTimestamp} button[type="submit"]`);
+            return await runGuardedAsyncAction(`submit_exam_${examTimestamp}`, async () => {
+                return await _executeSubmitStudentExam(examTimestamp);
+            }, {
+                btn: submitBtn,
+                busyLabel: "Submitting...",
+                overlayMessage: "Grading & saving your score to server..."
+            });
+        }
+
+        async function _executeSubmitStudentExam(examTimestamp) {
 
             captureCurrentDisplayedAnswers(examTimestamp);
             clearAllExamTimers();
@@ -2878,6 +3174,12 @@ This restriction applies even when using Incognito Mode.`
                 if (error) {
                     alert("Failed to submit score: " + error.message);
                 } else {
+                    // Optimistically update local quiz submissions immediately for zero-lag transition
+                    if (!Array.isArray(exam.submissions)) {
+                        exam.submissions = [];
+                    }
+                    exam.submissions.push(scoreRecord);
+
                     activeQuizRuntimeState = null;
                     showQuizReviewModal({
                         title: exam.title,
@@ -2887,14 +3189,29 @@ This restriction applies even when using Incognito Mode.`
                         strikes: examStrikes,
                         items: reviewItems,
                         onClose: async () => {
-                            const proceedNext = confirm("You have finished the quiz that you took. Would you like to proceed to the next one?");
-                            if (proceedNext) {
-                                currentExamSession.selectedQuizTimestamp = null;
-                            } else {
-                                currentExamSession = null;
+                            const proceedNext = confirm("You have finished the quiz that you took. Would you me to look for another quiz?");
+                            setLoadingOverlayState(
+                                true,
+                                proceedNext ? "Checking for available quiz..." : "No more quiz available, Returning..."
+                            );
+                            try {
+                                if (proceedNext) {
+                                    currentExamSession.selectedQuizTimestamp = null;
+                                } else {
+                                    currentExamSession = null;
+                                }
+                                renderFeed();
+                                updatePresence(
+                                    currentExamSession ? currentExamSession.name : "Finished",
+                                    currentExamSession ? "taking_exam" : "finished"
+                                );
+                                // Brief visual feedback so the student sees the transition is working
+                                await new Promise(resolve => setTimeout(resolve, 350));
+                                // Sync latest cloud data in the background without blocking UI
+                                fetchDataFromCloud();
+                            } finally {
+                                setLoadingOverlayState(false);
                             }
-                            updatePresence(currentExamSession ? currentExamSession.name : "Finished", currentExamSession ? "taking_exam" : "finished");
-                            await fetchDataFromCloud();
                         }
                     });
                 }
@@ -3141,8 +3458,8 @@ This restriction applies even when using Incognito Mode.`
                         ${uncompletedLiveExams.length > 1 ? `<button onclick="clearAllExamTimers(); activeQuizRuntimeState=null; currentExamSession.selectedQuizTimestamp=null; renderFeed();" style="background:#333; color:#fff; border:1px solid var(--border-color); padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Choose Another Quiz</button>` : ''}
                         <div class="announcement-item" style="max-width:100%;">
                             <div class="exam-timer-floating" style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:8px;">
-                                <span id="timer-display-${exam.timestamp}">${exam.duration_seconds > 0 ? 'Loading..' : 'Total Time: Untimed'}</span>
-                                ${activeQuizRuntimeState.oneQuestionAtATime && activeQuizRuntimeState.perQuestionSeconds > 0 ? `<span id="q-timer-display-${exam.timestamp}" style="color:#ff6b6b;">Qtn Timer: ${activeQuizRuntimeState.questionTimeLeft}s</span>` : ''}
+                                <span id="timer-display-${exam.timestamp}">${exam.duration_seconds > 0 ? 'Loading...' : 'Time: Untimed'}</span>
+                                ${activeQuizRuntimeState.oneQuestionAtATime && activeQuizRuntimeState.perQuestionSeconds > 0 ? `<span id="q-timer-display-${exam.timestamp}" style="color:#ff6b6b;">Question Timer: ${activeQuizRuntimeState.questionTimeLeft}s</span>` : ''}
                                 <span>Strikes: ${examStrikes} / 3</span>
                             </div>
                             <div class="announcement-meta">
@@ -3195,7 +3512,7 @@ This restriction applies even when using Incognito Mode.`
                         html += `
                             <p style="font-size:10px; color:#9b2226; font-weight:bold; margin-top:10px;">⚠ One-way mode: Once you advance, you cannot return to previous questions.</p>
                             <button type="submit" style="background:${isLastQuestion ? '#64B500' : '#D1A954'}; color:#111111; border:none; padding:10px 20px; font-weight:bold; border-radius:4px; margin-top:8px; cursor:pointer; width:100%;">
-                                ${isLastQuestion ? 'Submit Examination' : 'Next Question ➔'}
+                                ${isLastQuestion ? 'Lock & Submit Examination' : 'Lock Answer & Next Question ➔'}
                             </button>
                         `;
                     } else {
@@ -3299,7 +3616,7 @@ This restriction applies even when using Incognito Mode.`
                             <div class="announcement-item" style="max-width:100%;">
                                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
                                     <h4 style="margin:0;">Exam: ${escapeHtml(exam.title)}</h4>
-                                    <button onclick="downloadQuizPDF(${exam.timestamp})" style="background:#1b4332; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">Generate PDF</button>
+                                    <button onclick="downloadQuizPDF(${exam.timestamp})" style="background:#1b4332; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;"> Generate PDF</button>
                                 </div>
                         `;
                         if (!exam.submissions || exam.submissions.length === 0) {
@@ -3358,16 +3675,64 @@ This restriction applies even when using Incognito Mode.`
                             </tr>
                     `;
                     cachedDeviceBindings.forEach(b => {
+                        const blocked = isDeviceBindingBlocked(b);
+                        const statusBadge = blocked
+                            ? `<span style="background:#9b2226; color:#fff; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold;">BLOCKED</span>`
+                            : `<span style="background:#1b4332; color:#a3e635; padding:2px 6px; border-radius:4px; font-size:10px; font-weight:bold;">ACTIVE</span>`;
+                        const blockBtnLabel = blocked ? "Unblock" : "Block";
+                        const blockBtnBg = blocked ? "#2a9d8f" : "#d97706";
                         html += `
-                            <tr style="border-bottom:1px solid #2b2b2b;">
-                                <td style="padding:6px;"><strong>${escapeHtml(b.author_name)}</strong><br><span style="color:#888; font-size:11px;">ID: ${escapeHtml(b.author)}</span></td>
+                            <tr style="border-bottom:1px solid #2b2b2b; ${blocked ? 'background:rgba(155,34,38,0.18);' : ''}">
+                                <td style="padding:6px;"><strong>${escapeHtml(b.author_name)}</strong> ${statusBadge}<br><span style="color:#888; font-size:11px;">ID: ${escapeHtml(b.author)}</span></td>
                                 <td style="padding:6px; color:#ccc;">${escapeHtml(b.category || 'Unknown')}<br><span style="color:#777; font-size:10px;">${escapeHtml(b.time || '')}</span></td>
                                 <td style="padding:6px; font-family:monospace; color:#a3e635;">${escapeHtml((b.text || '').slice(0, 10))}…</td>
-                                <td style="padding:6px;"><button onclick="unbindStudentDevice(${b.timestamp}, '${escapeHtml(b.author_name)}')" style="background:#9b2226; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;">Unbind</button></td>
+                                <td style="padding:6px; display:flex; gap:5px; flex-wrap:wrap;">
+                                    <button onclick="toggleBlockStudentDevice(${b.timestamp}, '${escapeHtml(b.author_name)}')" style="background:${blockBtnBg}; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">${blockBtnLabel}</button>
+                                    <button onclick="unbindStudentDevice(${b.timestamp}, '${escapeHtml(b.author_name)}')" style="background:#9b2226; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-size:11px; cursor:pointer;">Unbind</button>
+                                </td>
                             </tr>
                         `;
                     });
                     html += `</table>`;
+                }
+                html += `</div>`;
+
+                html += `
+                    <div class="announcement-item" style="max-width:100%; background:#141414; color:#fff; margin-top:20px; border:2px solid var(--border-color);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-bottom:1px solid #333; padding-bottom:8px; margin-bottom:10px;">
+                            <h3 style="margin:0; font-size:15px; color:var(--accent);">Records of Site Visits (${cachedVisitLogs.length})</h3>
+                            ${cachedVisitLogs.length > 0 ? `<button onclick="deleteAllVisitHistory()" style="background:#9b2226; color:#fff; border:none; padding:5px 10px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">Delete Visit History</button>` : ''}
+                        </div>
+                        <p style="font-size:11px; color:#aaa; margin-top:0;">Logs student nickname, full identity, device details, and exact date & time entered.</p>
+                `;
+                if (cachedVisitLogs.length === 0) {
+                    html += `<div style="font-size:12px; color:#888;">No site visits recorded yet.</div>`;
+                } else {
+                    html += `
+                        <div style="max-height:320px; overflow-y:auto;">
+                            <table style="width:100%; border-collapse:collapse; font-size:12px;">
+                                <tr style="background:#222; color:var(--accent); text-align:left; position:sticky; top:0;">
+                                    <th style="padding:6px;">Nickname / Visitor</th>
+                                    <th style="padding:6px;">Date & Time In</th>
+                                    <th style="padding:6px;">Details</th>
+                                </tr>
+                    `;
+                    cachedVisitLogs.forEach(v => {
+                        html += `
+                            <tr style="border-bottom:1px solid #2b2b2b;">
+                                <td style="padding:6px;">
+                                    <strong style="color:#a3e635;">${escapeHtml(v.author_name || 'Guest Visitor')}</strong><br>
+                                    <span style="color:#888; font-size:10px;">ID: ${escapeHtml(v.author || 'GUEST')} · ${escapeHtml(v.category || 'Portal Entry')}</span>
+                                </td>
+                                <td style="padding:6px; color:#fff; white-space:nowrap;">${escapeHtml(v.time || '')}</td>
+                                <td style="padding:6px; color:#aaa; font-size:11px;">${escapeHtml(v.text || '')}</td>
+                            </tr>
+                        `;
+                    });
+                    html += `
+                            </table>
+                        </div>
+                    `;
                 }
                 html += `</div>`;
             }
@@ -3376,6 +3741,17 @@ This restriction applies even when using Incognito Mode.`
         }
 
         async function publishPost() {
+            const pubBtn = document.querySelector('#post-box-body button[onclick="publishPost()"]');
+            return await runGuardedAsyncAction('publish_post', async () => {
+                return await _executePublishPost();
+            }, {
+                btn: pubBtn,
+                busyLabel: "Publishing...",
+                overlayMessage: "Publishing to server..."
+            });
+        }
+
+        async function _executePublishPost() {
             const categorySelect = document.getElementById('post-category');
             const category = categorySelect.value;
             const textInput = document.getElementById('post-text');
@@ -3400,7 +3776,7 @@ This restriction applies even when using Incognito Mode.`
                     let matchedStudent = savedStudentId ? AUTHORIZED_STUDENTS.find(s => s.id === savedStudentId) : null;
 
                     if (!matchedStudent) {
-                        const idInput = prompt("Please verify your Student ID Number or Last Name before posting");
+                        const idInput = prompt("Please verify your Student ID Number or Last Name before posting (your identity stays hidden from classmates):");
                         if (idInput === null) return;
                         const trimmed = idInput.trim();
                         matchedStudent = AUTHORIZED_STUDENTS.find(s =>
@@ -3511,9 +3887,14 @@ This restriction applies even when using Incognito Mode.`
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
             if (msg.toLowerCase() === SELF_UNBIND_DEVICE_CODE) {
-                const res = await selfUnbindCurrentDevice();
-                chatMessages.innerHTML += `<div class="chat-bubble">${res.message}</div>`;
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+                const res = await runGuardedAsyncAction('self_unbind_device', () => selfUnbindCurrentDevice(), {
+                    busyLabel: "Unbinding...",
+                    overlayMessage: "Unbinding current device from server..."
+                });
+                if (res) {
+                    chatMessages.innerHTML += `<div class="chat-bubble">${res.message}</div>`;
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }
                 return;
             }
 
@@ -3552,7 +3933,7 @@ This restriction applies even when using Incognito Mode.`
                 adjustPostBoxVisibility();
                 updatePresence("Developer Admin", "online");
                 renderFeed();
-                return "Developer mode activated! Admin posting, delete controls, confession sender logs, and quiz controls are now unlocked.";
+                return "🔓 Developer mode activated! Admin posting, delete controls, confession sender logs, and quiz controls are now unlocked.";
             }
 
             // Author Studio Login via Chatbot
@@ -3581,15 +3962,15 @@ This restriction applies even when using Incognito Mode.`
 
             if (cleanQuery === 'wheel') {
                 openWheelModal();
-                return "Opening the Randomizer Spinning Wheel! You can pick students or manage custom wheels.";
+                return "🎡 Opening the Randomizer Spinning Wheel! You can pick students or manage custom wheels.";
             }
 
-            if (cleanQuery === 'clear device' || cleanQuery === 'switch account') {
+            if (cleanQuery === 'request from the developer command 876' || cleanQuery === 'switch account') {
                 localStorage.removeItem('recognized_student_id');
                 if (activeCategory === 'GC') {
                     renderAnncExamPortal(document.getElementById('announcement-feed'));
                 }
-                return "Device record cleared! The student login portal will now require entering an ID or Last Name again.";
+                return "⚙️ Device memory cleared! The student login portal will now require entering an ID or Last Name again.";
             }
 
             if (cleanQuery.includes('exam') || cleanQuery.includes('annc')) {
