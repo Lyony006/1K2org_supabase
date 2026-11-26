@@ -213,7 +213,7 @@
         }
 
         .theme-selector-box {
-            width: 100%;
+            width: 90%;
             margin-bottom: 20px;
             background: rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(1px);
@@ -301,7 +301,7 @@
             margin-top: 30px;
             font-size: 12px;
             letter-spacing: 1px;
-            color: var(--accent);
+            color: #F2F0EA;
             text-align: center;
         }
 
@@ -1037,7 +1037,7 @@
     <div id="quiz-review-modal" class="hidden" style="position:fixed; inset:0; background:rgba(0,0,0,0.88); backdrop-filter:blur(5px); z-index:9600; display:flex; justify-content:center; align-items:center; padding:16px; box-sizing:border-box;">
         <div style="background:var(--bg-color); border:2px solid var(--border-color); border-radius:16px; width:100%; max-width:560px; max-height:88vh; display:flex; flex-direction:column; padding:18px; box-sizing:border-box; color:var(--accent); box-shadow:0 10px 30px rgba(0,0,0,0.85);">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #333; padding-bottom:10px; margin-bottom:12px;">
-                <h3 style="margin:0; font-family:Serif; font-size:17px;">📋 Answer Review</h3>
+                <h3 style="margin:0; font-family:Serif; font-size:17px;"> Answer Review</h3>
                 <button onclick="closeQuizReviewModal()" style="background:transparent; border:none; color:var(--accent); font-size:18px; font-weight:bold; cursor:pointer;">✕</button>
             </div>
             <div id="quiz-review-summary" style="background:rgba(255,255,255,0.05); border:1px solid var(--border-color); border-radius:8px; padding:10px 12px; margin-bottom:12px;"></div>
@@ -1057,7 +1057,7 @@
         </div>
 
         <div class="theme-selector-box">
-            <label for="theme-select">✤ Background Theme:</label>
+            <label for="theme-select">Background Theme:</label>
             <select id="theme-select" onchange="changeTheme(this.value)">
                 <option value="default">Aurelius</option>
                 <option value="brown">Velmora</option>
@@ -1134,7 +1134,7 @@
                 <button class="close-chat" onclick="toggleChatWindow()">✕</button>
             </div>
             <div id="chat-messages" class="chat-messages">
-                <div class="chat-bubble">Привет мой друг 👋 , I'm Vanya, a Virtual Analytic Network Yoked Algorithm created by Yhoda Lyony. How can I assist you today?</div>
+                <div class="chat-bubble">Hello, I'm Vanya. A Virtual Authority Node for Your Administration created by Yhoda Lyony. How can I assist you today?</div>
             </div>
             <div class="chat-input-area">
                 <input type="text" id="chat-user-input" placeholder="Type a message..." onkeypress="handleChatKey(event)">
@@ -1388,12 +1388,16 @@ Please open this website in your regular (non-Incognito) browser window.`
             if (existingDeviceOwner && existingDeviceOwner.author !== matchedStudent.id) {
                 return {
                     allowed: false,
-                    reason: `🔒 DEVICE LOCKED TO ANOTHER STUDENT
+                    reason: `DEVICE IS BOUND TO ANOTHER STUDENT
 
-This phone/computer is already registered to:
+You use this Device to log in as:
 • ${existingDeviceOwner.author_name} (ID: ${existingDeviceOwner.author})
 
-You cannot log in as ${matchedStudent.fullName} from this device unless this device is unbound first. You may request a direct command from the developer`
+You cannot log in as [ ${matchedStudent.nickname} ] using this device.
+
+To maintain account security and prevent account sharing, device is restricted to one student only, as required by the Developer.
+
+This restriction applies even when using Incognito Mode.`
                 };
             }
 
@@ -1469,7 +1473,7 @@ You cannot log in as ${matchedStudent.fullName} from this device unless this dev
                 localStorage.removeItem('recognized_student_id');
                 return {
                     ok: true,
-                    message: "🔓 This device has no active student binding. It is ready to be registered to any student!"
+                    message: "This device has no active student binding. It is ready to be registered to any student!"
                 };
             }
 
@@ -1496,7 +1500,7 @@ You cannot log in as ${matchedStudent.fullName} from this device unless this dev
 
             return {
                 ok: true,
-                message: `🔓 Device unbound from <strong>${escapeHtml(binding.author_name)}</strong> (ID: ${escapeHtml(binding.author)})! This device can now be registered to a new student.`
+                message: `Device unbound from <strong>${escapeHtml(binding.author_name)}</strong> (ID: ${escapeHtml(binding.author)})! This device can now be registered to a new student.`
             };
         }
 
@@ -2112,7 +2116,7 @@ You cannot log in as ${matchedStudent.fullName} from this device unless this dev
                 );
 
                 if (!matchedStudent) {
-                    alert("Access Denied: ID number or Last Name not found in authorized student records!");
+                    alert("ACCESS DENIED: ID number or Last Name not found in authorized student records!");
                     return;
                 }
             }
@@ -2257,7 +2261,7 @@ You cannot log in as ${matchedStudent.fullName} from this device unless this dev
 
             // Require Quiz Access PIN if configured by the Author
             if (meta.pin && currentExamSession.identifier !== "ADMIN" && !isUserAdmin) {
-                const enteredPin = prompt(`🔐 This quiz requires an Access PIN from your instructor/author.\nEnter Quiz Access PIN for "${exam.title}":`);
+                const enteredPin = prompt(`This quiz requires an Access PIN from your instructor/author.\nEnter Quiz Access PIN for "${exam.title}":`);
                 if (enteredPin === null) return;
                 if (enteredPin.trim() !== meta.pin) {
                     alert("Incorrect Quiz Access PIN! Please verify the code with your instructor.");
@@ -2779,8 +2783,8 @@ You cannot log in as ${matchedStudent.fullName} from this device unless this dev
 
             listEl.innerHTML = reviewData.items.map((item, i) => {
                 const badge = item.isCorrect
-                    ? `<span style="background:#1b4332; color:#a3e635; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:bold;">✓ Correct</span>`
-                    : `<span style="background:#590d22; color:#ff8fa3; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:bold;">✕ Wrong</span>`;
+                    ? `<span style="background:#1b4332; color:#a3e635; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:bold;">Correct</span>`
+                    : `<span style="background:#590d22; color:#ff8fa3; padding:2px 8px; border-radius:10px; font-size:11px; font-weight:bold;">Wrong</span>`;
                 const borderCol = item.isCorrect ? '#2d6a4f' : '#9b2226';
                 return `
                     <div style="background:#141414; border-left:4px solid ${borderCol}; border-radius:6px; padding:10px 12px; margin-bottom:10px; text-align:left;">
@@ -2989,7 +2993,7 @@ You cannot log in as ${matchedStudent.fullName} from this device unless this dev
             }
 
             feed.innerHTML = posts.map((p) => {
-                const deleteButtonHtml = isUserAdmin ? `<button class="delete-btn" onclick="deletePost(${p.timestamp})">🗑️ Delete</button>` : '';
+                const deleteButtonHtml = isUserAdmin ? `<button class="delete-btn" onclick="deletePost(${p.timestamp})">Delete</button>` : '';
 
                 if (p.type === 'confession') {
                     const devNameTag = (isUserAdmin && p.author_name) ? `<br><span style="color:#777; font-size:11px;">👤 Sender Name: ${escapeHtml(p.author_name)}</span>` : '';
@@ -3072,7 +3076,7 @@ You cannot log in as ${matchedStudent.fullName} from this device unless this dev
                         let durationMins = exam.duration_seconds > 0 ? `${Math.floor(exam.duration_seconds / 60)} mins` : "Untimed";
                         let qCount = exam.questions ? exam.questions.length : 0;
                         let badges = [];
-                        if (meta.pin) badges.push("🔐 PIN Required");
+                        if (meta.pin) badges.push("PIN Required");
                         if (meta.oneQuestionAtATime) badges.push("➡ One-Way Flow");
                         if (meta.perQuestionSeconds > 0) badges.push(`⏱ ${meta.perQuestionSeconds}s/Q`);
                         html += `
@@ -3295,7 +3299,7 @@ You cannot log in as ${matchedStudent.fullName} from this device unless this dev
                             <div class="announcement-item" style="max-width:100%;">
                                 <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom:10px;">
                                     <h4 style="margin:0;">Exam: ${escapeHtml(exam.title)}</h4>
-                                    <button onclick="downloadQuizPDF(${exam.timestamp})" style="background:#1b4332; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">📄 Download PDF Report</button>
+                                    <button onclick="downloadQuizPDF(${exam.timestamp})" style="background:#1b4332; color:#fff; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer; font-size:12px;">Generate PDF</button>
                                 </div>
                         `;
                         if (!exam.submissions || exam.submissions.length === 0) {
@@ -3313,7 +3317,7 @@ You cannot log in as ${matchedStudent.fullName} from this device unless this dev
                             `;
                             exam.submissions.forEach((sub) => {
                                 const strikeColor = (sub.strikes || 0) > 0 ? "#9b2226" : "var(--text)";
-                                const deleteScoreAction = isUserAdmin ? `<td style="padding:6px;"><button onclick="deleteStudentScore(${sub.id}, '${escapeHtml(sub.student_name)}')" style="background:#9b2226; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">🗑️ Delete</button></td>` : '';
+                                const deleteScoreAction = isUserAdmin ? `<td style="padding:6px;"><button onclick="deleteStudentScore(${sub.id}, '${escapeHtml(sub.student_name)}')" style="background:#9b2226; color:#fff; border:none; padding:4px 8px; border-radius:4px; cursor:pointer; font-size:11px;">Delete</button></td>` : '';
                                 
                                 html += `
                                     <tr style="border-bottom:1px solid #bbb; color:var(--text);">
@@ -3336,7 +3340,7 @@ You cannot log in as ${matchedStudent.fullName} from this device unless this dev
                 html += `
                     <div class="announcement-item" style="max-width:100%; background:#141414; color:#fff; margin-top:25px; border:2px solid var(--border-color);">
                         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; border-bottom:1px solid #333; padding-bottom:8px; margin-bottom:10px;">
-                            <h3 style="margin:0; font-size:15px; color:var(--accent);">🛡️ Developer Device Registry (${cachedDeviceBindings.length} Bound)</h3>
+                            <h3 style="margin:0; font-size:15px; color:var(--accent);">Developer Device Registry (${cachedDeviceBindings.length} Bound)</h3>
                             ${cachedDeviceBindings.length > 0 ? `<button onclick="resetAllDeviceBindings()" style="background:#9b2226; color:#fff; border:none; padding:5px 10px; border-radius:4px; font-size:11px; font-weight:bold; cursor:pointer;">Reset All Devices</button>` : ''}
                         </div>
                         <p style="font-size:11px; color:#aaa; margin-top:0;">Option C active: Each device is bound to one student at a time (blocks Incognito & impersonation on a bound device), while a student can log in as themselves across their own devices (e.g., CP & laptop).</p>
@@ -3548,7 +3552,7 @@ You cannot log in as ${matchedStudent.fullName} from this device unless this dev
                 adjustPostBoxVisibility();
                 updatePresence("Developer Admin", "online");
                 renderFeed();
-                return "🔓 Developer mode activated! Admin posting, delete controls, confession sender logs, and quiz controls are now unlocked.";
+                return "Developer mode activated! Admin posting, delete controls, confession sender logs, and quiz controls are now unlocked.";
             }
 
             // Author Studio Login via Chatbot
@@ -3577,15 +3581,15 @@ You cannot log in as ${matchedStudent.fullName} from this device unless this dev
 
             if (cleanQuery === 'wheel') {
                 openWheelModal();
-                return "🎡 Opening the Randomizer Spinning Wheel! You can pick students or manage custom wheels.";
+                return "Opening the Randomizer Spinning Wheel! You can pick students or manage custom wheels.";
             }
 
-            if (cleanQuery === 'request from the developer command 876' || cleanQuery === 'switch account') {
+            if (cleanQuery === 'clear device' || cleanQuery === 'switch account') {
                 localStorage.removeItem('recognized_student_id');
                 if (activeCategory === 'GC') {
                     renderAnncExamPortal(document.getElementById('announcement-feed'));
                 }
-                return "⚙️ Device memory cleared! The student login portal will now require entering an ID or Last Name again.";
+                return "Device record cleared! The student login portal will now require entering an ID or Last Name again.";
             }
 
             if (cleanQuery.includes('exam') || cleanQuery.includes('annc')) {
