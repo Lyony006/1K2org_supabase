@@ -227,7 +227,7 @@
         }
 
         .theme-selector-box label {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             color: var(--accent);
         }
@@ -2670,7 +2670,7 @@ This restriction applies even when using Incognito Mode.`
 
                 let mins = Math.floor(timeLeft / 60);
                 let secs = timeLeft % 60;
-                currentDisplay.innerText = `Total Time Remaining: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
+                currentDisplay.innerText = `Time: ${mins}:${secs < 10 ? '0' : ''}${secs}`;
 
                 if (timeLeft <= 0) {
                     clearInterval(activeExamTimers[examTimestamp]);
@@ -3141,13 +3141,13 @@ This restriction applies even when using Incognito Mode.`
                         ${uncompletedLiveExams.length > 1 ? `<button onclick="clearAllExamTimers(); activeQuizRuntimeState=null; currentExamSession.selectedQuizTimestamp=null; renderFeed();" style="background:#333; color:#fff; border:1px solid var(--border-color); padding:6px 12px; border-radius:4px; margin-bottom:15px; cursor:pointer;">⬅ Choose Another Quiz</button>` : ''}
                         <div class="announcement-item" style="max-width:100%;">
                             <div class="exam-timer-floating" style="display:flex; justify-content:space-around; flex-wrap:wrap; gap:8px;">
-                                <span id="timer-display-${exam.timestamp}">${exam.duration_seconds > 0 ? 'Total Time Remaining: Loading...' : 'Total Time: Untimed'}</span>
-                                ${activeQuizRuntimeState.oneQuestionAtATime && activeQuizRuntimeState.perQuestionSeconds > 0 ? `<span id="q-timer-display-${exam.timestamp}" style="color:#ff6b6b;">Question Timer: ${activeQuizRuntimeState.questionTimeLeft}s</span>` : ''}
+                                <span id="timer-display-${exam.timestamp}">${exam.duration_seconds > 0 ? 'Loading..' : 'Total Time: Untimed'}</span>
+                                ${activeQuizRuntimeState.oneQuestionAtATime && activeQuizRuntimeState.perQuestionSeconds > 0 ? `<span id="q-timer-display-${exam.timestamp}" style="color:#ff6b6b;">Qtn Timer: ${activeQuizRuntimeState.questionTimeLeft}s</span>` : ''}
                                 <span>Strikes: ${examStrikes} / 3</span>
                             </div>
                             <div class="announcement-meta">
                                 <span>${escapeHtml(exam.title)}</span>
-                                ${activeQuizRuntimeState.oneQuestionAtATime ? `<span>Question ${activeQuizRuntimeState.currentIndex + 1} of ${totalQCount} (One-Way Flow)</span>` : `<span>${totalQCount} Questions</span>`}
+                                ${activeQuizRuntimeState.oneQuestionAtATime ? `<span>${activeQuizRuntimeState.currentIndex + 1} of ${totalQCount}</span>` : `<span>${totalQCount} Questions</span>`}
                             </div>
                             <form id="exam-form-${exam.timestamp}" onsubmit="event.preventDefault(); ${activeQuizRuntimeState.oneQuestionAtATime ? `advanceOneWayQuestion(${exam.timestamp})` : `submitStudentExam(${exam.timestamp})`};">
                     `;
@@ -3193,9 +3193,9 @@ This restriction applies even when using Incognito Mode.`
                     if (activeQuizRuntimeState.oneQuestionAtATime) {
                         const isLastQuestion = (activeQuizRuntimeState.currentIndex + 1) >= totalQCount;
                         html += `
-                            <p style="font-size:11px; color:#9b2226; font-weight:bold; margin-top:10px;">⚠ One-way mode: Once you advance, you cannot return to previous questions.</p>
+                            <p style="font-size:10px; color:#9b2226; font-weight:bold; margin-top:10px;">⚠ One-way mode: Once you advance, you cannot return to previous questions.</p>
                             <button type="submit" style="background:${isLastQuestion ? '#64B500' : '#D1A954'}; color:#111111; border:none; padding:10px 20px; font-weight:bold; border-radius:4px; margin-top:8px; cursor:pointer; width:100%;">
-                                ${isLastQuestion ? 'Lock & Submit Examination' : 'Lock Answer & Next Question ➔'}
+                                ${isLastQuestion ? 'Submit Examination' : 'Next Question ➔'}
                             </button>
                         `;
                     } else {
